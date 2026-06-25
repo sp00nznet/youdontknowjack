@@ -31,7 +31,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Binary | `EBOOT.elf` — 5.2 MB, ELF64 big-endian PowerPC64, `ET_EXEC` |
 | Entry | OPD `0x5309e8` → code `0x5ecf4`, TOC `0x544370` |
 | Functions detected | **5,859** (6,630 OPD descriptors) |
-| Functions lifted to C | 0 — *next milestone* |
+| Functions lifted to C | **17,763** (5,859 base + 1,633 jump-table cases + 10,271 mid-function tail-entry wrappers) |
+| Generated source | 131 chunks, ~5.2 GB *(unoptimized — see note)* |
+| Unique call targets | 6,304 |
 | Imported libraries | **23** |
 | Imported functions | **265** |
 | Module coverage | **19 / 23** libraries already implemented in ps3recomp |
@@ -48,13 +50,15 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Function boundary detection | ✅ **Complete** | 5,859 functions seeded from the `.opd` descriptor table |
 | Import / NID extraction | ✅ **Complete** | 265 NIDs across 23 libraries catalogued |
 | Module coverage triage | ✅ **Complete** | 19/23 ready; 4 to stub (see below) |
-| PPU lifting (→ C/C++) | ⏳ **Next** | `ppu_lifter.py` over all 5,859 functions |
-| Build & link vs ps3recomp | ⬜ Not started | clang-cl boot harness |
+| PPU lifting (→ C/C++) | ✅ **Complete** | 17,763 functions → 131 C++ chunks via `ppu_lifter.py` |
+| Build & link vs ps3recomp | ⏳ **Next** | clang-cl boot harness (gunstar-style CMake) |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
 | Audio (FMOD `.fsb` → cellAudio) | ⬜ Not started | the "audio" half of the game |
 | First playable question | ⬜ Not started | 🎯 the real goal |
+
+> **⚠️ Lifting note (size).** The first full lift produced ~5.2 GB of C++ (≈600k lines/chunk) — far heavier than the function count warrants (flОw's 100k+ functions were ~156 MB). This is the lifter's known *mid-function tail-entry re-emission* explosion: a branch into the middle of a large function re-emits that function's body from the entry point to its end, and YDKJ has some very large detected function ranges. 10,271 such wrappers were generated. Next step before building is tightening function-boundary detection (clip oversized ranges) and/or capping tail-entry re-emission so the source is compiler-friendly.
 
 ---
 
