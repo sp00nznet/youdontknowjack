@@ -28,3 +28,25 @@ static-init then walks an uninitialized object table at the heap base
 TODO: bridge NID 0x24A1EA07 (and the sibling sys_ppu_thread_* NIDs the game
 imports) to the runtime's real host-thread implementation, the way flOw's
 hle_modules.cpp wires its threading. Then re-examine the 0x40000030 sweep.
+
+---------------------------------------------------------------------------
+v3 (sys_ppu_thread_create + thread entry trampoline wired):
+  NID 0x24A1EA07 now dispatches to the real lv2 thread create; the CRT spawns
+  its "AsyncLoad" worker (entry OPD 0x530E38) and the new generic thread entry
+  trampoline (ppu_loader.cpp: resolve OPD -> {code,toc}, share main TLS,
+  dispatch) actually runs it -- the "[THREAD] ... is NULL no-op" is gone.
+
+    [SYS] sys_ppu_thread_create name="AsyncLoad" entry=0x00530E38 prio=1002
+    [THREAD 1] host thread started, entry=0x00530E38
+
+NEXT BLOCKER (main thread, static init):
+  Before/independent of the thread, the main thread's C++ static-constructor
+  dispatch is broken: it makes indirect calls to small ints (0x2, 0x3E8=1000)
+  and sweeps a heap table (0x40000120..0x40000030, 8-byte stride) calling each
+  as a function -> all unresolved -> then a host segfault. These are VIRTUAL
+  calls through objects whose vtables were never initialised, because the
+  global-constructor (__init_array) walk produced heap addresses instead of
+  constructor OPD pointers. Suspect the CRT table-copy loops in func_0005EDFC
+  (loc_0005EE60 / loc_0005EEA4) or an r2(TOC)-relative base the lifter mishandles.
+  TODO: trace which guest store fills 0x40000030.. and what the init_array
+  source pointer should be; this is the deep-CRT static-init bring-up step.
