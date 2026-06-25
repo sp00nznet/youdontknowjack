@@ -62,8 +62,11 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | `bcctrl` mistranslation | ✅ **Fixed** | 5,596 vtable calls were jumping to a garbage address; now dispatch via `ps3_indirect_call` |
 | Thread / main stacks | ✅ **Fixed** | VM grown to cover the `0xD0000000` stack region; 256 MB host stacks |
 | Native VA mapping | 🧪 **Evaluated → reverted** | guest==host (`vm_base=0`) is elegant but Windows can't map guest page 0 or `0x60000000–0xD0000000` (the game uses both); flat calloc VM kept |
-| Display / GCM init | ✅ **Wired** | `cellVideoOut*` registered + `GetResolutionAvailability` added; `_cellGcmInitBody` bridged to `cellGcmSetupContext`; `cellGcmGetTiledPitchSize` made vm-aware |
-| HLE pointer bridge | ⏳ **Ongoing** | convert each pointer-out HLE func the game calls to `vm_write*` (byte-swap + translate). `cellGameBootCheck`, GCM funcs done; the GCM/sysmodule init path is next |
+| Display / GCM init | ✅ **Wired** | `cellVideoOut*`, `_cellGcmInitBody`, GCM offset/config funcs |
+| HLE pointer bridge | ✅ **Init path done** | ~26 pointer-out funcs across cellGame/VideoOut/NetCtl/Gcm/Audio/Spurs translated to `vm_write*` |
+| **Boots & runs game code** | 🎉 **Reached** | clears the full init sequence — **registers RSX vblank/flip handlers, opens audio, inits SPURS, and runs the game's own FMOD engine.** No crash (runs continuously) |
+| Audio (real PCM) | ⏳ Next | WASAPI/FMOD want real guest buffers; cellAudio hands out placeholders |
+| RSX rendering | ⏳ Next | GCM handlers registered; needs a D3D12/Vulkan backend |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |

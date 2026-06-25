@@ -140,3 +140,29 @@ writes a guest pointer (0x0FEFFB78, on the stack) as a host pointer. Same class
 as cellGameBootCheck: convert each pointer-out HLE func the game calls to
 vm_write* (the flОw hle_modules.cpp pattern). The new SEH+backtrace handler in
 boot_main.cpp makes each one a quick symbolize-and-fix.
+
+===========================================================================
+*** MILESTONE: BOOTS THROUGH INIT AND RUNS GAME-ENGINE CODE (no crash) ***
+===========================================================================
+After converting the pointer-out HLE functions the boot calls (cellGame,
+cellVideoOut, cellNetCtl, cellGcmSys, cellAudio, cellSpurs) to translate guest
+addresses via vm_base / vm_write*, the recompiled EBOOT clears its ENTIRE init
+sequence and executes the game's own engine:
+
+  [cellGcmSys] SetVBlankHandler / SetFlipHandler / SetUserHandler   (RSX callbacks)
+  [cellAudio]  Init(); PortOpen(nChannel=8, nBlock=8); mixing thread
+  [cellSpurs]  InitializeWithAttribute(...)
+  FMOD error! (37) ...   <-- the GAME's own FMOD audio library, running
+
+It runs continuously (90s timeout, exit 124 -- not a fault). The recomp is no
+longer crashing; it's executing You Don't Know Jack's engine.
+
+Open items (not crashes):
+  * unresolved indirect call -> 0x002965B4: a mid-function entry inside
+    func_00295A40 reached only via a runtime-computed pointer (the static lifter
+    can't see it); happens once, game continues. Add it as a lifted entry.
+  * real audio: WASAPI init fails (0x88890008) and the title's FMOD wants real
+    PCM/guest buffers; cellAudio hands out host-pointer buffers (placeholder).
+  * RSX rendering: GCM handlers are registered but no D3D12/Vulkan backend yet.
+  * the remaining pointer-out HLE funcs across other libs still need the same
+    vm_write* treatment as the game exercises them.
