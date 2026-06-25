@@ -26,6 +26,8 @@ set(PS3RECOMP_RUNTIME_LIB "${PS3RECOMP_DIR}/build/Release/ps3recomp_runtime.lib"
 # Lifted game code (chunked .cpp) + the generated HLE NID table.
 file(GLOB RECOMP_SOURCES "src/recomp/*.c" "src/recomp/*.cpp")
 file(GLOB GEN_SOURCES    "src/gen/*.cpp")
+# Lifted SPU images (one spu_recomp.c per embedded SPU ELF) + workload registry.
+file(GLOB SPU_SOURCES    "src/spu_gen/*/spu_recomp.c" "src/spu_gen/ydkj_spu_workloads.c")
 
 add_executable(ydkj_boot
     "${PS3RECOMP_DIR}/runtime/ppu/tests/boot_main.cpp"   # generic boot harness
@@ -35,6 +37,7 @@ add_executable(ydkj_boot
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_fs.cpp"            # cellFs VFS
     ${GEN_SOURCES}
     ${RECOMP_SOURCES}
+    ${SPU_SOURCES}
 )
 
 # Every libs/* subdir (the generated NID table #includes each module's header).
@@ -44,6 +47,7 @@ target_include_directories(ydkj_boot PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/compat"            # <dirent.h>/<unistd.h> Win shims
     "${CMAKE_CURRENT_SOURCE_DIR}/src/recomp"            # ppu_recomp.h
     "${PS3RECOMP_DIR}/runtime/ppu"
+    "${PS3RECOMP_DIR}/runtime/spu"
     "${PS3RECOMP_DIR}/include"
     ${LIB_INC_DIRS}
 )

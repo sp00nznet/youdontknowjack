@@ -223,3 +223,39 @@ NEXT: the real fix is SPU EXECUTION -- lift the title's SPU binaries
 cellSpurs/sys_spu_thread to dispatch them so the SPURS kernel + workloads run
 and produce the events the PPU side waits on. This is a major subsystem (the
 hardest part of any PS3 port) and the clear next milestone.
+
+===========================================================================
+*** SPU EXECUTION PIPELINE BUILT (all 22 images lift + compile + link) ***
+===========================================================================
+Stood up the full static-SPU-recompilation path for this title:
+
+ * Lifter gaps closed: added 9 opcodes the game's SPU code uses but the lifter
+   lacked -- avgb, gbb, bg (byte avg / gather-bits / borrow-generate), the
+   double-precision set dfa/dfs/dfm/fesd/frds, and fscrwr (no-op). With these,
+   ALL 22 embedded SPU images lift with only .word data-padding remaining
+   (every real instruction translates). spu_0021 (159 KB, 1339 fns, 224x avgb)
+   is the media/codec workload; spu_0000 (78 KB) the SPURS kernel.
+
+ * Lifted all 22 images -> src/spu_gen/ (6.4 MB C, ~4,400 functions), each with
+   a unique symbol prefix. Generated ydkj_spu_workloads.c: registers every image
+   by FNV-1a-64 fingerprint -> lifted entry (e_entry), under a distinct image id
+   so spu_indirect_branch resolves per-image; a startup constructor auto-loads
+   the registry. Wired into CMake -- all 22 compile and LINK into ydkj_boot.
+
+ * Dispatch: cellSpursCreateTask now translates the guest ELF pointer (vm_base)
+   and calls spu_workload_dispatch() -> fingerprint -> lifted entry -> load into
+   a fresh 256 KB local store -> run with the task arg in r3. SPU DMA targets the
+   shared vm_base, so an SPU job's PUT lands in guest memory the PPU reads.
+   Registry/dispatch thread an image_id end-to-end (spu_run_lifted_job_img).
+
+ * Bug fixed en route: cellAudioPortClose/Quit called host free() on the audio
+   buffer, which now lives in the guest vm_base arena (bump-allocated, not
+   malloc) -- that corrupted the host heap and abort()ed (the nondeterministic
+   exit-3). Fixed: drop the reference, never free() guest-arena pointers.
+
+CURRENT GATE (still ahead of SPU dispatch): the AsyncLoad worker inits GCM +
+audio + SPURS, then tears its first-pass audio down (PortStop/Close/Quit) and
+hangs right after cellAudioQuit (watchdog breadcrumb) -- a boot-flow blocker
+that sits BEFORE the game adds any SPURS workload/task, so the SPU pipeline is
+ready but not yet exercised. Next: trace past cellAudioQuit to where the worker
+re-inits / waits, so it proceeds to cellSpursCreateTask and the SPU jobs run.

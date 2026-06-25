@@ -67,7 +67,8 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | **Boots & runs game code** | 🎉 **Reached** | clears the full init sequence — **registers RSX vblank/flip handlers, opens audio, inits SPURS, and runs the game's own FMOD engine.** No crash (runs continuously) |
 | Audio engine (FMOD) | ✅ **Inits** | guest-memory audio buffers → the game's **FMOD engine initializes cleanly** (no more error 37) |
 | RSX vblank driver | ✅ **Wired** | `ppu_guest_call` + 60 Hz vblank-ticker thread; D3D12/null backends present, ready once the loop runs |
-| **Render-loop gate** | ⏳ **SPU** | drilled to root: main thread blocks in `sys_event_queue_receive(q=1)` while the `AsyncLoad` worker (after GCM init) waits on **SPURS work that never runs**. **Groundwork done:** 22 embedded SPU ELF images extracted; runtime already has an SPU exec pipeline + a SPURS-completion shim. Real fix = **lift & run the SPU binaries** (the next frontier) |
+| **SPU recompilation** | 🎉 **Built** | all **22 embedded SPU images lift + compile + link** into the boot exe (~4,400 fns, 6.4 MB C). Added 9 missing SPU opcodes to the lifter; registered each image by fingerprint → lifted entry; `cellSpursCreateTask` dispatches to it (DMA shares `vm_base`, so SPU writes reach the PPU). Ready to run once boot reaches the first task. |
+| **Render-loop gate** | ⏳ **boot flow** | `AsyncLoad` worker inits GCM + audio + SPURS, tears down its first-pass audio, and hangs just after `cellAudioQuit` — a boot-flow blocker *before* the first SPURS task. Fixed a heap-corruption `abort()` (audio buffer `free()` on guest-arena memory) to get here. |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |

@@ -37,3 +37,6 @@ stdout*.txt
 Thumbs.db
 .DS_Store
 spu/
+
+# --- Lifted SPU images (derived; regenerate via extract + spu_lifter + gen_spu_workloads) ---
+src/spu_gen/
