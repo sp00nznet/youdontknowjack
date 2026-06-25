@@ -259,3 +259,30 @@ hangs right after cellAudioQuit (watchdog breadcrumb) -- a boot-flow blocker
 that sits BEFORE the game adds any SPURS workload/task, so the SPU pipeline is
 ready but not yet exercised. Next: trace past cellAudioQuit to where the worker
 re-inits / waits, so it proceeds to cellSpursCreateTask and the SPU jobs run.
+
+===========================================================================
+*** Two PPC/x86 lifter bugs fixed -> boot reaches thread-pool spin-up ***
+===========================================================================
+Watchdog thread-RIP snapshots pinned the post-cellAudioQuit hang to an exact
+lifted function, which exposed two real lifter correctness bugs:
+
+ 1. PPC rA=0 addressing. In indexed/reservation addressing an rA field of 0
+    means the LITERAL 0, not GPR r0. func_000DE9E0 is the canonical atomic-incr
+    loop (lwarx rD,0,r3; add r0,...; stwcx. rS,0,r3) -- it reuses r0 as scratch,
+    so emitting ctx->gpr[0] made the lwarx and stwcx. EAs diverge, the
+    reservation never matched, and the AsyncLoad worker spun forever. Fixed in
+    lwarx/stwcx./ldarx/stdcx. and all non-update X-form memory ops (byte-reverse,
+    dcbz, AltiVec) via a shared _xea() helper.
+
+ 2. PPC non-trapping divide. divw/divwu/divd don't trap on /0 or INT_MIN/-1
+    (undefined result, no fault); the host C divide raised SIGFPE (0xC0000094)
+    in func_00263194. Guarded to yield 0, matching hardware.
+
+With both fixed the worker runs FAR deeper: past cellAudioQuit, past the divide,
+and the title now spawns its WORKER-THREAD POOL (6+ threads) -- previously only
+main + AsyncLoad existed. New frontier: a couple of those workers sit in
+func_00063428 and the AsyncLoad worker touches a NULL-relative address
+(0xFFFFFExx -> vm_oob); the synthetic GCM vblank/flip handler OPDs
+(0x00530D70/78) also resolve to non-4-aligned garbage code pointers and want
+looking at. The SPU dispatch pipeline (built, 22 images) is still downstream of
+this, waiting for the boot to reach the first cellSpursCreateTask/AddWorkload.
