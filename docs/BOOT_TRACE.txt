@@ -81,3 +81,32 @@ CURRENT BLOCKER (the "HLE bridge" phase):
   Systemic alternative worth evaluating: map guest memory at its NATIVE host VA
   (VirtualAlloc at the guest addresses, vm_base = 0) so guest==host addresses
   and NO per-function translation is ever needed -- eliminates the whole class.
+
+---------------------------------------------------------------------------
+v5 (NATIVE VA MAPPING):
+Reserve the guest address space at its OWN host VAs (boot_main.cpp: 3 regions
+for image/TLS/stack, heap, thread-stacks) and set vm_base = 0, so a guest
+address IS its host address. A vectored handler commits reserved pages on first
+touch. Result: guest==host, so lifted code (vm_base+a) AND HLE C code (raw
+*guest_ptr) reach the same bytes -- the ENTIRE "HLE deref'd a guest pointer as
+a host pointer" crash class is gone. (Caveats: vm.h's !vm_base "ready" checks
+became VM_READY=ppu_vm_size; vm_oob now also guards a<0x10000 so lifted null
+derefs read 0 instead of faulting the unmapped low pages.)
+
+Boot now runs MUCH further:
+  [sys_memory] allocate -> 0x40000000        (170 MB heap)
+  [SYS] sys_ppu_thread_create "AsyncLoad"
+  [hle] cellVideoOutGetResolution / Configure / GetState ...   (unresolved -> 0)
+  [sys_memory] allocate -> 0x4AA00000        (second heap, 6 MB)
+  [hle] _cellGcmInitBody (cellGcmSys)         (unresolved -> 0)
+  -> write fault at 0x2  (null-object deref, downstream of an unresolved NID)
+
+NEXT (graphics/display init): the game is in cellVideoOut + cellGcm bring-up.
+Unresolved NIDs returning 0 hand back null handles/contexts; the game then
+derefs them -> the 0x2 write. Register/implement:
+  cellVideoOutGetNumberOfDevice/GetResolution/GetResolutionAvailability/
+  Configure/GetState  -- return 1 device, 720p/1080p, ok state
+  _cellGcmInitBody (0x15BAE46B) -- set up the GCM control/context the game uses
+  sys_net_initialize_network_ex -- ok/stub
+These are pointer-out HLE funcs: with native VA they can write via raw pointers
+to the correct address, but must byte-swap (use vm_write*) for correctness.
