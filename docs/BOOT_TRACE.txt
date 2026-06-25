@@ -1,0 +1,27 @@
+=== You Don't Know Jack (BLUS30569) — first boot trace ===
+ydkj_boot.exe input/EBOOT.elf  (ps3recomp generic boot harness)
+
+--- progress before the wall ---
+[ppu] PT_TLS template vaddr=0x00542510 filesz=0x0 memsz=0x168
+[ppu] loaded 2 PT_LOAD segments, entry OPD 0x005309E8
+[ppu] TLS image 0x10F00000 (r13/TP=0x10F07000)
+[ppu] run: code 0x0005ECF4, toc 0x00544370, sp 0x0FF00000
+[sys_memory] allocate(size=0xAA00000, flags=0x400)
+[sys_memory] allocate -> 0x40000000
+
+--- the wall: unresolved indirect call (uninitialized function-pointer table) ---
+[ppu] unresolved indirect call -> 0x39800000
+      host_ra=00007FF77BF8257B (addr2line this against boot_full.exe)
+      lr=0x00000000 r2=0x658C0053 r3=0x00000000 r11=0x005439BC r12=0x00470870
+      r0 : 39800000 0FEFFEF0 658C0053 00000000 00000000 00000000 00000000 00000000
+      r8 : 00000000 00000000 00000000 005439BC 00470870 10F07000 00000000 00000000
+      r16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+      r24: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+
+--- repeated unimplemented syscall + OOB, then abort ---
+lv2_syscall 988 (stub) x N ; [vm] OOB access 0xFFFFFFFE/0xFFFFFFFA
+[ppu] FATAL: stuck calling 0x39800000 (2000 times) -- aborting run
+
+0x39800000 == the bytes of 'li r12,0' -> bctrl through a NULL/garbage OPD.
+Same deep-CRT-init indirect-dispatch wall flОw/Simpsons/Gunstar solved with
+an OPD/null-function-pointer watchdog. r12=0x470870 is the real intended target.

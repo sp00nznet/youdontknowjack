@@ -54,7 +54,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Lifter `.rodata` fix | ✅ **Complete** | new `--code-end` bound; killed a 5.2 GB → 656 MB source explosion |
 | HLE NID table | ✅ **Complete** | 357 handlers / 18 modules (`src/gen/ppu_hle_nids.cpp`) |
 | Boot harness (CMake) | ✅ **Complete** | clang-cl, links prebuilt `ps3recomp_runtime.lib` |
-| Build & link | ⏳ **Next** | compile the 19 chunks + harness → `ydkj_boot.exe` |
+| Build & link | ✅ **Complete** | all 26 objects compile; **`ydkj_boot.exe` (64 MB) links** (1 fall-through stub) |
+| First boot | ✅ **Runs real code** | entry dispatched, TLS up, **170 MB heap allocated** — hits the CRT indirect-dispatch wall |
+| CRT indirect dispatch | ⏳ **Next** | uninitialized function-pointer table → `bctrl` to `0x39800000`; needs the OPD/null-fp watchdog |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
@@ -83,6 +85,34 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 > (the same class flОw carries) — implemented as the boot progresses, not bloat.
 
 ---
+
+## First Boot
+
+`ydkj_boot.exe` loads the decrypted EBOOT, registers the 14,380 lifted functions
+and 357 HLE handlers, and dispatches the real entry point. It gets impressively far:
+
+```
+[ppu] loaded 2 PT_LOAD segments, entry OPD 0x005309E8
+[ppu] TLS image 0x10F00000 (r13/TP=0x10F07000)
+[ppu] run: code 0x0005ECF4, toc 0x00544370, sp 0x0FF00000
+[sys_memory] allocate(size=0xAA00000, flags=0x400)   ← game requests its 170 MB main heap
+[sys_memory] allocate -> 0x40000000                  ← granted
+[ppu] unresolved indirect call -> 0x39800000  (r12=0x00470870, the real target)
+[ppu] lv2_syscall 988 (stub) × N
+[ppu] FATAL: stuck calling 0x39800000 (2000 times) -- aborting run
+```
+
+So the recompiled code **runs**: TLS init, entry dispatch, and a successful 170 MB
+heap allocation through the real `sys_memory` path. It then stalls on an **indirect
+call through an uninitialized function-pointer table** — `0x39800000` is literally
+the byte pattern of `li r12, 0`, i.e. a `bctrl` through a NULL/garbage OPD
+descriptor during deep CRT init. This is the same wall flОw, Simpsons, and Gunstar
+hit, and they solved it with an OPD/null-function-pointer watchdog. The intended
+target (`r12 = 0x470870`) is real lifted code, so this is a dispatch-wiring task,
+not a recompilation failure. Full trace: [`docs/BOOT_TRACE.txt`](docs/BOOT_TRACE.txt).
+
+The other recurring guest there is `lv2_syscall 988` — an unimplemented LV2 call the
+CRT spins on; identifying and stubbing it is part of clearing this wall.
 
 ## Module Coverage
 
