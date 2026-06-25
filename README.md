@@ -31,9 +31,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Binary | `EBOOT.elf` — 5.2 MB, ELF64 big-endian PowerPC64, `ET_EXEC` |
 | Entry | OPD `0x5309e8` → code `0x5ecf4`, TOC `0x544370` |
 | Functions detected | **5,859** (6,630 OPD descriptors) |
-| Functions lifted to C | **17,763** (5,859 base + 1,633 jump-table cases + 10,271 mid-function tail-entry wrappers) |
-| Generated source | 131 chunks, ~5.2 GB *(unoptimized — see note)* |
-| Unique call targets | 6,304 |
+| Functions lifted to C | **14,380** (5,859 base + 1,467 jump-table cases + 7,054 mid-function tail-entry wrappers) |
+| Generated source | **19 chunks, 656 MB** *(was 5.2 GB before the .rodata fix — see note)* |
+| Unique call targets | 6,104 |
 | Imported libraries | **23** |
 | Imported functions | **265** |
 | Module coverage | **19 / 23** libraries already implemented in ps3recomp |
@@ -50,15 +50,37 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Function boundary detection | ✅ **Complete** | 5,859 functions seeded from the `.opd` descriptor table |
 | Import / NID extraction | ✅ **Complete** | 265 NIDs across 23 libraries catalogued |
 | Module coverage triage | ✅ **Complete** | 19/23 ready; 4 to stub (see below) |
-| PPU lifting (→ C/C++) | ✅ **Complete** | 17,763 functions → 131 C++ chunks via `ppu_lifter.py` |
-| Build & link vs ps3recomp | ⏳ **Next** | clang-cl boot harness (gunstar-style CMake) |
+| PPU lifting (→ C/C++) | ✅ **Complete** | 14,380 functions → 19 C++ chunks (656 MB) via `ppu_lifter.py` |
+| Lifter `.rodata` fix | ✅ **Complete** | new `--code-end` bound; killed a 5.2 GB → 656 MB source explosion |
+| HLE NID table | ✅ **Complete** | 357 handlers / 18 modules (`src/gen/ppu_hle_nids.cpp`) |
+| Boot harness (CMake) | ✅ **Complete** | clang-cl, links prebuilt `ps3recomp_runtime.lib` |
+| Build & link | ⏳ **Next** | compile the 19 chunks + harness → `ydkj_boot.exe` |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
 | Audio (FMOD `.fsb` → cellAudio) | ⬜ Not started | the "audio" half of the game |
 | First playable question | ⬜ Not started | 🎯 the real goal |
 
-> **⚠️ Lifting note (size).** The first full lift produced ~5.2 GB of C++ (≈600k lines/chunk) — far heavier than the function count warrants (flОw's 100k+ functions were ~156 MB). This is the lifter's known *mid-function tail-entry re-emission* explosion: a branch into the middle of a large function re-emits that function's body from the entry point to its end, and YDKJ has some very large detected function ranges. 10,271 such wrappers were generated. Next step before building is tightening function-boundary detection (clip oversized ranges) and/or capping tail-entry re-emission so the source is compiler-friendly.
+> **🔬 War story: the 5.2 GB lift, and the one-line ISA detail that caused it.**
+> The first full lift produced **5.2 GB** of C++ (≈600k lines/chunk) — absurd for a
+> 5 MB binary (flОw's *100k+* functions were ~156 MB). The hunt:
+>
+> 1. Found one mis-detected 634 KB "function" that ran to the end of the code
+>    segment — but clipping it changed *nothing*.
+> 2. Found **1,617 garbage functions at `.rodata` addresses** (`func_005xxxxx`),
+>    each lifting tens of thousands of `/* TODO: .word */` junk "instructions."
+> 3. Root cause: PS3 EBOOTs pack **`.rodata` into the same R-X segment as `.text`**.
+>    A `bc`-form (conditional branch) *data word* whose 16-bit immediate happens to
+>    point into that rodata was promoted by the lifter to a `func_X` jump target;
+>    the mid-function pass then re-emitted it to the next boundary — a quadratic
+>    blowup seeded by **random data that merely decodes as a branch**.
+>
+> **Fix:** a new opt-in `--code-end` bound in `ppu_lifter.py`. The ELF section
+> headers say executable code ends at `0x4874E0`; any branch/call/jump-table
+> target at or beyond that is treated as data, not a function. Result:
+> **5.2 GB → 656 MB**, 131 → 19 chunks, 0 bogus rodata functions. The remaining
+> `.word`/`vmx` TODOs are genuine undecoded AltiVec/VMX SIMD in *real* functions
+> (the same class flОw carries) — implemented as the boot progresses, not bloat.
 
 ---
 
@@ -113,15 +135,20 @@ EBOOT.BIN  ──ps3sce──▶  EBOOT.elf  ──ppu_loader──▶  meta/*.j
 
 ```
 project/
-├── config.toml          # module map + loader constants for this title
+├── config.toml          # module map + loader/lift constants for this title
+├── CMakeLists.txt       # clang-cl boot harness (links ps3recomp_runtime.lib)
 ├── meta/                # analysis output (committed — pure metadata, no game code)
-│   ├── EBOOT.functions.json   # 5,859 function boundaries {start,end,toc,opd}
+│   ├── EBOOT.functions.json   # 5,859 function boundaries (rodata-clipped)
+│   ├── EBOOT.functions.raw.json # raw detector output, for provenance
 │   ├── EBOOT.imports.json     # 265 NIDs × 23 libraries
 │   ├── EBOOT.image.json       # segment manifest
 │   ├── EBOOT.loader.json      # entry / OPD / TOC
 │   └── elf_analysis.json      # ELF headers / segments / sections
-├── input/               # YOUR decrypted EBOOT goes here (gitignored)
-└── src/                 # lifted code + harness (generated; gitignored)
+├── src/
+│   ├── gen/             # generated HLE NID table (committed)
+│   ├── compat/          # Win32 <dirent.h>/<unistd.h> shims (committed)
+│   └── recomp/          # 656 MB of lifted PPU→C (generated; gitignored)
+└── input/               # YOUR decrypted EBOOT goes here (gitignored)
 ```
 
 ## Reproducing the analysis
@@ -135,6 +162,21 @@ ps3sce -d input/EBOOT.BIN input/EBOOT.elf
 
 # 3. Load: image + OPD/TOC + function table + imports
 python <ps3recomp>/tools/ppu_loader.py input/EBOOT.elf --output meta/
+
+# 4. Lift PPU -> C, bounding targets to .text so .rodata doesn't explode
+python <ps3recomp>/tools/ppu_lifter.py input/EBOOT.elf \
+    --functions meta/EBOOT.functions.json --output src/recomp \
+    --header-name ppu_recomp.h --source-name ppu_recomp \
+    --jobs 1 --code-end 0x4874E0
+
+# 5. Generate the HLE NID dispatch table for the imported libraries
+python <ps3recomp>/tools/gen_hle_nids.py cellAudio cellGcmSys ... \
+    --out src/gen/ppu_hle_nids.cpp
+
+# 6. Build the boot harness (clang-cl, links the prebuilt runtime lib)
+cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl
+cmake --build build
+./build/ydkj_boot input/EBOOT.elf
 ```
 
 ---

@@ -14,11 +14,12 @@ build/
 out/
 cmake-build-*/
 
-# --- Generated recompiled code (regenerate from your own ELF) ---
+# --- Generated recompiled code (656 MB; regenerate from your own ELF) ---
 src/recomp/*.c
 src/recomp/*.cpp
 src/recomp/*.h
-src/gen/*.cpp
+# NOTE: src/gen/ (HLE NID table) and src/compat/ (Win32 shims) ARE committed —
+# they're small and make the harness build-ready without re-running the tools.
 
 # --- Logs / scratch ---
 *.log

@@ -57,3 +57,12 @@ cellSysutilAvc2 = "stub" # 10 — audio/video (voice) chat (TODO)
 log_hle_calls         = true
 log_missing_nids      = true
 break_on_unimplemented = true
+
+[lift]
+# Last .text section ends here (sections after are .rodata in the same R-X
+# PT_LOAD). Pass to ppu_lifter.py --code-end so branch/jump-table targets in
+# .rodata aren't mis-promoted into bogus functions (5.2GB -> 656MB of source).
+code_end = 0x4874E0
+# The 0x482200 function originally ran to the segment end (0x51CF68, 634KB of
+# rodata); clipped to its real blr at 0x483108 in EBOOT.functions.json.
+# Raw boundary detector output preserved in EBOOT.functions.raw.json.
