@@ -1,0 +1,59 @@
+# ps3recomp configuration — You Don't Know Jack (BLUS30569)
+#
+# Single self-contained EBOOT (no separate .sprx modules). ET_EXEC, so the
+# image loads verbatim at its fixed vaddr — no relocations.
+
+[input]
+elf_path  = "input/EBOOT.elf"
+title     = "You Don't Know Jack"
+title_id  = "BLUS30569"
+
+[loader]
+# from meta/EBOOT.loader.json
+entry_opd  = 0x5309e8
+entry_code = 0x5ecf4
+entry_toc  = 0x544370
+opd_base   = 0x52f440
+opd_count  = 6630
+
+# Modules the game imports (265 NIDs / 23 libraries). Status reflects
+# ps3recomp's HLE coverage as of project start. "hle" = real host backend,
+# "stub" = return CELL_OK / no-op until proven necessary.
+[modules]
+# --- Core runtime / system (all Complete in ps3recomp) ---
+sysPrxForUser  = "hle"   # 26 — threads, lwmutex/lwcond, heap, libc
+sys_fs         = "hle"   # 18 — file I/O with host path mapping
+cellSysmodule  = "hle"   #  3 — module load/unload tracking
+cellSysutil    = "hle"   # 17 — callbacks, system params, BGM
+cellGame       = "hle"   #  5 — boot check, content dirs
+cellRtc        = "hle"   #  2 — real-time clock
+cellSaveData   = "hle"   #  1 — save/load
+cellUserInfo   = "hle"   #  2 — default user
+
+# --- Graphics / audio ---
+cellGcmSys     = "hle"   # 22 — RSX command buffer / state (null backend first)
+cellAudio      = "hle"   # 10 — WASAPI/SDL2 mixing
+
+# --- SPU task framework ---
+cellSpurs      = "hle"   # 15 — management only (no real SPU exec yet)
+cellSync       = "hle"   #  3 — sync primitives
+
+# --- Networking (Complete; only needed for online play) ---
+sys_net        = "hle"   # 14 — BSD sockets
+cellNetCtl     = "hle"   #  5 — network control
+cellHttp       = "hle"   #  6 — HTTP/1.1
+cellSsl        = "hle"   #  3 — SSL/TLS
+cellRudp       = "hle"   # 17 — reliable UDP (returns NOT_CONNECTED)
+sys_io         = "stub"  #  6 — low-level pad I/O syscalls
+
+# --- PSN / social (NOT yet implemented — stub for offline single-player) ---
+sceNp          = "hle"   # 27 — NP core (Complete)
+sceNpTrophy    = "hle"   #  9 — trophies (Complete)
+sceNp2         = "stub"  # 28 — NP2 matching/rooms (TODO)
+sceNpCommerce2 = "stub"  # 16 — PSN store / DLC commerce (TODO)
+cellSysutilAvc2 = "stub" # 10 — audio/video (voice) chat (TODO)
+
+[debug]
+log_hle_calls         = true
+log_missing_nids      = true
+break_on_unimplemented = true
