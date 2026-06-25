@@ -1,27 +1,30 @@
-=== You Don't Know Jack (BLUS30569) — first boot trace ===
-ydkj_boot.exe input/EBOOT.elf  (ps3recomp generic boot harness)
+=== You Don't Know Jack (BLUS30569) — boot trace ===
+ydkj_boot.exe input/EBOOT.elf  (ps3recomp generic boot harness, clang-cl)
 
---- progress before the wall ---
-[ppu] PT_TLS template vaddr=0x00542510 filesz=0x0 memsz=0x168
-[ppu] loaded 2 PT_LOAD segments, entry OPD 0x005309E8
-[ppu] TLS image 0x10F00000 (r13/TP=0x10F07000)
-[ppu] run: code 0x0005ECF4, toc 0x00544370, sp 0x0FF00000
-[sys_memory] allocate(size=0xAA00000, flags=0x400)
-[sys_memory] allocate -> 0x40000000
+PROGRESS TIMELINE
+-----------------
+v1 (literal import stubs):
+  entry dispatched, TLS, 170MB heap alloc -> FATAL stuck calling 0x39800000
+  Root cause: the lifter emitted the LITERAL .lib.stub trampolines, which deref
+  an import pointer table the recomp never fills -> bctrl into the bytes of
+  'li r12,0' (0x39800000). This is the wall gunstar is also stuck on.
 
---- the wall: unresolved indirect call (uninitialized function-pointer table) ---
-[ppu] unresolved indirect call -> 0x39800000
-      host_ra=00007FF77BF8257B (addr2line this against boot_full.exe)
-      lr=0x00000000 r2=0x658C0053 r3=0x00000000 r11=0x005439BC r12=0x00470870
-      r0 : 39800000 0FEFFEF0 658C0053 00000000 00000000 00000000 00000000 00000000
-      r8 : 00000000 00000000 00000000 005439BC 00470870 10F07000 00000000 00000000
-      r16: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
-      r24: 00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000
+v2 (lifter --hle-stubs : each of the 265 import stubs -> ps3_hle_call(nid)):
+  PAST the 0x39800000 wall. CRT now runs much deeper:
+    [crt] sys_initialize_tls: block 0x0E000000, r13=0x0E007000
+    [sys_memory] allocate(0xAA00000) -> 0x40000000        (170MB heap)
+    [hle] unresolved NID 0x24A1EA07                        <-- next blocker
+    [ppu] unresolved indirect call -> 0x40000030 .. 0x40000120  (vtable sweep)
+    -> segfault during static-constructor / vtable init
 
---- repeated unimplemented syscall + OOB, then abort ---
-lv2_syscall 988 (stub) x N ; [vm] OOB access 0xFFFFFFFE/0xFFFFFFFA
-[ppu] FATAL: stuck calling 0x39800000 (2000 times) -- aborting run
+NEXT BLOCKER
+------------
+NID 0x24A1EA07 = sys_ppu_thread_create (imported via sysPrxForUser).
+ps3recomp implements thread creation as a SYSCALL (sys_ppu_thread.c) but never
+registers it as a sysPrxForUser NID handler -> unresolved. The CRT's thread /
+static-init then walks an uninitialized object table at the heap base
+(0x40000030+) and calls heap addresses as function pointers -> segfault.
 
-0x39800000 == the bytes of 'li r12,0' -> bctrl through a NULL/garbage OPD.
-Same deep-CRT-init indirect-dispatch wall flОw/Simpsons/Gunstar solved with
-an OPD/null-function-pointer watchdog. r12=0x470870 is the real intended target.
+TODO: bridge NID 0x24A1EA07 (and the sibling sys_ppu_thread_* NIDs the game
+imports) to the runtime's real host-thread implementation, the way flOw's
+hle_modules.cpp wires its threading. Then re-examine the 0x40000030 sweep.

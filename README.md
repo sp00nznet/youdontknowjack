@@ -55,8 +55,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | HLE NID table | ✅ **Complete** | 357 handlers / 18 modules (`src/gen/ppu_hle_nids.cpp`) |
 | Boot harness (CMake) | ✅ **Complete** | clang-cl, links prebuilt `ps3recomp_runtime.lib` |
 | Build & link | ✅ **Complete** | all 26 objects compile; **`ydkj_boot.exe` (64 MB) links** (1 fall-through stub) |
-| First boot | ✅ **Runs real code** | entry dispatched, TLS up, **170 MB heap allocated** — hits the CRT indirect-dispatch wall |
-| CRT indirect dispatch | ⏳ **Next** | uninitialized function-pointer table → `bctrl` to `0x39800000`; needs the OPD/null-fp watchdog |
+| First boot | ✅ **Runs real code** | entry dispatched, TLS up, **170 MB heap allocated** |
+| Import-stub → HLE wiring | ✅ **Solved** | new lifter `--hle-stubs`: all 265 stubs → `ps3_hle_call(nid)`. **Cleared the `0x39800000` wall** (where gunstar is stuck) |
+| CRT thread / static init | ⏳ **Next** | reaches `sys_ppu_thread_create` (NID `0x24A1EA07`, unwired) → vtable sweep at heap base; bridge the `sys_ppu_thread_*` NIDs |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
@@ -102,17 +103,27 @@ and 357 HLE handlers, and dispatches the real entry point. It gets impressively 
 [ppu] FATAL: stuck calling 0x39800000 (2000 times) -- aborting run
 ```
 
-So the recompiled code **runs**: TLS init, entry dispatch, and a successful 170 MB
-heap allocation through the real `sys_memory` path. It then stalls on an **indirect
-call through an uninitialized function-pointer table** — `0x39800000` is literally
-the byte pattern of `li r12, 0`, i.e. a `bctrl` through a NULL/garbage OPD
-descriptor during deep CRT init. This is the same wall flОw, Simpsons, and Gunstar
-hit, and they solved it with an OPD/null-function-pointer watchdog. The intended
-target (`r12 = 0x470870`) is real lifted code, so this is a dispatch-wiring task,
-not a recompilation failure. Full trace: [`docs/BOOT_TRACE.txt`](docs/BOOT_TRACE.txt).
+The first build stalled on `bctrl → 0x39800000` (the bytes of `li r12,0`) — the
+**firmware-import-stub wall** that also blocks Gunstar. The cause: the lifter
+emitted the *literal* `.lib.stub` trampolines, which dereference an import pointer
+table the recomp never fills. The fix is a new generic lifter flag **`--hle-stubs`**
+that rewrites each of the 265 import stubs to `ps3_hle_call(nid, ctx)` — dispatching
+straight to the registered HLE handler. That **cleared the wall**:
 
-The other recurring guest there is `lv2_syscall 988` — an unimplemented LV2 call the
-CRT spins on; identifying and stubbing it is part of clearing this wall.
+```
+[crt] sys_initialize_tls: block 0x0E000000, r13=0x0E007000   ← TLS init runs
+[sys_memory] allocate(0xAA00000) -> 0x40000000               ← 170 MB heap
+[hle] unresolved NID 0x24A1EA07                              ← = sys_ppu_thread_create
+[ppu] unresolved indirect call -> 0x40000030 .. 0x40000120   ← static-init vtable sweep
+```
+
+So the recompiled CRT now runs **much deeper** — TLS, heap, and into thread
+creation / C++ static constructors. The next blocker is identified precisely:
+`sys_ppu_thread_create` (NID `0x24A1EA07`) is imported via `sysPrxForUser` but
+ps3recomp implements thread creation as a *syscall*, so the NID is unwired; the
+CRT's thread/static-init then walks an uninitialized object table at the heap
+base and calls heap addresses as function pointers. Bridging the `sys_ppu_thread_*`
+NIDs is the next step. Full trace: [`docs/BOOT_TRACE.txt`](docs/BOOT_TRACE.txt).
 
 ## Module Coverage
 
@@ -197,7 +208,7 @@ python <ps3recomp>/tools/ppu_loader.py input/EBOOT.elf --output meta/
 python <ps3recomp>/tools/ppu_lifter.py input/EBOOT.elf \
     --functions meta/EBOOT.functions.json --output src/recomp \
     --header-name ppu_recomp.h --source-name ppu_recomp \
-    --jobs 1 --code-end 0x4874E0
+    --jobs 1 --code-end 0x4874E0 --hle-stubs meta/EBOOT.imports.json
 
 # 5. Generate the HLE NID dispatch table for the imported libraries
 python <ps3recomp>/tools/gen_hle_nids.py cellAudio cellGcmSys ... \
