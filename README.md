@@ -61,8 +61,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | TOC-save on imports | ✅ **Fixed** | save r2 to `0x28(r1)` per PPC64 ABI — **eliminated all the static-init corruption** (the vtable sweep + 40 OOB) |
 | `bcctrl` mistranslation | ✅ **Fixed** | 5,596 vtable calls were jumping to a garbage address; now dispatch via `ps3_indirect_call` |
 | Thread / main stacks | ✅ **Fixed** | VM grown to cover the `0xD0000000` stack region; 256 MB host stacks |
-| Native VA mapping | ✅ **Done** | guest memory mapped at its own host VAs (`vm_base = 0`) → guest addr == host addr. **Eliminated the entire HLE pointer-translation crash class** |
-| Display / GCM init | ⏳ **Next** | boot now reaches `cellVideoOut*` + `_cellGcmInitBody`; these unresolved NIDs return 0 → null-handle deref. Wire the graphics-init HLE |
+| Native VA mapping | 🧪 **Evaluated → reverted** | guest==host (`vm_base=0`) is elegant but Windows can't map guest page 0 or `0x60000000–0xD0000000` (the game uses both); flat calloc VM kept |
+| Display / GCM init | ✅ **Wired** | `cellVideoOut*` registered + `GetResolutionAvailability` added; `_cellGcmInitBody` bridged to `cellGcmSetupContext`; `cellGcmGetTiledPitchSize` made vm-aware |
+| HLE pointer bridge | ⏳ **Ongoing** | convert each pointer-out HLE func the game calls to `vm_write*` (byte-swap + translate). `cellGameBootCheck`, GCM funcs done; the GCM/sysmodule init path is next |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |

@@ -110,3 +110,33 @@ derefs them -> the 0x2 write. Register/implement:
   sys_net_initialize_network_ex -- ok/stub
 These are pointer-out HLE funcs: with native VA they can write via raw pointers
 to the correct address, but must byte-swap (use vm_write*) for correctness.
+
+---------------------------------------------------------------------------
+v6 (native VA EVALUATED, then REVERTED to calloc; graphics-init HLE wired):
+
+Native VA mapping (v5) is elegant -- guest==host kills the pointer-translation
+crash class -- but it does NOT work on Windows for this title:
+  * The OS reserves the low 64 KB, so guest page 0 is unmappable. The game's
+    null-object inits write to page 0 (valid RAM on PS3) -> AV.
+  * VirtualAlloc can't reserve 0x60000000..0xD0000000 (err 487: DLLs/process
+    heap occupy parts of it), yet the game writes there (e.g. 0xCFB7E320).
+  * It also does NOT remove the per-function HLE work: guest memory is still
+    big-endian, so HLE pointer-out funcs must use vm_write* (byte-swap) anyway.
+Conclusion: the flat calloc VM (vm_base + addr) is required -- it maps the FULL
+32-bit guest space uniformly. Reverted boot_main/vm_oob to calloc; KEPT every
+real fix (TOC-save, bcctrl, threads, cellGameBootCheck, cellVideoOut,
+_cellGcmInitBody bridge, cellGcmGetTiledPitchSize, the crash+backtrace handler).
+
+Graphics-init HLE wired this round (correct under calloc):
+  * cellVideoOut* registered (gen_hle_nids now includes cellVideoOut.c) +
+    cellVideoOutGetResolutionAvailability added (returns "available").
+  * _cellGcmInitBody (0x15BAE46B) bridged to cellGcmSetupContext with guest
+    alloc + vm_write32 callbacks (ppu_sysprx.cpp).
+  * cellGcmGetTiledPitchSize uses vm_write32 (translate + byte-swap + OOB).
+
+CURRENT BLOCKER (calloc): the HLE-bridge phase resumes -- func_00067D28 ->
+func_000691F0 -> cellSysmodule/cellGcm import stubs; one of those HLE funcs
+writes a guest pointer (0x0FEFFB78, on the stack) as a host pointer. Same class
+as cellGameBootCheck: convert each pointer-out HLE func the game calls to
+vm_write* (the flОw hle_modules.cpp pattern). The new SEH+backtrace handler in
+boot_main.cpp makes each one a quick symbolize-and-fix.

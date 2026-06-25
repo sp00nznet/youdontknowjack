@@ -358,6 +358,22 @@ extern "C" {
     void sceNpCommerce2AbortReq(void);
     void sceNpCommerce2DestroyReq(void);
     void sceNpCommerce2DoCheckoutFinishAsync(void);
+    void cellVideoOut_set_resolution(void);
+    void cellVideoOutGetState(void);
+    void cellVideoOutGetResolution(void);
+    void cellVideoOutConfigure(void);
+    void cellVideoOutGetConfiguration(void);
+    void cellVideoOutGetDeviceInfo(void);
+    void cellVideoOutGetNumberOfDevice(void);
+    void cellVideoOutGetResolutionAvailability(void);
+    void cellAudioOutGetSoundAvailability(void);
+    void cellAudioOutGetSoundAvailability2(void);
+    void cellAudioOutGetDeviceInfo(void);
+    void cellAudioOutGetConfiguration(void);
+    void cellAudioOutSetCopyControl(void);
+    void cellAudioOutGetNumberOfDevice(void);
+    void cellVideoOutGetGamma(void);
+    void cellVideoOutSetGamma(void);
 }
 extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x0B168F92u, "cellAudioInit", (void*)cellAudioInit);
@@ -717,4 +733,20 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x8DF0057Fu, "sceNpCommerce2AbortReq", (void*)sceNpCommerce2AbortReq);
     ps3_hle_register(0x2A910F05u, "sceNpCommerce2DestroyReq", (void*)sceNpCommerce2DestroyReq);
     ps3_hle_register(0xD43A130Eu, "sceNpCommerce2DoCheckoutFinishAsync", (void*)sceNpCommerce2DoCheckoutFinishAsync);
+    ps3_hle_register(0x46AEFCF1u, "cellVideoOut_set_resolution", (void*)cellVideoOut_set_resolution);
+    ps3_hle_register(0x887572D5u, "cellVideoOutGetState", (void*)cellVideoOutGetState);
+    ps3_hle_register(0xE558748Du, "cellVideoOutGetResolution", (void*)cellVideoOutGetResolution);
+    ps3_hle_register(0x0BAE8772u, "cellVideoOutConfigure", (void*)cellVideoOutConfigure);
+    ps3_hle_register(0x15B0B0CDu, "cellVideoOutGetConfiguration", (void*)cellVideoOutGetConfiguration);
+    ps3_hle_register(0x1E930EEFu, "cellVideoOutGetDeviceInfo", (void*)cellVideoOutGetDeviceInfo);
+    ps3_hle_register(0x75BBB672u, "cellVideoOutGetNumberOfDevice", (void*)cellVideoOutGetNumberOfDevice);
+    ps3_hle_register(0xA322DB75u, "cellVideoOutGetResolutionAvailability", (void*)cellVideoOutGetResolutionAvailability);
+    ps3_hle_register(0xC01B4E7Cu, "cellAudioOutGetSoundAvailability", (void*)cellAudioOutGetSoundAvailability);
+    ps3_hle_register(0x2BEAC488u, "cellAudioOutGetSoundAvailability2", (void*)cellAudioOutGetSoundAvailability2);
+    ps3_hle_register(0x7663E368u, "cellAudioOutGetDeviceInfo", (void*)cellAudioOutGetDeviceInfo);
+    ps3_hle_register(0xED5D96AFu, "cellAudioOutGetConfiguration", (void*)cellAudioOutGetConfiguration);
+    ps3_hle_register(0xC96E89E9u, "cellAudioOutSetCopyControl", (void*)cellAudioOutSetCopyControl);
+    ps3_hle_register(0xE5E2B09Du, "cellAudioOutGetNumberOfDevice", (void*)cellAudioOutGetNumberOfDevice);
+    ps3_hle_register(0x655A0364u, "cellVideoOutGetGamma", (void*)cellVideoOutGetGamma);
+    ps3_hle_register(0xC7020F62u, "cellVideoOutSetGamma", (void*)cellVideoOutSetGamma);
 }
