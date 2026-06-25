@@ -170,6 +170,7 @@ extern "C" {
     void cellSpursInitializeWithAttribute(void);
     void cellSpursFinalize(void);
     void cellSpursAttributeInitialize(void);
+    void _cellSpursAttributeInitialize(void);
     void cellSpursAttributeSetNamePrefix(void);
     void cellSpursAttributeSetSpuThreadGroupType(void);
     void cellSpursAttributeEnableSpuPrintfIfAvailable(void);
@@ -199,6 +200,7 @@ extern "C" {
     void cellSpursWakeUp(void);
     void cellSpursEventFlagInitialize(void);
     void cellSpursEventFlagAttachLv2EventQueue(void);
+    void cellSpursEventFlagDetachLv2EventQueue(void);
     void cellSpursEventFlagSet(void);
     void cellSpursEventFlagWait(void);
     void cellSpursEventFlagTryWait(void);
@@ -374,6 +376,7 @@ extern "C" {
     void cellAudioOutGetNumberOfDevice(void);
     void cellVideoOutGetGamma(void);
     void cellVideoOutSetGamma(void);
+    void cellAudioOutConfigure(void);
 }
 extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x0B168F92u, "cellAudioInit", (void*)cellAudioInit);
@@ -545,6 +548,7 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0xAA6269A8u, "cellSpursInitializeWithAttribute", (void*)cellSpursInitializeWithAttribute);
     ps3_hle_register(0xCA4C4600u, "cellSpursFinalize", (void*)cellSpursFinalize);
     ps3_hle_register(0x9A079B6Bu, "cellSpursAttributeInitialize", (void*)cellSpursAttributeInitialize);
+    ps3_hle_register(0x95180230u, "_cellSpursAttributeInitialize", (void*)_cellSpursAttributeInitialize);
     ps3_hle_register(0x07529113u, "cellSpursAttributeSetNamePrefix", (void*)cellSpursAttributeSetNamePrefix);
     ps3_hle_register(0xA839A4D9u, "cellSpursAttributeSetSpuThreadGroupType", (void*)cellSpursAttributeSetSpuThreadGroupType);
     ps3_hle_register(0x1051D134u, "cellSpursAttributeEnableSpuPrintfIfAvailable", (void*)cellSpursAttributeEnableSpuPrintfIfAvailable);
@@ -574,6 +578,7 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x7E4EA023u, "cellSpursWakeUp", (void*)cellSpursWakeUp);
     ps3_hle_register(0xAF671595u, "cellSpursEventFlagInitialize", (void*)cellSpursEventFlagInitialize);
     ps3_hle_register(0x87630976u, "cellSpursEventFlagAttachLv2EventQueue", (void*)cellSpursEventFlagAttachLv2EventQueue);
+    ps3_hle_register(0x22AAB31Du, "cellSpursEventFlagDetachLv2EventQueue", (void*)cellSpursEventFlagDetachLv2EventQueue);
     ps3_hle_register(0xF5507729u, "cellSpursEventFlagSet", (void*)cellSpursEventFlagSet);
     ps3_hle_register(0x373523D4u, "cellSpursEventFlagWait", (void*)cellSpursEventFlagWait);
     ps3_hle_register(0x6D2D9339u, "cellSpursEventFlagTryWait", (void*)cellSpursEventFlagTryWait);
@@ -749,4 +754,5 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0xE5E2B09Du, "cellAudioOutGetNumberOfDevice", (void*)cellAudioOutGetNumberOfDevice);
     ps3_hle_register(0x655A0364u, "cellVideoOutGetGamma", (void*)cellVideoOutGetGamma);
     ps3_hle_register(0xC7020F62u, "cellVideoOutSetGamma", (void*)cellVideoOutSetGamma);
+    ps3_hle_register(0x4692AB35u, "cellAudioOutConfigure", (void*)cellAudioOutConfigure);
 }
