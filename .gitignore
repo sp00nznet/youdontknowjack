@@ -36,3 +36,4 @@ stdout*.txt
 .idea/
 Thumbs.db
 .DS_Store
+spu/

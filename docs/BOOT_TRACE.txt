@@ -195,3 +195,31 @@ only), so the event never arrives.
 
 NEXT FRONTIER: SPU execution (or a targeted SPURS-completion shim that signals
 the awaited event queue) -- the gate to the frame loop and thus to #2 rendering.
+
+===========================================================================
+*** SPU EXECUTION is the gate (confirmed) -- groundwork laid ***
+===========================================================================
+Drilled the render-loop block to its root. The boot does its init across two
+threads: the main thread creates 3 anonymous event queues + the "AsyncLoad"
+worker, then blocks in sys_event_queue_receive(queue=1, timeout=0) FOREVER.
+Nothing ever sys_event_port_sends; no sys_spu_thread_group_create. The AsyncLoad
+worker does _cellGcmInitBody (GCM/RSX init) and then itself blocks in a
+HOST-level wait inside an HLE lib (it evades every probe: no lv2-wait, no
+read8/16/32/64 spin, no lwmutex contention, no timer_usleep, no thread_exit) --
+i.e. it is waiting for SPU/SPURS work that never runs. cellSpurs is management-
+only (no SPU execution), so the SPURS event the worker needs is never produced,
+the worker never signals queue 1, and the main thread waits forever.
+
+GROUNDWORK DONE: extract_spu_images.py pulled 22 embedded SPU ELF images from
+the EBOOT (project/spu/, ~450 KB; gitignored). The runtime already has the SPU
+execution pipeline (runtime/spu/spu_workload.c: fingerprint -> pre-lifted native
+entry -> 256KB local store -> run; spu_channels/spu_dma; tools/spu_lifter.py).
+Added a SPURS-completion shim (cellSpursEventFlagWait now times out and
+force-satisfies after a grace period) as a stopgap for when a SPURS event flag
+IS the awaited object.
+
+NEXT: the real fix is SPU EXECUTION -- lift the title's SPU binaries
+(spu_disasm/spu_lifter), register them (spu_workload_register), and wire
+cellSpurs/sys_spu_thread to dispatch them so the SPURS kernel + workloads run
+and produce the events the PPU side waits on. This is a major subsystem (the
+hardest part of any PS3 port) and the clear next milestone.
