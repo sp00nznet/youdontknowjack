@@ -50,3 +50,34 @@ NEXT BLOCKER (main thread, static init):
   (loc_0005EE60 / loc_0005EEA4) or an r2(TOC)-relative base the lifter mishandles.
   TODO: trace which guest store fills 0x40000030.. and what the init_array
   source pointer should be; this is the deep-CRT static-init bring-up step.
+
+---------------------------------------------------------------------------
+v4 (TOC-save + bcctrl + thread stacks + cellGame fixes):
+
+Four correctness fixes cleared the static-init corruption and got the boot into
+real game init:
+  * ppu_hle: save caller TOC r2 to 0x28(r1) on every import call (PPC64 ELFv1).
+    The --hle-stubs body had dropped it -> garbage r2 after imports -> the whole
+    0x40000030 vtable sweep + 40 OOB accesses. FIXED: those are gone.
+  * ppu_lifter: bcctrl / b<cond>ctrl now route to ps3_indirect_call (was
+    trampolining 5,596 vtable calls to a garbage func_00000030).
+  * boot harness: VM grown to 0xE0000000 so thread stacks at 0xD0000000 are
+    backed; spawned threads + main get 256 MB host stacks (deep recomp nesting).
+  * cellGameBootCheck: translate its out-pointers through vm_base + vm_write32
+    (was writing the guest stack address as a raw host pointer -> AV).
+
+Boot now: TLS -> heap -> AsyncLoad thread spawns & runs -> cellGame BootCheck ->
+into game init. A last-chance crash handler (boot_main.cpp) prints the faulting
+address + RIP rva for llvm-symbolizer.
+
+CURRENT BLOCKER (the "HLE bridge" phase):
+  Access violation writing guest stack addr 0x0FEFFB78 as a RAW host pointer,
+  inside the HLE call tree of func_000691F0 (which calls cellSysmodule/cellGcm/
+  etc. import stubs). Same bug class as cellGameBootCheck: HLE functions
+  registered via the generic adapter receive GUEST addresses for pointer args
+  but dereference them as host pointers. Each pointer-taking HLE function the
+  game uses needs vm_base translation (flOw does this in hle_modules.cpp).
+
+  Systemic alternative worth evaluating: map guest memory at its NATIVE host VA
+  (VirtualAlloc at the guest addresses, vm_base = 0) so guest==host addresses
+  and NO per-function translation is ever needed -- eliminates the whole class.

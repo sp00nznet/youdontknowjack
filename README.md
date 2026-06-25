@@ -57,8 +57,11 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Build & link | ✅ **Complete** | all 26 objects compile; **`ydkj_boot.exe` (64 MB) links** (1 fall-through stub) |
 | First boot | ✅ **Runs real code** | entry dispatched, TLS up, **170 MB heap allocated** |
 | Import-stub → HLE wiring | ✅ **Solved** | new lifter `--hle-stubs`: all 265 stubs → `ps3_hle_call(nid)`. **Cleared the `0x39800000` wall** (where gunstar is stuck) |
-| Thread creation | ✅ **Wired** | `sys_ppu_thread_create` NID → real lv2 thread spawn + new generic **thread-entry trampoline**; the `"AsyncLoad"` worker now runs |
-| CRT static init (C++ ctors) | ⏳ **Next** | global-constructor (`__init_array`) dispatch yields heap addresses → virtual calls through uninitialized vtables → segfault |
+| Thread creation | ✅ **Wired** | `sys_ppu_thread_create` NID → real lv2 thread spawn + generic **thread-entry trampoline**; the `"AsyncLoad"` worker runs |
+| TOC-save on imports | ✅ **Fixed** | save r2 to `0x28(r1)` per PPC64 ABI — **eliminated all the static-init corruption** (the vtable sweep + 40 OOB) |
+| `bcctrl` mistranslation | ✅ **Fixed** | 5,596 vtable calls were jumping to a garbage address; now dispatch via `ps3_indirect_call` |
+| Thread / main stacks | ✅ **Fixed** | VM grown to cover the `0xD0000000` stack region; 256 MB host stacks |
+| HLE pointer bridge | ⏳ **Next** | HLE funcs that take pointer out-params deref guest addresses as host pointers (`cellGameBootCheck` fixed; the rest are the next pass) |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
