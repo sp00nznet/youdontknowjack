@@ -65,8 +65,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | Display / GCM init | ✅ **Wired** | `cellVideoOut*`, `_cellGcmInitBody`, GCM offset/config funcs |
 | HLE pointer bridge | ✅ **Init path done** | ~26 pointer-out funcs across cellGame/VideoOut/NetCtl/Gcm/Audio/Spurs translated to `vm_write*` |
 | **Boots & runs game code** | 🎉 **Reached** | clears the full init sequence — **registers RSX vblank/flip handlers, opens audio, inits SPURS, and runs the game's own FMOD engine.** No crash (runs continuously) |
-| Audio (real PCM) | ⏳ Next | WASAPI/FMOD want real guest buffers; cellAudio hands out placeholders |
-| RSX rendering | ⏳ Next | GCM handlers registered; needs a D3D12/Vulkan backend |
+| Audio engine (FMOD) | ✅ **Inits** | guest-memory audio buffers → the game's **FMOD engine initializes cleanly** (no more error 37) |
+| RSX vblank driver | ✅ **Wired** | `ppu_guest_call` + 60 Hz vblank-ticker thread; D3D12/null backends present, ready once the loop runs |
+| **Render-loop gate** | ⏳ **SPU** | main thread blocks in `sys_event_queue_receive(q=1)` — a **SPURS event queue** the SPUs must signal; needs SPU execution (the next frontier) |
 | CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
 | Game `main()` / module load | ⬜ Not started | |
 | Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |

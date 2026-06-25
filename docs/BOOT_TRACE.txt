@@ -166,3 +166,32 @@ Open items (not crashes):
   * RSX rendering: GCM handlers are registered but no D3D12/Vulkan backend yet.
   * the remaining pointer-out HLE funcs across other libs still need the same
     vm_write* treatment as the game exercises them.
+
+===========================================================================
+*** PROGRESS: full init incl. FMOD; exact render-loop block identified ***
+===========================================================================
+Items 1/2/3 from the milestone:
+
+#3 (0x2965B4) DONE: lifted func_002965B4 (computed vtable target); the unresolved
+   indirect call is gone.
+
+#1 (audio) LARGELY DONE: cellAudio now allocates the port buffer in GUEST memory
+   (1MB-aligned) and publishes the read index; the title's FMOD engine now
+   INITIALIZES cleanly (the "FMOD error 37" is gone). Also wired the SDK-internal
+   _cellSpursAttributeInitialize (SPURS attr now clean: nSpus=2) + cellAudioOutConfigure.
+   (Real PCM output still needs WASAPI, but the game proceeds.)
+
+#2 (rendering) INFRA READY, BLOCKED UPSTREAM: added ppu_guest_call + a 60Hz
+   vblank-ticker thread (cellGcmTickVBlank/Flip) and confirmed the D3D12/null RSX
+   backends exist. But the game never reaches its frame loop.
+
+EXACT BLOCK (instrumented the lv2 wait syscalls): the main thread sits in
+   sys_event_queue_receive(queue=1, timeout=0)  -- an infinite wait
+and never returns. No files are opened (not an asset problem). The preceding
+cellSpursEventFlagDetachLv2EventQueue calls show queue 1 is a SPURS event queue:
+the game offloads init work to the SPUs via SPURS and waits for them to signal
+queue 1 -- but this recomp does NOT execute SPU code (cellSpurs is management-
+only), so the event never arrives.
+
+NEXT FRONTIER: SPU execution (or a targeted SPURS-completion shim that signals
+the awaited event queue) -- the gate to the frame loop and thus to #2 rendering.
