@@ -793,3 +793,21 @@ So queue_context+0x10 must hold an 8-byte-aligned pointer to a workload/queue
 structure, which the claim then dereferences + looks up against an LS-global
 table (0xBEC0). This is the next field to populate when constructing the queue;
 the structure it points to (and the 0xBEC0 table) are the subsequent layers.
+
+---------------------------------------------------------------------------
+Claim DMAs the workload struct from context+0x10 (structure is deeply nested)
+---------------------------------------------------------------------------
+func_00026F18, after validating context+0x10, DMAs the WORKLOAD STRUCT it points
+to (wrch MFC_EAH=r19=workload_ptr, MFC_EAL=r21 @0x27030) into LS and reads its
+fields (+ a lookup table at r16+212, and LS-global state at 0x200). So the SPURS
+context is a deeply NESTED structure:
+   r3.word1 -> queue context(64B) -> +0x10 -> workload struct (DMA'd) -> fields
+              -> ... (lookup tables, per-workload state) ...
+Each layer reversed reveals the next. Building a queue that makes the claim
+report work-available means reconstructing this whole SPURS-instance object graph
+(instance -> workload queue -> workloads -> task descriptors) exactly as the
+SDK lays it out -- i.e. the full HLE SPURS kernel state. This is a dedicated,
+multi-session reverse-engineering project (the SPURS object model is large);
+each turn here maps one more layer. Layers mapped so far: r3 ABI; queue-context
+is a lock-free claim queue; claim gate func_00026F18==1; context+0x10 = aligned
+workload pointer; claim DMAs + validates the workload struct it points to.
