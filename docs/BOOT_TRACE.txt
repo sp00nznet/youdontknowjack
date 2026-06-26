@@ -1160,3 +1160,45 @@ honest remaining gate; it is NOT a quick HLE structure fix.
 
 Confirmed-correct work that stands: the SPURS task r3 ABI (e5500f4) and the real
 GETLLAR/PUTLLC reservations (c1d9548) -- both necessary, both verified.
+
+===========================================================================
+*** SESSION UPDATE 5: two real SPU bugs found -- (1) SP=0 underflow [FIXED],
+*** (2) SPURS task r3 ABI needs a queue EA in word2 ***
+===========================================================================
+Step-traced the SPU runtime past the context handshake and found two concrete
+bugs (the earlier "deep unknowable handshake" framing was too pessimistic):
+
+(1) SP NOT INITIALIZED [FIXED -- ps3 6be0fbb]. spu_context_init zeroes the
+    context, so a dispatched SPU job started with r1 (stack pointer) = 0. The
+    first frame alloc (r1 -= frame) wrapped to 0xFFFFFEB0 -> garbage stack ->
+    the runtime loaded null function pointers off it -> "indirect branch to
+    unknown LS address 0x00000". Fix: r1 = SPU_LS_SIZE - 0x10 (0x3FFF0). Verified
+    r1 is now a valid LS address and no longer wraps. (Necessary for ANY
+    non-trivial lifted SPU program.)
+
+(2) SPURS TASK r3 ABI is {word0=0x40-marker handle, word1=eaContext,
+    word2=queue/lock EA, word3=...}. Traced the claim CAS: the kernel computes
+    the atomic EA as `r3.word2 & ls[0x28C50].word1` where ls[0x28C50] =
+    [FFFFFFFF, FFFFFF80, 0, 0] (a 128-byte-align mask). Our dispatch set
+    r3 = {0x00400000, eaContext, 0, 0}, so word2=0 -> GETLLAR/PUTLLC at EA 0
+    (locks address 0, reads zeros) -> "no ready task" -> [1,1,1,1] -> trap.
+    The game pre-built the real r3 at eaContext+0x10 =
+    [0x00400001, 0x006B4780, 0x006B47FC, 0x006B6C00]; using word2 from there
+    makes the atomic lock a REAL descriptor (ea=0x006B6C00) and the context DMA
+    still reads eaContext. CONFIRMED with r3={marker, eaContext, ctx[+0x18], ...}:
+    the SPU now GETs the context AND the atomic hits 0x006B6C00 (the workload
+    descriptor: +0x14 = task count 3, +0x04 = spurs instance, +0x08 = taskset).
+
+REMAINING after (1)+(2): the SPU STILL traps -- after the (now-real) claim CAS on
+the descriptor it concludes "no runnable task" and returns [1,1,1,1], because the
+descriptor/taskset "ready" state the claim checks is not set by our cellSpurs HLE
+(cellSpursCreateTask logs the task but never marks it ready in the guest workload
+descriptor at 0x006B6C00 / taskset 0x4005E000). Also: reading r3 from eaContext
+at SPU-thread start races the PPU stack (3rd dispatch read a stale 0xFFFF0002);
+the real r3 must be captured at dispatch time (in cellSpursCreateTask) and passed
+through the job, not read late.
+
+NEXT: (a) capture r3 = the eaContext+0x10 descriptor at dispatch time (race-free)
+and pass it through spu_async_job; (b) have cellSpursCreateTask mark the task
+READY in the guest workload descriptor so the claim finds it. Then the SPU should
+run the task body, signal completion, and unblock the PPU toward rendering.
