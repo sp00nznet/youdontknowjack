@@ -542,3 +542,39 @@ ALSO PENDING for actual pixels: SetDisplayBuffer still gets offset=0x0 / garbage
 pitch (cellGcmAddressToOffset(0x00000000) fails) -- the framebuffer EA resolves
 to 0, so even once it flips there's no valid surface to present. The RSX backend
 (libs/video/rsx_d3d12_backend.c) must present the flipped buffer.
+
+===========================================================================
+*** SPU task creation wired; SPU jobs now execute (async) ***
+===========================================================================
+Implemented + registered the three unresolved cellSpurs task NIDs:
+  0xB8474EFF _cellSpursTaskAttributeInitialize  (stashes eaElf/eaContext/size
+             into the attr -- added a u64 eaElf field to CellSpursTaskAttribute)
+  0x1D46FEDF cellSpursCreateTaskWithAttribute    (-> cellSpursCreateTask)
+  0x16394A4E _cellSpursTasksetAttributeInitialize (zero-init the attr)
+(registered in src/gen/ppu_hle_nids.cpp -- gen_hle_nids matches by computed NID).
+
+cellSpursCreateTask's SPU dispatch was SYNCHRONOUS (ran the job inline), which
+DEADLOCKS for persistent SPURS workers: the job loops waiting on PPU-side
+signals the PPU can't deliver while stuck inside the dispatch. Added
+spu_workload_dispatch_async (runtime/spu/spu_workload.c) -- runs the SPU job on
+its own detached host thread (models real concurrent SPUs) -- and switched the
+task path to it.
+
+RESULT: the boot now CREATES + RUNS real SPU jobs:
+  [spu_workload] dispatch HIT (async) fp=0xA7633F37ACB95C25 image=22 -> thread
+  [cellSpurs] CreateTask(id=0/1/2, entry=0x004F5F80)
+The PPU no longer deadlocks on the first task; it creates the worker pool
+(3 tasks of image 22) and proceeds.
+
+CURRENT FRONTIER: SPU->PPU event signalling. After spawning its 3 SPU workers
+the main thread waits on an lv2 event flag (sys_event_flag_wait flag=1000,
+bits=0, the game's own ~267s timeout) for the workers to signal readiness. The
+SPU threads run but emit nothing and never set the flag (event_flag_set count
+= 0) -- the lifted SPU image's channel/MFC signalling (mailbox / atomic DMA to
+the event flag / SPU stop-and-signal) is not bridged to sys_event_flag_set.
+Until that SPU->PPU signal path is wired, the worker handshake never completes.
+NEXT: trace what image 22 does on its host thread (does spu_run_lifted_job_img
+return, or loop? which channels does it write?), then bridge the SPU signal to
+the lv2 event flag / event queue the PPU waits on. THEN the game should pass the
+SPURS handshake toward its render loop + first cellGcmSetFlip. (Framebuffer EA
+still resolves to 0 -- AddressToOffset(0) -- so the present path needs that too.)

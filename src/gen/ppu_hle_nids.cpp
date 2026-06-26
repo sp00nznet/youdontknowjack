@@ -187,6 +187,9 @@ extern "C" {
     void cellSpursTasksetAttributeInitialize(void);
     void cellSpursTasksetAttributeSetName(void);
     void cellSpursCreateTask(void);
+    void cellSpursCreateTaskWithAttribute(void);
+    void _cellSpursTaskAttributeInitialize(void);
+    void _cellSpursTasksetAttributeInitialize(void);
     void cellSpursJoinTask(void);
     void cellSpursSendSignal(void);
     void cellSpursTaskAttributeInitialize(void);
@@ -559,6 +562,9 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x4E66D483u, "cellSpursDetachLv2EventQueue", (void*)cellSpursDetachLv2EventQueue);
     ps3_hle_register(0x52CC6C82u, "cellSpursCreateTaskset", (void*)cellSpursCreateTaskset);
     ps3_hle_register(0xC10931CBu, "cellSpursCreateTasksetWithAttribute", (void*)cellSpursCreateTasksetWithAttribute);
+    ps3_hle_register(0x1D46FEDFu, "cellSpursCreateTaskWithAttribute", (void*)cellSpursCreateTaskWithAttribute);
+    ps3_hle_register(0xB8474EFFu, "_cellSpursTaskAttributeInitialize", (void*)_cellSpursTaskAttributeInitialize);
+    ps3_hle_register(0x16394A4Eu, "_cellSpursTasksetAttributeInitialize", (void*)_cellSpursTasksetAttributeInitialize);
     ps3_hle_register(0x1EA5E4CFu, "cellSpursDestroyTaskset", (void*)cellSpursDestroyTaskset);
     ps3_hle_register(0xA789E631u, "cellSpursShutdownTaskset", (void*)cellSpursShutdownTaskset);
     ps3_hle_register(0x9F72ADD3u, "cellSpursJoinTaskset", (void*)cellSpursJoinTaskset);
