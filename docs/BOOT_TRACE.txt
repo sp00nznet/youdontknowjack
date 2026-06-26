@@ -462,3 +462,83 @@ NEXT: split func_0037EA90; then trace the func_00264xxx loop's terminating
 register the same way (watchdog stack-scan -> exact line -> probe), and check
 whether the GCM localAddress/framebuffer setup (AddressToOffset(0)) is the
 upstream source feeding garbage into the parser.
+
+===========================================================================
+*** ROOT CAUSE: jump-table dispatcher missed (lwzx operand order) ***
+===========================================================================
+The func_003DC468 loc_003DC548 "linked-list walk" hang was NOT a circular list
+or a frame-drift remnant. Tracing the loop registers (runtime probe) showed:
+  loop limit  r8  = 0x00000000        (should be a hash-table element count)
+  list ptr    r10 = 0x04000008        (constant; never advances)
+  iterations  -> 1,000,000+           (infinite)
+r10 derives from r7 = *(r29+0x14) = 0x04000000, a hash-table pointer into
+UNALLOCATED guest memory (flat VM backs it but it reads as 0), so r8 = hash &
+*(table+4) = hash & 0 = 0 -> bucket 0 -> degenerate chain -> spin.
+
+WHY the table is zeroed: just before the hang the runtime logs
+  [ppu] unresolved indirect call -> 0x002965E8
+  [ppu] unresolved indirect call -> 0x0029664C
+ps3_indirect_call NO-OPS on unresolved targets, so the init that builds the
+hash table never runs. 0x002965E8 / 0x0029664C are NOT functions -- they are
+CASE blocks of a gcc switch (an unrolled / Duff's-device remainder handler;
+each sets N 2-bit fields then `b 0x2969DC`). The dispatcher (func_002963F4,
+@0x296590) is a textbook offset jump table:
+  cmplwi cr7,r3,0x7 ; lwz r9,-0x4D70(r2) ; lwzx r0,r9,r0 ; add r0,r0,r9 ;
+  mtctr r0 ; bctr        (table embedded in .text at 0x296594)
+
+discover_jump_tables() SHOULD have recovered this, but had a real bug: for
+`lwzx rD, rA, rB` it hardcoded the table-base register as rB (p[2]). Here the
+base is rA (r9, the TOC-loaded pointer) and rB (r0) is the index. So the
+`lwz base, disp(r2)` probe looked for the wrong register, found nothing, set
+disp=None, and SKIPPED the dispatcher entirely -> the 4 case blocks were never
+lifted -> the unresolved indirect calls -> skipped init -> the zeroed table.
+
+FIX (tools/ppu_lifter.py discover_jump_tables): try BOTH lwzx operands as the
+candidate base; the real base is whichever is loaded TOC-relative via
+`lwz base, disp(r2)`. Verified against the ELF: recovers exactly
+0x2965B4 / 0x2965E8 / 0x29664C / 0x2966DC. This is a GENERAL fix -- every
+dispatcher with the operands swapped was being skipped binary-wide, so it may
+clear several latent hangs at once.
+NEXT: re-lift, confirm the unresolved indirect calls are gone and the
+func_003DC468 hash-walk terminates, then see how much deeper the boot reaches.
+
+===========================================================================
+*** MILESTONE: boot reaches the engine + display setup (no crash) ***
+===========================================================================
+The jump-table lifter fix cleared the func_003DC468 hang; the boot then surfaced
+a SERIES of HLE guest-pointer-translation bugs (the native ps3_hle_register path
+passes raw guest EAs as native args; functions that dereference pointer args
+must translate via GUEST_PTR, like cellGcmSys does -- cellFs/etc. use the ctx
+path instead). Fixed, in order of discovery:
+  * cellSpurs.c  -- taskset/task/workload/event-flag funcs now translate every
+                    guest-pointer arg (CreateTaskset faulted reading 0x40009D00).
+  * cellSync.c   -- ALL mutex/barrier/rwm/queue/lfqueue funcs (cellSyncMutex-
+                    Initialize faulted); mechanical GUEST_PTR pass over the lib.
+  * watch the double-translate trap: a pure forwarder (_cellSpursEventFlag-
+    Initialize -> cellSpursEventFlagInitialize) must pass RAW guest pointers; the
+    callee translates. Translating in both = vm_base+(vm_base+ea) = OOB.
+
+WITH THOSE FIXED, the boot now runs the title's engine WITHOUT crashing:
+  cellSysmodule LoadModule ... cellSysutil RegisterCallback ...
+  cellVideoOut Configure  resId=2  1280x720  pitch=5120        <-- display!
+  cellAudio Init / mixing thread ; FMOD inits ("FMOD error 37", non-fatal)
+  cellSpurs AttributeInitialize / InitializeWithAttribute / CreateTaskset
+  cellGcmSys SetDisplayBuffer id=0/id=1 ; SetVBlankHandler ; SetFlipHandler
+The harness vblank_ticker (60Hz) drives the registered vblank/flip handlers.
+
+CURRENT FRONTIER (no crash -- a clean wait): the main thread blocks on
+  sys_event_queue_receive(q=1, timeout=0)   (infinite)
+while a loop spins on THREE unresolved cellSpurs NIDs (return-0 no-ops):
+  0xB8474EFF = _cellSpursTaskAttributeInitialize
+  0x1D46FEDF = cellSpursCreateTaskWithAttribute
+  0x16394A4E = _cellSpursTasksetAttributeInitialize
+Because CreateTaskWithAttribute no-ops, no SPU task is ever created/dispatched,
+so the event the game waits on (SPU job completion -> event queue 1) never fires.
+NEXT: implement + register these three (CreateTaskWithAttribute should extract
+the task ELF+context from the attr and run it through the existing
+spu_workload_dispatch path, as cellSpursCreateTask already does), so the SPU job
+runs and signals queue 1 -- then the game proceeds toward its first SetFlip.
+ALSO PENDING for actual pixels: SetDisplayBuffer still gets offset=0x0 / garbage
+pitch (cellGcmAddressToOffset(0x00000000) fails) -- the framebuffer EA resolves
+to 0, so even once it flips there's no valid surface to present. The RSX backend
+(libs/video/rsx_d3d12_backend.c) must present the flipped buffer.
