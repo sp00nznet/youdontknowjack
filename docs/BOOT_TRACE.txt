@@ -433,3 +433,32 @@ OR a still-uncaught boundary. Options to finish:
       prologues the recovery still misses) so no tail-entries share a frame.
 Each fix has advanced the boot a real step; this is the last frame-drift layer
 before the RSX path runs from real recompiled code.
+
+===========================================================================
+*** Merged functions 452 -> 1; func_003DC468 cleared; boot deeper ***
+===========================================================================
+Completed the frame-drift fix and advanced the boot.
+
+ * COMPLETE boundary split: a function allocates its primary frame exactly once
+   at its prologue, so EVERY stdu r1,-N (mflr-adjusted) is a distinct function
+   start. Split merged ranges at all of them (not just terminator/target-
+   preceded). 4379 -> 4994 splits; still-merged functions 452 -> 1.
+ * Tail-call routing: `b` and conditional `b<cond>` to a function-entry prologue
+   inside a (former) merged range -> trampoline (tail call), not goto.
+ RESULT: the long-standing func_003DC468 hang (count + 12-byte-walk + linked-
+ list-walk loops, all fed by frame-drift-corrupted limits/pointers) now CLEARS.
+ cellGcmGetLabelAddress host->guest fix lets the boot reach RSX label setup.
+
+CURRENT FRONTIER: the boot now runs materially deeper into the func_0026xxxx
+data/parser subsystem; func_00264A4C (or a callee) has a loop that still does
+not terminate (OOB 0, so not a wild-pointer write -- a bounded-but-garbage count
+or a circular structure). With the merged-function frame drift essentially gone
+(1 left: func_0037EA90), the feeding corruption is likely (a) that last merge,
+(b) the upstream GCM garbage we still see -- "SetTile pitch=2149648131,
+size=0x948D0000", "cellGcmAddressToOffset failed for 0x00000000": the title's
+RSX local-memory / framebuffer addresses compute as 0, so the data this
+subsystem parses is wrong -- or (c) a non-frame-drift lifter gap.
+NEXT: split func_0037EA90; then trace the func_00264xxx loop's terminating
+register the same way (watchdog stack-scan -> exact line -> probe), and check
+whether the GCM localAddress/framebuffer setup (AddressToOffset(0)) is the
+upstream source feeding garbage into the parser.
