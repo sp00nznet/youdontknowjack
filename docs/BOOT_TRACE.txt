@@ -1681,3 +1681,18 @@ worker "done" signal (0x543580) that never fires because the producing worker is
 itself gated (most deeply on the un-runnable SPURS task kernel / SPU task that
 crashes at LS[0xBEC0]). Multiple interacting subsystems (trophy, SPURS/SPU, event
 queues) must all complete init for the game to reach its draw-issuing main loop.
+
+--- 2026-06-26 (cont.): diagnosis airtight -- LS[0xBEC0] is a kernel-patch slot ---
+spu_0021 ELF is ET_EXEC with ZERO relocation sections, so LS[0xBEC0]'s baked value
+(82A5460D...) is final -- not an unrelocated pointer (rules out a loader/reloc bug).
+func_00026DE0 (which reads LS[0xBEC0] and crashes) is reached from the task's
+EARLIEST init (called from func_00003040, the SPU _start, and again from ~0x4150).
+Conclusion (every alternative now ruled out with evidence): LS[0xBEC0] is a
+location the firmware SPURS TASK KERNEL PATCHES with the real task-control-block
+pointer before transferring control to the task body. The ELF ships a placeholder;
+no task code writes it; no relocation fixes it; we don't run the kernel -> it stays
+the placeholder -> the task crashes in early init -> never computes geometry ->
+never signals the worker -> main thread's 0x543580 handshake never completes ->
+0 draws. Implementing this requires HLE'ing the SPURS task kernel's per-task LS
+patch from the real cellSpursTask/taskset ABI (RPCS3 reference) -- substantial,
+and must use the title's real structures (no fabricated pointer).
