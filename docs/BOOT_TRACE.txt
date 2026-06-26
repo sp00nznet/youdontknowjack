@@ -1083,3 +1083,46 @@ so the kernel claims a real workload and launches the task (entry+arg with the
 completion reaches the PPU. Only then does the game proceed to render its own
 graphics. (Rendering must come from real recompiled code, so the SPURS plumbing
 is the legitimate path -- not faking frames.)
+
+===========================================================================
+*** SESSION UPDATE 3: ROOT CAUSE of the SPU garbage -- cellSpurs HLE writes
+*** guest structures in HOST format (wrong endian + host pointers) ***
+===========================================================================
+Big correction to "Update 2": the SPURS taskset/workload structures ARE
+allocated and reachable -- the problem is our HLE writes them WRONG.
+
+EVIDENCE (dumped the structures the SPU DMAs):
+ * The SPURS chain is present: context (0x0FEFF480) -> workload descriptors
+   (0x006B4780.. with task ids 1/2/3, count 3 at 0x006B6C00+0x14) -> SPURS
+   instance 0x40009D00 + taskset 0x4005E000.
+ * BUT the taskset @0x4005E000 contains HOST-format bytes:
+     +0x00 = 01 00 00 00   <- our `taskset->initialized = 1` written LITTLE-endian
+     +0x10 = 00 9D 98 D1 E9 01 00 00  <- our `taskset->spurs` = a 64-bit HOST
+             pointer (vm_base + 0x40009D00), not a big-endian guest EA.
+ * The SPU (and the game's PPU code) read these as BIG-endian guest structures
+   with 32-bit guest EAs, so every field is byte-swapped and every pointer is
+   garbage. The SPURS task runtime's claim (func_00026F18) then validates the
+   garbage, produces a "no ready task" sentinel r3 = spu_il(1) = [1,1,1,1], and
+   the task-launch (func_00025920 -> func_00003040) traps on the 0x40 check
+   (also seen: indirect branch to LS 0x00000 -- a null task entry).
+
+So the [1,1,1,1] is NOT unpopulated structures and NOT the atomic gap (already
+fixed) and NOT the unhandled hint instructions (the 0x7F.... TODOs are hbr-style
+branch hints, functionally NOP). It is our libs/spurs/cellSpurs.c writing the
+guest-visible SPURS structures with native C struct access (host endian + host
+pointers) instead of vm_write32 (big-endian) + guest EAs.
+
+This is the SAME HLE bug class already fixed in cellGcmSys / cellUserInfo /
+sceNpTrophy / cellSync -- now it must be applied to the SPURS structures, which
+is harder because cellSpursCreateTaskset/CreateTask must emit the REAL
+CellSpursTaskset binary layout (~0x1900 bytes: running/ready/pending/enabled
+128-bit task bitmaps, per-task elf/context/arg EAs, the SPURS-instance EA, wid),
+all big-endian, that the SPU task runtime reads and validates -- not the
+simplified host-side tracking struct cellSpurs.c uses today.
+
+NEXT (the concrete path to the SPU completing -> PPU render): rewrite the
+cellSpurs taskset/task/workload setup to build the real big-endian SPURS
+structures in guest memory (reference: RPCS3 cellSpurs layout), mark the created
+task "ready" in the taskset bitmap, then wire SPU_WrOutIntrMbox ->
+sys_event_queue_inject for completion. Then the SPU runs the real task body and
+the PPU init unblocks toward asset-load + GCM rendering.
