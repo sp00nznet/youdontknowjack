@@ -726,3 +726,22 @@ the atomic claim protocol) from the kernel disassembly, build it in
 cellSpursInitialize, and dispatch the kernel with r3={0x0040 handle, queue_EA}.
 This is the core of the HLE SPURS kernel -- the large remaining subsystem before
 tasks run, the PPU's event-flag wait clears, and the boot reaches cellGcmSetFlip.
+
+---------------------------------------------------------------------------
+Tested the completion-shim path (inject SPURS event) — needs correct format
+---------------------------------------------------------------------------
+The PPU main thread parks in sys_event_queue_receive(q=1, timeout=0) for the
+SPURS completion event (the SPU kernel would post it). Added a
+sys_event_queue_inject() primitive + a host thread that pushed events to queue 1
+(several plausible source encodings, 65 rounds). Result: the receiver WAKES and
+the game's handler RUNS, but IGNORES the synthetic events (no new GCM/flip/draw,
+no crash, no forward progress) -- the handler is selective on the SPURS event
+source/format. A second thread also busy-polls sys_event_flag_wait(flag=1000,
+bits=0)->EINVAL; bits=0 is degenerate (the wait mask is read from SPU-populated
+state that stays 0), so it can't be unblocked by any signal either.
+CONCLUSION: there is no shortcut around real SPU work -- both blocked threads
+need the SPURS kernel to actually run the workload, populate the shared state,
+and post the correctly-formatted completion event. The injector was reverted;
+the reusable sys_event_queue_inject() primitive is kept (the future HLE SPURS
+kernel will post completion through it). Net: the only path to unblocking the
+PPU's real render code is the SPURS-kernel emulation already scoped above.
