@@ -781,3 +781,15 @@ instance/taskset/workload-queue layout). That is the large remaining subsystem
 (an HLE SPURS kernel, comparable in scope to a full emulator's cellSpurs). The
 boot is otherwise healthy (engine runs, video configured, SPU jobs dispatch);
 this one subsystem is the gate to the render loop.
+
+---------------------------------------------------------------------------
+Queue field: context+0x10 = 8-byte-aligned workload pointer (claim input)
+---------------------------------------------------------------------------
+func_00026F18 (the claim) takes r3 = *(queue_context + 0x10) and validates it:
+    shlqbyi r85,r84,4 ; andi r5,r85,127 ; brnz r5 -> fail   (8-byte alignment)
+    clgti r6,r80,1 ; brnz -> fail                            (arg <= 1)
+    ... lqa r19,0xBEC0 (global table lookup) ...
+So queue_context+0x10 must hold an 8-byte-aligned pointer to a workload/queue
+structure, which the claim then dereferences + looks up against an LS-global
+table (0xBEC0). This is the next field to populate when constructing the queue;
+the structure it points to (and the 0xBEC0 table) are the subsequent layers.
