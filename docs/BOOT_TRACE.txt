@@ -1520,3 +1520,164 @@ NEXT CONCRETE LEADS (both real, no faking):
      fix cascades into a valid framebuffer + real draws for non-SPU content).
  (b) Back cellGcmGetControlRegister with GUEST memory so put/get advance, enabling
      the real FIFO handshake (and stopping the flush-callback spin).
+
+--- 2026-06-26 (cont.): garbage config traced to a zero display-width global ---
+Host-stack backtrace at cellGcmSetTile (symbolised via ydkj.map) -> the game's GCM
+init is func_0006E850 (it registers the flip/vblank/user handlers at exactly
+0x530D70/78/80, matching the log) and sets up tiles via func_0006F648/F6E4. Those
+read the display geometry from getters:
+  func_00062598: return vm_read16(0x546D50)   // "width"
+  func_000625A4: return vm_read16(0x546D52)   // "height"
+Runtime dump of that global struct:
+  0x546D40: 00000013 0000001F 00000000 00000000
+  0x546D50: 00001400 02000200 ...
+  -> vm_read16(0x546D50) = 0x0000  (WIDTH = 0  <-- the bug)
+     vm_read16(0x546D52) = 0x1400  (= 5120, the pitch, not a height)
+     vm_read16(0x546D54) = 0x0200  (= 512)
+So the game computes tile size/pitch and the display buffer from a display-WIDTH
+global that is 0 (should be 1280). VideoOut correctly returned 1280x720/pitch=5120,
+but that value never reached this struct at 0x546D50. This is the proximate,
+SPU-INDEPENDENT root of the garbage GCM config (size=0x948D0000 pitch=0x80258003).
+
+NEXT: find what writes guest 0x546D40..0x546D54 (the display-config global). It is
+non-zero (0x13,0x1F,...,0x1400,0x200) so SOMETHING populates it -- but the width
+halfword stays 0. Trace the video-init -> struct-write path (likely a
+cellVideoOutGetState/GetResolution result that should fill width@0x546D50 but
+doesn't, or fills it at the wrong offset/width). Fixing it should cascade into a
+valid framebuffer + tile config, and -- with the FIFO control-register handshake --
+real draws for non-SPU content.
+
+NOTE on method: host RtlCaptureStackBackTrace through the lifted (ppu_context*)
+functions is only partially reliable (the inner tile-arg mapping didn't match), but
+the handler-OPD match (0x530D70/78/80) confirms func_0006E850 is the real GCM init.
+
+================================================================================
+2026-06-26  *** BREAKTHROUGH: real game render commands on screen ***
+================================================================================
+ROOT CAUSE of the garbage render config (traced end-to-end): the HLE
+cellGcmGetTiledPitchSize had the WRONG ABI. Real: u32 cellGcmGetTiledPitchSize(
+u32 size) -- one arg, the pitch is the RETURN VALUE (r3). Our impl declared it
+(u32 size, u32* pitch) and wrote the pitch through r4 as an out-pointer. At the
+title's video/GCM init (func_0006242C) r4 still held the CellVideoOutResolution*
+from the immediately-preceding cellVideoOutGetResolution (stack sp+0x80), so
+GetTiledPitchSize stomped {width=1280,height=720} with the pitch (5120) ->
+the init read width=0 -> garbage propagated into every cellGcmSetTile /
+SetDisplayBuffer (size=0x948D0000 pitch=0x80258003) AND the gcmContext `current`
+pointer AND the flip/vblank handler OPDs. (Found via: ydkj.map-symbolised host
+backtrace -> func_0006E850 GCM init -> getters reading 0x546D50 -> WWATCH on the
+global -> bracket probes in Configure/GetState -> the clobber landed in
+GetTiledPitchSize.) Fix: ps3 1c7f740.
+
+AFTER THE FIX:
+- cellGcmSetTile(idx0 off=0x0 size=0x3A0000 pitch=5120), SetDisplayBuffer(id0
+  pitch=5120 1280x720); display buffers at 0x0 / 0x3A0000 / 0x740000. ALL VALID.
+- gcmContext `current` now advances correctly (was 0xC708C708) -> the FIFO drain
+  parses the REAL command stream (79, 65, 14 words) instead of uninitialised junk.
+- THE GAME ISSUES REAL NV4097_CLEAR_SURFACE COMMANDS (mask=0xF0, color=0x00000000)
+  -> the D3D12 backend clears the presented RTV to the game's colour (black),
+  REPLACING the default dark-blue clear. => first real recompiled-game-code
+  rendering reaching the screen.
+
+REMAINING to reach CONTENT pixels (draws):
+- 0 NV4097_DRAW_ARRAYS yet. After the 2 clears the game tries to call its
+  flip/vblank handler -- OPD 0x00530D70/78 resolve to code 0x00544370, which is
+  the TOC BASE (data), NOT a lifted function ("not registered"). It then spins
+  (HOTREAD8) on a flip-done byte at 0x00543580 that the handler would set.
+- NEXT: determine the real flip-done signalling. Either (a) 0x00544370 should be a
+  real lifted function (lifting-coverage gap / OPD not relocated), or (b) the game
+  expects flip-done via a GCM label / cellGcmGetFlipStatus our HLE must advance.
+  Unblocking the flip handshake should let the render loop proceed to real draws.
+- Geometry is still partly SPU-gated (image 22 async jobs run the empty SPU image
+  and RETURN rc=0; the SPU-completion shim at sys_event.c:721 remains debt).
+
+--- 2026-06-26 (cont.): flip/vblank handler OPD-corruption workaround ---
+The title's GCM flip/vblank/user handler OPDs (0x530D70/78/80) are CORRECT at
+registration: SetFlipHandler captures code=0x0006F288 (func_0006F288, a real
+lifted flip handler), SetVBlankHandler code=0x0006F2AC. But their code word is
+later clobbered in guest memory to the TOC base (0x00544370) by a lifted store
+(not a vm_write -- WWATCH on 0x530D70 is silent, so it's a raw memcpy/vector
+store; a lifting bug). Re-resolving the OPD at tick time then yields 0x00544370
+("not registered"). Fix: capture {code,toc} at registration and dispatch via the
+new ppu_guest_call_ct(code,toc,...) so cellGcmTickFlip/TickVBlank run the REAL
+lifted handlers regardless. ps3: (this commit).
+
+RESULT: the present-thread flip/vblank handlers now run real recompiled code.
+BUT still 0 draws: the main thread keeps spinning (HOTREAD8) on the thread-sync
+byte 0x00543580, whose producer thread (writers at ppu_recomp_001.cpp:325360/436)
+is itself blocked waiting on real SPU output that the empty image-22 never
+produces (the SPU-completion shim half-satisfies the main thread but not this
+producer). So the draw gate is the SPU workload, as before. The game ALSO calls
+the corrupted flip-handler OPD directly from its own code (guest_call OPD
+0x00530D70 -> 0x00544370 not registered; indirect call -> 0x00544370) -- the
+real fix for that is finding the lifted store that clobbers the OPD.
+
+--- 2026-06-26 (cont.): geometry-draw gate pinned to SPU task-context-in-LS ---
+The draw gate traced precisely:
+- The async SPU workload (fp=0xA7633F37ACB95C25) correctly maps to image 22 =
+  spu_0021_at_004E5F80 (a REAL lifted image, entry spu_func_00003050). It runs:
+  init (0x3010) -> 0x3E68 -> job main (0x25920) -> STOP. SPU DMA/MFC IS
+  implemented (GETLLAR/PUTLLC/GET/PUT, spu_channels.c + spu_dma.h).
+- But it branches to LS 0x00000 -- ALL from one call site: lr=0x26E18, i.e.
+  spu_0021 func_00026DE0 (spu_recomp.c:33481):
+      r4 = rotqbyi(LS[0xBEC0], 8) + 196
+      r5 = LS[r4]; r2 = rotqby(r5, r4)     // a function pointer from LS
+      pc = r2; spu_indirect_branch          // r2 == 0 -> branch to LS 0
+  So the job reads a vtable/method pointer from its SPURS TASK CONTEXT object in
+  LS (base at ~LS[0xBEC0]) and it is 0 -- the task context was never populated in
+  local store. -> job can't dispatch its method -> branches to 0 -> never posts
+  its completion signal -> the PPU thread holding the 0x543580 mutex stays blocked
+  -> the main thread spins (HOTREAD8 on 0x543580) -> 0 NV4097_DRAW_ARRAYS.
+
+NEXT (the geometry-draw gate): set up the SPURS task context in LS before running
+the job -- DMA the eaContext/task-descriptor (args_ea, captured r3 = {0x40 marker,
+eaContext, queue EA}) into the LS region the job reads (around 0xBEC0 + the object
+it points to), so func_00026DE0 reads a valid method pointer. This is the SPURS
+task-ABI / LS-context setup in spu_run_lifted_job_abi (runtime/spu/spu_lifted_job.h)
++ the job's own init (spu_0021 func_00003010/00003E68). Must be REAL (DMA the
+title's actual descriptor), not a forged pointer.
+
+--- 2026-06-26 (cont.): SPU gate confirmed = un-run SPURS task kernel ---
+Dumped runtime LS at the branch-to-0 (spu_channels.c). LS[0xBEC0] at runtime =
+82A5460D 180B5628 76A6D41D B4B3D429 -- EXACTLY the spu_0021 ELF bytes (the LS
+image load is CORRECT). func_00026DE0 treats LS[0xBEC0] as a task-context object:
+  P = word@(LS[0xBEC0]+8) = 0x76A6D41D ; r4 = P + 196 = 0x76A6D4E1
+  r5 = LS[r4 & 0x3FFFF = 0x2D4E1]  (BSS, = 0) ; r2 = rotqby(r5,..) = 0 -> branch 0
+So LS[0xBEC0] holds the ELF's initial (code) bytes, NOT a valid task-context
+pointer. grep confirms spu_0021 NEVER writes LS[0xBEC0] (only reads, 6x). =>
+LS[0xBEC0] must be populated by the SPURS TASK KERNEL (the firmware SPU kernel)
+before the task body runs -- and we don't run it (proven dead-end). That is the
+geometry-draw gate.
+Secondary: the SPU lifter drops 44 instructions in spu_0021 as unhandled
+(/* TODO spu: .word 0x7F00xxxx */, 40 of them 0x7F00-prefixed + 0x07000302/
+0x011002xx). The lifter DOES handle hbr/hbra/hbrr (drops as hints), so these are a
+different class the disassembler can't decode -- need to identify whether any are
+real ops on the task path (vs embedded hint/jump-table data).
+
+=> To reach content draws: HLE the SPURS task kernel's per-task LS setup -- build
+the task control block at LS[0xBEC0] (object + its method table) from the title's
+real task descriptor (eaElf=0x004F5F80, ctx/eaContext=args_ea, captured r3) so
+func_00026DE0 reads a valid method pointer and the job dispatches, computes, and
+DMAs its render output back + posts completion (unblocking the 0x543580 mutex
+holder -> the main thread -> draws). Needs the SPURS task LS layout (RPCS3
+cellSpursTask reference). MUST use the real descriptor, no forged pointer.
+
+--- 2026-06-26 (cont.): main-thread blocker is a multi-thread init handshake ---
+The main thread, after issuing its 2 clears, is stuck in func_0030B48C
+(ppu_recomp_001.cpp:325111). It does trophy setup (sceNpTrophyRegisterContext via
+func_004701B0, sceNpTrophyGetRequiredDiskSpace) then enters a retry loop
+(loc_0036B57C): read byte 0x543580 -> if NON-zero exit; if zero usleep(1000000)
+and retry. So it waits for a worker thread to set 0x543580=1.
+The ONLY writers of 0x543580 are func_0030B7C8 / func_0030B8D4 (which also call
+sceNpTrophyTerm/DestroyContext), both writing 1 -- and the main thread is still
+spinning, so that signaling path NEVER ran. Those funcs + func_0030B48C are all
+called indirectly; the worker threads (AsyncLoad, TrophyThread) share entry
+0x530E38 (a generic worker trampoline dispatched by arg). So a worker either took
+a wrong branch (off a wrong HLE return) or is blocked upstream (its work depends
+on the stuck SPU task / event handshake).
+The trophy status callback (OPD 0x53A5C0 -> func_00300270) is a no-op (returns 0),
+so RegisterContext's missing-statusCb arg is NOT the cause (ruled out).
+NET: the draw gate is a multi-thread boot deadlock -- main thread waits on a
+worker "done" signal (0x543580) that never fires because the producing worker is
+itself gated (most deeply on the un-runnable SPURS task kernel / SPU task that
+crashes at LS[0xBEC0]). Multiple interacting subsystems (trophy, SPURS/SPU, event
+queues) must all complete init for the game to reach its draw-issuing main loop.
