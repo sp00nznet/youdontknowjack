@@ -703,3 +703,26 @@ set r3 = {0x0040xxxx handle, context_EA}, and iterate until the runtime stops
 spinning and runs the task body. This is the foundation of the HLE SPURS kernel
 (cellSpursInitialize must allocate the context region + the kernel must encode
 this r3 per task and signal completion to lv2 event flag 1000 on task end).
+
+---------------------------------------------------------------------------
+SPU context is a LOCK-FREE QUEUE — image 22 is the SPURS kernel (refined)
+---------------------------------------------------------------------------
+Continued the RE: pointed r3.word1 at a controlled region filled with per-word
+markers (0xC0DE00<off>) + logged DMAs. Findings:
+- The runtime GETs 64 bytes from r3.word1, MODIFIES, and PUTs 64 bytes back
+  (atomic read-modify-write), repeatedly -- a lock-free QUEUE CLAIM, not a
+  static descriptor read. The marker words do NOT pass through as EAs; the next
+  EA is computed from the (failed) claim result -> 0/1, so with an invalid/empty
+  context it spins. (Also a `PUT size=1 ea=1` -- a byte flag write.)
+- Therefore image 22 is the SPURS KERNEL / policy module (its func_00025920 is
+  the scheduler), and r3.word1 is the SPURS instance's lock-free WORKLOAD-QUEUE
+  context. The kernel should be started by cellSpursInitialize (one per SPU),
+  poll that queue, claim workloads/tasks the PPU enqueues, run them, and signal
+  completion. Our cellSpursCreateTask dispatching the image directly is the wrong
+  shape; and cellSpursInitialize (a stub) never builds the queue, so the claim
+  always fails.
+NEXT: reverse the SPURS lock-free queue/instance layout (the 64-byte context +
+the atomic claim protocol) from the kernel disassembly, build it in
+cellSpursInitialize, and dispatch the kernel with r3={0x0040 handle, queue_EA}.
+This is the core of the HLE SPURS kernel -- the large remaining subsystem before
+tasks run, the PPU's event-flag wait clears, and the boot reaches cellGcmSetFlip.
