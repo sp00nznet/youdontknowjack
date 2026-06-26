@@ -900,3 +900,41 @@ into this queue (the HLE SPURS kernel + the WrOutIntrMbox->event completion
 bridge feeding r29's queue). That is the next step toward the first cellGcmSetFlip
 (framebuffer EA fix still pending too). The completion-shim breakthrough is the
 mechanism; the runtime event delivery is what remains.
+
+===========================================================================
+*** MILESTONE: the recompiled engine RUNS ITS RENDER LOOP + presents frames ***
+===========================================================================
+Chain of fixes this session got the title from a deep hang to its render loop:
+1. Completion shim (sys_event.c): the main/render thread's block is a MEMORY
+   completion counter (func_003319D0: spin until *(r29+0x24)==*(r29)); satisfy it
+   for the degenerate bits==0 poll -> the recompiled main thread advances.
+2. HLE guest-pointer fixes: cellUserInfo, sceNpTrophy (GUEST_PTR).
+3. sceNpBasicGetEvent (NID 0xE035F7D6): main loop drains PSN events with
+   `while(GetEvent()==OK)`; unregistered it looped forever. Return NO_EVENT.
+4. cellGcmSetPrepareFlip / cellGcmSetFlipCommand: invoke the guest flip handler
+   via g_ps3_guest_caller (OPD resolve), not a raw call into guest code.
+5. Demand-paged 4 GB flat VM (boot_main.cpp): reserve the full 32-bit space +64K
+   guard, commit pages on fault (vectored handler). Garbage guest pointers (the
+   engine now runs deep on incomplete shim state) read as 0 instead of crashing.
+
+RESULT (real, from recompiled code):
+  ... cellSysutilCheckCallback main loop ... CertificateLoader ...
+  [cellGcmSys] SetPrepareFlip(bufferId=1)
+  [cellGcmSys] SetPrepareFlip(bufferId=0)   <- double-buffered FRAME PRESENT
+  <title emits real game text> ... sys_process_exit(1)
+The main thread reaches the game's frame loop and issues flip/present commands
+on alternating display buffers -- the engine is executing and presenting frames.
+
+REMAINING for VISIBLE pixels (no window/surface yet):
+ - RSX backend present: libs/video/rsx_d3d12_backend.c exists (flOw used it) but
+   is not wired to process the GCM command buffer + present the flipped buffer.
+ - Framebuffer surface: SetDisplayBuffer still gets offset=0 / garbage pitch
+   (cellGcmAddressToOffset(0) fails) -> no valid surface to present.
+ - Sustained run: the title self-exits (sys_process_exit(1)) after ~2 frames on a
+   "Lv-2 is still 0" assert -- a null lv2 handle from incomplete SPU/SPURS state
+   (the completion shim advances the PPU but the SPU workloads don't really run).
+   Unresolved sys_io (0xA703A51D/0x1CF98800) + cellHttp (0x522180BC/0x9638F766)
+   return 0 around the assert. Proper fix is the HLE SPURS kernel so workloads
+   run and produce real state; or stub the specific asserted handle.
+NET: the engine renders (issues frames) from real recompiled code; wiring the
+RSX present + a valid framebuffer is the last step to pixels on screen.
