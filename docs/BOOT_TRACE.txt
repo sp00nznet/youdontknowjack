@@ -1126,3 +1126,37 @@ structures in guest memory (reference: RPCS3 cellSpurs layout), mark the created
 task "ready" in the taskset bitmap, then wire SPU_WrOutIntrMbox ->
 sys_event_queue_inject for completion. Then the SPU runs the real task body and
 the PPU init unblocks toward asset-load + GCM rendering.
+
+===========================================================================
+*** SESSION UPDATE 4: CORRECTION -- the SPU never reads the taskset; the
+*** SPURS task runtime's context-only handshake itself yields [1,1,1,1] ***
+===========================================================================
+Traced the SPU's ACTUAL DMA traffic (logged every transfer). The SPU runtime
+does ONLY this before trapping, per dispatched thread:
+    GET  ea=0x0FEFF480 lsa=0x32500 size=64   (read the task context)
+    PUT  ea=0x0FEFF480 lsa=0x32500 size=64   (write it back, x2)
+...and NOTHING else -- it never DMAs the taskset (0x4005E000), the SPURS
+instance (0x40009D00), or the workload descriptors (0x006B4780). So Update 3's
+"host-format taskset is the root cause" is WRONG: the SPU doesn't read those
+structures at all, so their (host-format) contents are irrelevant to this trap.
+The host-endian/host-pointer issue in cellSpurs.c is still a latent correctness
+bug, but it is NOT what produces [1,1,1,1].
+
+What actually happens: the SPURS task runtime reads the context (valid,
+game-written: +0x10 = 0x00400001 handle, +0x14.. = descriptor EAs 0x006B4780..),
+processes it through func_00026F18 (its arg validation PASSES -- not an assert),
+issues an atomic GETLLAR/PUTLLC at ea=0x00000000 (a NULL lock/queue pointer the
+kernel computed -- PUTLLC "succeeds" on address 0), then returns the sentinel
+r3 = spu_il(1) = [1,1,1,1] (= "no ready task") up to func_00025920 -> func_00003040,
+which traps on the 0x40 task-descriptor check (and an indirect branch to LS 0).
+
+So the real blocker is the SPURS task runtime's context handshake computing a
+NULL ready-queue/lock pointer (atomic at EA 0) and concluding "no work". The
+queue/lock EA should come from the context handshake; it resolves to 0. Finding
+why requires step-tracing the runtime from the context read to the atomic-EA
+computation (func_00026F18 -> func_00026E80 -> func_00026FC4 ...) -- a deep
+SPU-emulation debug best done against a reference SPU trace (RPCS3). This is the
+honest remaining gate; it is NOT a quick HLE structure fix.
+
+Confirmed-correct work that stands: the SPURS task r3 ABI (e5500f4) and the real
+GETLLAR/PUTLLC reservations (c1d9548) -- both necessary, both verified.
