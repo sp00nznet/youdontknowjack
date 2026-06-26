@@ -355,3 +355,42 @@ Re-lift command (serial, ~10-12 min; needs clean RAM or it OOMs at the write):
     --functions meta/EBOOT.functions.json --output src/recomp \
     --header-name ppu_recomp.h --source-name ppu_recomp \
     --jobs 1 --code-end 0x4874E0 --hle-stubs meta/EBOOT.imports.json
+
+===========================================================================
+*** ROOT-CAUSE FIX: callee-saved-register frame-drift (OOB eliminated) ***
+===========================================================================
+Confirmed and fixed the corruption that caused the boot hang -- a whole CLASS
+of frame-drift bugs, not a one-off.
+
+PROVEN MECHANISM (with runtime probes): func_00182DD8 saves a small loop count
+(r29 = 8) to its frame at sp+0x78; a callee whose stack pointer has drifted up
+(a merged-function tail-call running an epilogue against the wrong frame) writes
+the TOC pointer into that exact slot; func_00182DD8's epilogue reloads
+0x00544370 instead of 8 -> func_003DC468 loops 5.5M times -> hang. Before/after
+probes showed r29 = 0x8 before the call, 0x00544370 after.
+
+FIX (ppu_lifter.py, lift_function): the PPC ABI guarantees r14-r31 survive a
+call. Instead of reloading them from the (callee-corruptible) frame slot at the
+epilogue, snapshot each saved non-volatile GPR at function ENTRY into a C local
+and restore from that. Only restores that PAIR with a save (same offset+reg) in
+the same body are rewritten -- a mid-function tail-entry has the restore but not
+the prologue save, so its entry snapshot would be the mid-function value, not the
+caller's; those are left alone (rewriting them reintroduced the OOB -> reverted).
+42,869 restores rewritten. RESULT: OOB accesses 0 (was a runaway loop); the
+r29-count loop is gone.
+
+REMAINING (resume here): func_003DC468 still spins in a SECOND loop (no OOB),
+reached via func_002963F4 -> func_00264D58 -> func_002965B4 -> func_0026574C ->
+func_00264A4C -> func_003DC468 (recovered with the new watchdog stack-scan). Its
+loop limit is another callee-saved reg (gpr[26]); the residual corruption is the
+SAME class one level deeper -- an UNPROTECTED tail-entry callee (no matching
+save in its body, so the pairing fix skips it) clobbers a callee-saved register
+in the shared frame. The clean fixes:
+  (a) eliminate the merged functions / problematic tail-entries via better
+      boundary detection so there are no shared-frame tail-entries, OR
+  (b) give tail-entries a correct snapshot (they can't capture the caller's
+      saved reg from their own entry, so this needs the original function's
+      prologue value threaded in -- non-trivial).
+Boundary recovery currently lands 4379 splits but ~452 functions stay merged
+(mflr-first / entry-quirk prologue patterns it doesn't yet match); closing those
+removes the tail-entries that still corrupt.
