@@ -25,7 +25,19 @@ extern const uint32_t        libsre_export_count;
 /* YDKJ's indirect-dispatch registrar (runtime/ppu/ppu_loader.cpp). extern "C"
  * matches by name; the (uint64_t, fn) ABI is identical to ppu_register_function. */
 void ppu_register_function(uint64_t addr, void (*fn)(void*));
+
+/* HLE registration + sysPrxForUser CRT shims libsre imports but the title does
+ * not (so the generated NID table omits them). Registered here so cellSpurs'
+ * init path (which strcpy/strncat's the SPU thread-group name and validates the
+ * returned dst pointer) resolves instead of getting a 0 from the unresolved
+ * fallback. */
+void ps3_hle_register(unsigned int nid, const char* name, void* handler);
+char* _sys_strcpy(char* dst, const char* src);
+char* _sys_strncat(char* dst, const char* src, unsigned int size);
+int   _sys_strncmp(const char* s1, const char* s2, unsigned int size);
 }
+
+static int ydkj_spu_image_close_stub(void) { return 0; } /* sys_spu_image_close */
 
 /* Adapter to the prx_register_fn signature the loader expects. */
 static void ydkj_prx_register(uint32_t addr, void (*host)(void*))
@@ -77,4 +89,10 @@ extern "C" void ps3_load_prx_modules(void)
     fprintf(stderr, "[init] libsre load %s: %u funcs registered, %u exports in registry\n",
             r.ok ? "OK" : "FAILED", r.funcs_registered, prx_export_registry_count());
     free(img);
+
+    /* Supplemental sysPrxForUser CRT shims for libsre's imports. */
+    ps3_hle_register(0x99C88692u, "_sys_strcpy",  (void*)_sys_strcpy);
+    ps3_hle_register(0x996F7CF8u, "_sys_strncat", (void*)_sys_strncat);
+    ps3_hle_register(0x04E83D2Cu, "_sys_strncmp", (void*)_sys_strncmp);
+    ps3_hle_register(0xE0DA8EFDu, "sys_spu_image_close", (void*)ydkj_spu_image_close_stub);
 }
