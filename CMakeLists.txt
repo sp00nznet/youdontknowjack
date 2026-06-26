@@ -78,5 +78,5 @@ if(WIN32)
     # Deep recompiled call chains nest on the host stack (each guest call is a
     # host call); reserve 256 MB for the main thread so it doesn't overflow the
     # 1 MB default. Spawned threads get their reserve in sys_ppu_thread_create.
-    target_link_options(ydkj_boot PRIVATE /STACK:268435456)
+    target_link_options(ydkj_boot PRIVATE /STACK:268435456 /MAP:ydkj.map)
 endif()
