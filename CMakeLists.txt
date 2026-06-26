@@ -54,7 +54,7 @@ target_include_directories(ydkj_boot PRIVATE
 
 target_link_libraries(ydkj_boot PRIVATE "${PS3RECOMP_RUNTIME_LIB}")
 if(WIN32)
-    target_link_libraries(ydkj_boot PRIVATE ws2_32 bcrypt)
+    target_link_libraries(ydkj_boot PRIVATE ws2_32 bcrypt d3d12 dxgi dxguid d3dcompiler)
     # Deep recompiled call chains nest on the host stack (each guest call is a
     # host call); reserve 256 MB for the main thread so it doesn't overflow the
     # 1 MB default. Spawned threads get their reserve in sys_ppu_thread_create.
