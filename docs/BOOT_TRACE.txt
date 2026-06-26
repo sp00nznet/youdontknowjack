@@ -608,3 +608,39 @@ and bridge the SPU readiness signal to sys_event_flag_set(flag=1000). Then the
 game's wait pattern populates, the busy-poll ends, and it advances toward its
 first cellGcmSetFlip. (Framebuffer EA still resolves to 0 via AddressToOffset(0);
 the RSX present path -- rsx_d3d12_backend.c -- is the final step to pixels.)
+
+---------------------------------------------------------------------------
+SPU FRONTIER, root cause traced to the exact instruction (architectural)
+---------------------------------------------------------------------------
+Drilled the persistent SPU job (image 22 = spu_0021_at_004E5F80, entry
+spu_func_00003050) all the way down. Channel trace showed it does ZERO channel
+ops before hanging -> it is NOT blocked on DMA/mailbox; it spins in pure
+computation. Per-callee trace pinned the hang exactly:
+  entry 3050 -> func_00003010 (returns) -> func_00003E68 (NEVER returns)
+func_00003E68 is a prologue that does:
+    gpr[3] = rotmai(gpr[3], 112)          ; (arith shift of the task arg)
+    if (gpr[3] == 64) -> func_00003ED8    ; real path: MFC DMA of the context
+    else              -> func_00003ED0    ; func_00003ED0 is `nop; goto self`
+func_00003ED0 is an INFINITE HALT-LOOP (the SPU task-runtime's abort/assert
+path). The arg check fails (gpr[3] derives from args_ea=0x0FEFF480 -> >>16 =
+0x0FEF, not 64), so the runtime aborts into the halt spin.
+
+ARCHITECTURAL ROOT (why the check fails): image 22 is a SPURS *task-runtime*
+image. On real hardware the SPURS *kernel* (policy module, a SEPARATE SPU image
+loaded by cellSpursInitialize) sets up each task's SPU execution context --
+registers, LS layout, the DMA'd task descriptor -- BEFORE jumping to the task
+runtime entry, which then validates it (the gpr[3]==64 assert). Our HLE
+cellSpursInitialize is a STUB: the real SPURS kernel never runs. So
+cellSpursCreateTask dispatches the task image in ISOLATION with only r3=args_ea,
+the runtime's context assert fails, and it halts. Downstream, the PPU busy-polls
+sys_event_flag_wait(flag=1000,bits=0) forever because no task ever runs/signals.
+
+THE REAL FIX (large, the next milestone): emulate SPURS properly -- run the
+actual SPURS kernel image on the SPU worker threads (from cellSpursInitialize),
+have it consume the workload/taskset queues the game builds in main memory, and
+let IT dispatch tasks with the correct per-task SPU context + signal completion
+back to the lv2 event flag/queue the PPU waits on. That replaces the current
+"CreateTask -> dispatch the task image directly" shortcut, which can't satisfy
+the task runtime's context contract. Only then does the SPURS handshake complete
+and the game advance toward its first cellGcmSetFlip (then: framebuffer EA fix
+for AddressToOffset(0), and the rsx_d3d12_backend.c present path -> pixels).
