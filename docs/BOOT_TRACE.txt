@@ -1407,3 +1407,37 @@ NEXT STEP (well-defined, substantial):
  - Caveat (flOw reference): even a fully working libsre+SPURS only reached the GCM
    clear there; YDKJ's content draws depend on the SPU task pipeline actually
    producing geometry, which is the real remaining bring-up.
+
+================================================================================
+2026-06-26 (cont) — SPURS execution model clarified; libsre SPU kernel is a
+                    lifted dead-end; the path is HLE-kernel + real lifted tasks
+================================================================================
+Located + extracted + LIFTED the two SPURS kernel SPU ELFs embedded in libsre.prx
+(0x020480 entry 0x818, 0x020D00 entry 0x848). kernel_a is the genuine scheduler
+(32 MFC DMA ops, 2 GETLLAR/PUTLLC atomic = the workload-claim CAS, 28 channel
+writes). Committed to prx/spu_kernel/ as reference.
+
+KEY REALIZATION — running libsre's lifted SPU kernel does NOT work under static
+recomp: the SPURS kernel claims a workload, then DMAs the task body's SPU code into
+local store and BRANCHES to it. Our runtime executes only PRE-LIFTED images, never
+dynamically-DMA'd LS code, so the kernel's task-launch branch can't resolve. The
+kernel-dispatches-task model is fundamentally incompatible with lifted execution.
+
+THEREFORE the correct path = HLE the firmware SPURS kernel (Sony code, legitimately
+HLE-able like every cellXxx) and run the title's ALREADY-LIFTED SPU task images
+(image 22 = spu_0021_at_004E5F80) directly via the existing spu_workload_dispatch.
+The title's SPU tasks ARE real recompiled game code; only the kernel orchestration
+is HLE. Previous sessions built spu_workload_dispatch + the SPURS task r3 ABI +
+GETLLAR/PUTLLC + the longjmp halt for exactly this; the gap was that the HLE-written
+taskset was malformed. NOW libsre writes the taskset CORRECTLY, so the missing
+pieces are: (1) HLE the kernel "ready" signal so the title proceeds past init;
+(2) on libsre task/workload creation, dispatch the matching lifted SPU image;
+(3) bridge SPU completion -> the title's PPU wait.
+
+DIAGNOSTIC STATE: with libsre, the PPU main (BOOT) thread is stuck in a deep nested
+call chain (game funcs 0x4EEBA71->0x4D05781->0x4CFAFC0->0x4CFADB0) -- a COMPLEX
+SPURS-wait loop (reads many addresses/iteration, so the single-address HOTREAD and
+the read32 HOTMAP frequency histogram don't trip; YDKJ_HOTMAP added to vm_read32).
+Confirms the wait is on SPU-produced state, not a trivial flag. This is the same
+SPU-execution gate, now with correct (libsre) structures behind it -- the next
+phase is the HLE SPURS kernel + real-task dispatch (multi-session).
