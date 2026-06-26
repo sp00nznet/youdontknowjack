@@ -1307,3 +1307,48 @@ So every event/flag/port mechanism works; the one missing thing is the SPU task
 producing real output. That requires running the task body, which needs the
 firmware SPURS kernel/policy-module to switch to it -- the standalone task elf
 can't. This is the singular, well-characterized remaining blocker.
+
+===========================================================================
+*** STRATEGIC FINDING: the flОw sister-project shows the proven path is the
+*** REAL libsre.prx, not hand-emulated SPURS (my whole approach was upstream-wrong)
+===========================================================================
+Found /d/recomp/ps3games/flow -- flOw, the most advanced game in this SAME
+ps3recomp framework, which actually RENDERS. Its docs (README.md +
+docs/spu-workstream-scope.md) answer the SPURS question:
+
+ * flOw's boot is ALSO SPU/SPURS-gated, exactly like YDKJ.
+ * Its team EXPLICITLY abandoned HLE-stub / hand-emulation of cellSpurs (which is
+   precisely what YDKJ's libs/spurs/cellSpurs.c does -- all CELL_OK stubs, and
+   what I spent this session hand-fixing on the SPU side). It does NOT work.
+ * flOw v0.6.0 LOADS THE REAL DECRYPTED libsre.prx (Sony's cellSpurs/cellSync
+   library): relocated at guest base 0x30000000, lifted to namespaced C, copied
+   into guest RAM by a runtime PRX loader -- 1003 funcs, 269 exports; flOw's 14
+   cellSpurs + 3 cellSync imports now dispatch into REAL recompiled Sony code via
+   libsre OPDs instead of stubs, which eliminated the 0x01000000 unresolved-PRX
+   spin that blocked SPURS construction. THIS is how SPURS is meant to work here.
+ * The PRX toolchain is SHARED in ps3recomp: tools/prx_relocate.py (segment-aware
+   SCE reloc), tools/prx_exports.py (NID->addr), runtime/prx/prx_loader.c,
+   ppu_lifter --symbol-prefix. flOw's lifted libsre: /d/recomp/ps3games/flow/prx/
+   libsre_lifted/ + libsre.prx.
+
+WHAT THIS MEANS FOR YDKJ:
+ - My 5 committed SPU fixes (r3 ABI, atomics, SP, race-free r3, longjmp halt) are
+   the SPU SIDE -- still needed -- but the PPU side (taskset/workload setup) must
+   come from REAL libsre, not the CELL_OK stubs. With real libsre populating the
+   structures, the SPU runtime's claim/dispatch (which I got to the point of
+   claiming valid descriptors) would actually run task bodies.
+ - The concrete next step: extract YDKJ's libsre.prx (NOT in input/ -- only
+   EBOOT.BIN/elf, PARAM.SFO, data.toc; needs matching firmware, or try flOw's
+   239KB libsre.prx with version-match risk), load it via the PRX toolchain, wire
+   YDKJ's cellSpurs/cellSync NIDs to its exports.
+ - This is a MULTI-DAY effort (flOw spent a whole version on it), and even flOw
+   WITH libsre still hit a "title-state wall" -- its visible organism/plankton is
+   a HOST-SIDE data-driven scene-builder; the real engine only emits the GCM
+   clear. So real YDKJ engine-rendered pixels are a MONTHS-scale bring-up, more
+   than even the framework's most advanced game fully achieved.
+ - Also: flOw fixed a LIFTER bug -- "backward branch recursion across
+   split-function boundaries" (lifter emits a call instead of a branch -> mutual
+   recursion -> host-stack overflow -> static-constructor crashes) + a
+   CRT-abort-via-longjmp workaround. YDKJ's 0x544370 TOC-as-vtable garbage call is
+   likely the same broken-constructor class -- worth checking spu/ppu_lifter for
+   the same bug.
