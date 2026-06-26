@@ -1202,3 +1202,41 @@ NEXT: (a) capture r3 = the eaContext+0x10 descriptor at dispatch time (race-free
 and pass it through spu_async_job; (b) have cellSpursCreateTask mark the task
 READY in the guest workload descriptor so the claim finds it. Then the SPU should
 run the task body, signal completion, and unblock the PPU toward rendering.
+
+===========================================================================
+*** SESSION UPDATE 6: SPURS kernel now CLAIMS + processes the real workload
+*** queue (tasks dispatched) -- two SPU bugs fixed; completion bridge remains ***
+===========================================================================
+Building on the SP-init fix (6be0fbb), implemented the race-free SPURS task r3
+capture (62b4e79) and the SPU kernel now runs its real workload loop:
+
+ - spu_workload_dispatch_async now captures the real r3 from the game's
+   descriptor at eaContext+0x10 = {0x40-marker handle, workload queue EAs} at
+   DISPATCH time (PPU thread, synchronous) and plumbs it through spu_async_job ->
+   spu_run_lifted_job_abi (r3_override). This avoids the async-thread race that
+   read a stale 0xFFFF0002 when the PPU overwrote the stack-allocated context.
+ - With the correct r3 (word2/3 = real queue EAs instead of 0), the claim CAS now
+   locks REAL workload descriptors (atomic ea=0x006B6C00) instead of address 0.
+ - VERIFIED: the task-dispatch entry func_00003E68 now receives VALID task
+   descriptors -- r3 = [00400000 0FEFF480 006B457C 006B6C00], [00400001 ...],
+   [00400002 ...] (each passes the 0x40 check and runs the kernel's task-claim
+   path), with [1,1,1,1] only as the terminal "no more tasks" sentinel. The real
+   recompiled SPU kernel processes the workload queue where it previously trapped
+   on the very first claim.
+
+REMAINING (the completion bridge): the SPU still does not unblock the PPU:
+ - After claiming the tasks the kernel re-claims, gets the [1,1,1,1] terminal
+   sentinel, and dispatches IT as a task -> func_00003E68 fails the 0x40 check ->
+   func_00003ED0 (`nop; br .`) -> the SPU thread spins forever (our lifter renders
+   a self-branch as an infinite C loop, so spu_async_run never returns).
+ - The SPU writes NO completion signal (no SPU_WrOutIntrMbox, no DMA to the PPU's
+   completion counter at ~0x00628754 that func_003319D0 polls) before spinning.
+ - So the PPU stays in its init wait loop: 20s run still does ZERO cellFs and ZERO
+   GCM beyond _cellGcmInitBody.
+
+NEXT (concrete): (a) lifter: render a branch-to-self (`br .`) as
+`ctx->status = STOPPED_BY_HALT; return;` so the SPU kernel's idle/terminal state
+returns instead of spinning (correct SPU halt semantics; lets spu_async_run
+regain control); (b) bridge SPU task completion -> the PPU: write the completion
+counter / inject the SPURS event into the PPU's q=2/q=3 (sys_event_queue_inject)
+so the init wait advances. Then the game proceeds to asset load + GCM rendering.
