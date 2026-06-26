@@ -847,3 +847,26 @@ kernel (the claim/dispatch half is the queue-layout RE).
 NET (still): two halves to build — (1) reverse + construct the lock-free
 workload queue so the claim dispatches a task; (2) bridge WrOutIntrMbox->event
 queue so completion reaches the PPU. Both are the dedicated HLE-SPURS-kernel work.
+
+---------------------------------------------------------------------------
+PROVEN: the MAIN thread is the gate, and NO syscall shim can unblock it
+---------------------------------------------------------------------------
+Thread-id instrumentation (reverted) pinned the gate precisely:
+  MAIN thread tid=X  busy-polls  sys_event_flag_wait(flag=1000, bits=0)
+  the sys_event_queue_receive(q=1) is a SEPARATE handler thread (different tid).
+So earlier queue-injection couldn't help -- the main/render thread waits on the
+FLAG, not the queue. Both wait params are garbage (flag 1000 doesn't even exist
+in our table -> ESRCH; bits=0 -> EINVAL), i.e. read from SPU-populated state that
+stays 0.
+
+DECISIVE EXPERIMENT (reverted): forced sys_event_flag_wait(flag=1000) to return
+CELL_OK with result="all bits set" every call. The main thread STILL did not
+proceed -- no new GCM/draw/flip, no crash. So its busy-poll loop does NOT gate on
+the wait syscall's return; it gates on MEMORY STATE the SPU must write. Making the
+syscall succeed changes nothing because the loop re-checks SPU-computed data.
+
+CONCLUSION (now proven, not inferred): the render path is gated on the SPU's real
+computed output in main memory. No syscall-level shim -- not the event queue, not
+the event flag -- can unblock it. The SPU workload must actually run (via the HLE
+SPURS kernel) and write its results. This closes off the last "shim" hypothesis:
+there is definitively no shortcut; the HLE SPURS kernel is mandatory for pixels.
