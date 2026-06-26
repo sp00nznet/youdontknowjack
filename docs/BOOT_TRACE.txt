@@ -1696,3 +1696,35 @@ never signals the worker -> main thread's 0x543580 handshake never completes ->
 0 draws. Implementing this requires HLE'ing the SPURS task kernel's per-task LS
 patch from the real cellSpursTask/taskset ABI (RPCS3 reference) -- substantial,
 and must use the title's real structures (no fabricated pointer).
+
+--- 2026-06-26 (cont.): SPU crash path confirmed via host backtrace ---
+Host-stack backtrace at the SPU branch-to-0 (spu_channels.c) -> exact call chain:
+  func_00003050 (entry) -> func_00003E68 -> func_00003ED8 -> func_00003FD8
+    -> func_000040F0 -> func_00026DE0 (crash reading LS[0xBEC0]).
+This is the SPU C / SPURS-task RUNTIME INIT chain (all 0x3xxx-0x4xxx). func_000040F0
+issues an MFC DMA *PUT* (Cmd=0x20, LS->main), NOT a load of LS[0xBEC0], then calls
+func_00026DE0 with r3=0. func_00026DE0 reads LS[0xBEC0] (a global) regardless of r3.
+TESTED: using the game's real descriptor word1 (0x006B4500) instead of overriding
+r3[1]=args_ea did NOT change the crash -> r3 word1 is not the cause. So nothing in
+the task's own init writes LS[0xBEC0]; it must be pre-patched by the SPURS task
+kernel. Conclusion fully confirmed and empirically tested: the draw gate is the
+SPURS per-task LS patch (LS[0xBEC0] = real task-control-block pointer), produced by
+the firmware kernel at dispatch -- not present in the descriptor, not loaded by the
+task's DMA, not r3-derived. Implementing it requires the real cellSpursTask ABI.
+
+--- 2026-06-26 (cont.): kernel-code confirms LS[0xBEC0] is in the dynamic policy module ---
+Examined the extracted+lifted SPURS kernel (prx/spu_kernel/lift_a, lift_b; ~480
+insns each, from libsre.prx file off 0x020480/0x020D00). The lifted kernel writes
+only its OWN LS working area (0x120-0x1E0, 0x3FF40) and does MFC DMAs for its own
+data -- it does NOT contain the per-task worker-LS setup (the LS[0xBEC0] patch).
+That logic is in the SPURS policy module the kernel DMAs in at runtime and branches
+into (LS 0xA00) -- not statically present, not recompilable (proven dead-end).
+=> CONFIRMED from every angle (empirical LS dump, host backtrace, descriptor
+contents, RPCS3 = runs real kernel, project README's 4-step wiring plan, and now
+the lifted kernel code itself): the LS[0xBEC0] task-control-block pointer is
+produced by the dynamic SPURS policy module; it is not present anywhere readable
+and cannot be obtained without running that module (impossible under static
+recomp) or a from-scratch RE of the SPURS task scheduler's worker-LS layout. The
+path to real geometry is the README's remaining-wiring effort (HLE the task
+dispatch), a substantial dedicated subsystem -- not a single-session fix, and not
+something to fabricate.
