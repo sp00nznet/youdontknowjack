@@ -768,3 +768,16 @@ PROGRESS LADDER so far (each validated, committed): r3={handle,ctx_EA} ABI ->
 context is a lock-free queue -> image 22 = SPURS kernel -> completion-shim ruled
 out (sys_event_queue_inject kept) -> claim decision = func_00026F18 result==1.
 NEXT: reverse func_00026F18's reads to map the ready-workload fields.
+
+---------------------------------------------------------------------------
+func_00026F18 is a multi-block claim/validate routine (scope confirmation)
+---------------------------------------------------------------------------
+Disassembled func_00026F18: it validates a context field (from queue+0x10) via
+ceq/gb/cgti/xsbh, branches on validity (brhz 0x27458), then continues with more
+blocks + sub-calls. It is a real piece of the SPURS lock-free queue-claim
+protocol, not a leaf — so building a queue context that makes it return
+work-available==1 means reversing this routine and its callees (the SPURS
+instance/taskset/workload-queue layout). That is the large remaining subsystem
+(an HLE SPURS kernel, comparable in scope to a full emulator's cellSpurs). The
+boot is otherwise healthy (engine runs, video configured, SPU jobs dispatch);
+this one subsystem is the gate to the render loop.
