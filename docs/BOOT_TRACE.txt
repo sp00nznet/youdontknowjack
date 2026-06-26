@@ -1441,3 +1441,33 @@ the read32 HOTMAP frequency histogram don't trip; YDKJ_HOTMAP added to vm_read32
 Confirms the wait is on SPU-produced state, not a trivial flag. This is the same
 SPU-execution gate, now with correct (libsre) structures behind it -- the next
 phase is the HLE SPURS kernel + real-task dispatch (multi-session).
+
+================================================================================
+2026-06-26 (cont) — kernel-lifting DEAD-END proven by running it; SPURS data
+================================================================================
+Wired the lifted SPURS kernel (image 23 = spurs_kernel_a, entry LS 0x818) to run
+on the cellSpurs SPU threads with the real SPU-thread argument (YDKJ_SPUKERNEL env;
+runtime hook g_spurs_kernel_hook in sys_spu_thread_initialize -> prx_init.cpp).
+
+SPU thread argument cellSpurs passes (read from the arg struct @0x0FEFF6C8):
+  r3 = 0x0000000400000000   r4 = 0x0000000040009D00 (SPURS instance EA)
+  r5 = 0   r6 = 0
+So the SPURS instance is at 0x40009D00 (matches prior notes), taskset 0x4005E000.
+
+RESULT: the kernel RUNS (real recompiled SPU code executes) but immediately loops
+"indirect branch to unknown LS address 0x00A00" 101,569x then crashes. 0xA00 is
+BEYOND the kernel's own code (0x100-0x880): the SPURS kernel DMAs a policy module
+into local store at 0xA00 and branches into it. A static-recompiled runtime runs
+only PRE-LIFTED images, never dynamically-DMA'd LS code -- so the kernel's
+policy-dispatch branch can never resolve. This DEFINITIVELY proves (not just
+suspects) that running libsre's SPU kernel is incompatible with static recomp.
+
+=> The ONLY viable path to real SPU output is to HLE the firmware SPURS kernel
+   (emulate its scheduling/ready-signal in C) and run the title's already-lifted
+   SPU TASK images (image 22 = spu_0021_at_004E5F80, self-contained task runtime +
+   body) against libsre's correct taskset. Data in hand for that: SPURS instance
+   0x40009D00, taskset 0x4005E000, image-22 ELF @guest 0x004F5F80, the SPURS task
+   r3 ABI ({0x40-marker, eaContext, queue EAs}), spu_workload_dispatch_async +
+   atomics + longjmp-halt (prior sessions). Remaining unknowns needing RE: the
+   exact "SPURS ready" signal the title waits on post-init, and the SPU->PPU
+   completion bridge (WrOutIntrMbox -> event queue) format.
