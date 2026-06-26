@@ -281,6 +281,7 @@ extern "C" {
     void cellUserInfoEnableOverlay(void);
     void cellUserInfoGetHomeDir(void);
     void sceNpSetFakeUsername(void);
+    void sceNpBasicGetEvent(void);
     void sceNpInit(void);
     void sceNpTerm(void);
     void sceNpGetNpId(void);
@@ -663,6 +664,7 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0xA79297AFu, "cellUserInfoGetHomeDir", (void*)cellUserInfoGetHomeDir);
     ps3_hle_register(0xE5133A41u, "sceNpSetFakeUsername", (void*)sceNpSetFakeUsername);
     ps3_hle_register(0xBD28FDBFu, "sceNpInit", (void*)sceNpInit);
+    ps3_hle_register(0xE035F7D6u, "sceNpBasicGetEvent", (void*)sceNpBasicGetEvent);
     ps3_hle_register(0x4885AA18u, "sceNpTerm", (void*)sceNpTerm);
     ps3_hle_register(0xFC7303C5u, "sceNpGetNpId", (void*)sceNpGetNpId);
     ps3_hle_register(0x33F1F978u, "sceNpGetOnlineId", (void*)sceNpGetOnlineId);
