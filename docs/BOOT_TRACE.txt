@@ -286,3 +286,72 @@ func_00063428 and the AsyncLoad worker touches a NULL-relative address
 (0x00530D70/78) also resolve to non-4-aligned garbage code pointers and want
 looking at. The SPU dispatch pipeline (built, 22 images) is still downstream of
 this, waiting for the boot to reach the first cellSpursCreateTask/AddWorkload.
+
+===========================================================================
+*** HANDOFF: PPC->x86 lifter bugs fixed; one frame-drift layer remains ***
+===========================================================================
+Drilled the post-init boot hang to the lifter, fixed three real PPC/x86
+correctness bugs, and narrowed the residual to a single deep layer. Current
+state, what's fixed, and exactly where to resume:
+
+--- BOOT STATE -----------------------------------------------------------
+The title boots through ALL PPU init (video/game/net/GCM/audio + FMOD + SPURS
+management), then ONE guest thread (the main thread, entry func_0005ECF4) wedges
+in an infinite loop in the func_0026xxxx subsystem; the other ~6 threads are
+correctly parked in OS waits (ntdll). Not a deadlock -- a runaway loop. The 2-
+sample watchdog (boot harness, 8s+15s thread-RIP snapshot) and the vm_oob one-
+shot backtrace were the tools that pinned all of this.
+
+--- FIXES LANDED (committed in ps3recomp) --------------------------------
+ 1. PPC rA=0 addressing (commit "fix PPC rA=0..."): in indexed/reservation
+    addressing rA field 0 means literal 0, not GPR r0. The canonical atomic
+    loop (lwarx rD,0,rB; ...; stwcx. rS,0,rB) reuses r0 as scratch, so emitting
+    ctx->gpr[0] made the two EAs diverge and the reservation never matched ->
+    infinite spin (func_000DE9E0). Fixed lwarx/stwcx./ldarx/stdcx. + all
+    non-update X-form mem ops via _xea().
+ 2. PPC non-trapping divide: divw/divwu/divd don't trap on /0 or INT_MIN/-1;
+    host C divide raised SIGFPE (0xC0000094) in func_00263194. Guarded -> 0.
+ 3. Function-boundary recovery (prologue scan): the call-graph function list
+    merges tail-call-only functions into the preceding entry; a 'b' between
+    them lifts as an internal goto that runs a callee's epilogue against the
+    caller's frame, skipping callee-saved restores. Split at a prologue
+    (stdu r1,-N / mflr r0) after a definitive return/tail terminator. Recovered
+    4303 functions; func_00182DD8 went 520+ lines/mismatched frames -> clean
+    42-line single-frame fn; bonus: output 656 MB -> 124 MB (19 -> 4 chunks).
+ Plus: cellAudioPortClose/Quit free() on guest-arena buffer (heap corruption
+ abort) fixed; SIGABRT backtrace handler; per-thread RIP watchdog.
+
+--- RESIDUAL BUG (resume here) -------------------------------------------
+The loop count in func_003DC468 (gpr[29]) should be 1<<(small) but is read as
+0x00544370 == the TOC pointer. gpr[29] is provably a power-of-2 BEFORE the call
+to func_00182DD8 (line ~521617) and = 0x544370 AFTER it (loopcnt probe), so a
+callee in func_00182DD8's subtree clobbers func_00182DD8's saved-r29 stack slot
+(sp+0x78) with the TOC -- i.e. a std r2 (TOC save before an indirect call) from
+a function whose sp has drifted UP. That up-drift is the SAME bug class as #3
+(a function running an epilogue with the wrong frame size), one layer deeper.
+func_00182DD8 and its direct callees (func_00470710/0026376C/00470730) are all
+CLEAN, so the culprit is deeper in the subtree.
+
+KEY UNRESOLVED LIFTER ISSUE blocking the clean fix: boundary recovery puts the
+correct split into func_bounds (verified by debug print: [(0x10200,0x1027C),
+(0x1027C,0x10340)]) yet the OUTPUT still emits func_00010200 spanning the FULL
+[0x10200,0x10340) (dead -0x80 tail included) ALONGSIDE a correct func_0001027C.
+The split is honored for func_00182DD8 but not func_00010200. ~530 functions
+remain "merged" (>1 prologue) this way. An internal 'b' into such a dead tail
+re-introduces the frame-drift even though func_bounds is correct.
+
+PRIME SUSPECT: the mid-function tail-entry pass (ppu_lifter.py ~line 1931,
+generate_mid_entries / lift_function) -- it lifts [target, containing_func_end]
+and likely re-derives the UN-split containing-function end, overriding the
+recovery split. Instrument which func produces func_00010200 with end 0x10340
+despite func_bounds saying 0x1027C; bound mid-entries (and the func_bounds
+lift) at the next prologue/boundary. Fixing that should remove the residual
+frame-drift, clear the loop, and let the boot reach the first
+cellSpursCreateTask/AddWorkload -- at which point the built SPU pipeline
+(22 lifted images, dispatch wired) finally runs.
+
+Re-lift command (serial, ~10-12 min; needs clean RAM or it OOMs at the write):
+  python <ps3recomp>/tools/ppu_lifter.py input/EBOOT.elf \
+    --functions meta/EBOOT.functions.json --output src/recomp \
+    --header-name ppu_recomp.h --source-name ppu_recomp \
+    --jobs 1 --code-end 0x4874E0 --hle-stubs meta/EBOOT.imports.json
