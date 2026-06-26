@@ -1034,3 +1034,52 @@ REMAINING GATE (the deep SPURS frontier):
  * Net: real SPU code runs further than before; getting the SPURS kernel to
    complete a workload and signal the PPU is the next concrete step to unblocking
    the game's asset-load + render path (and thus its own pixels).
+
+===========================================================================
+*** SESSION UPDATE 2: real GETLLAR/PUTLLC reservations; render gate is the
+*** SPURS taskset/workload population (deep HLE), not a localized bug ***
+===========================================================================
+Traced the SPURS trap to its precise cause and fixed the runtime's atomic gap.
+
+SPU CONTROL FLOW (image 22 = SPURS taskset kernel + task body, one image):
+ * Dispatch starts at the registered entry func_00003050 (r3 forced to the SPURS
+   ABI {0x00400000, eaContext} -- prior fix). It passes the 0x40 check, DMAs the
+   64-byte context (0x0FEFF480, valid SPURS data: +0x10 = 0x00400001 handle), and
+   runs the kernel loop func_00003FD8 <-> func_000040B8.
+ * The kernel loop CLAIMS a workload via func_00026F18, then func_00003050 calls
+   func_00025920 ("run task") which calls func_00003040 (the task launch
+   trampoline -> func_00003050) with the claimed task descriptor in r3.
+ * That descriptor comes out as [1,1,1,1] -> the task body's 0x40 check fails ->
+   func_00003ED0 (`br .` trap). func_00026F18 is a VALIDATION routine full of
+   SPURS assert codes (0x80410911 / 0x80410910 / 0x80410902 -> func_00027458);
+   it produces the bogus descriptor because the taskset/workload structure in
+   main memory isn't populated the way the kernel validates.
+
+ATOMIC RESERVATION FIX (committed, ps3 c1d9548) -- correct + generally needed:
+ * The claim uses a GETLLAR/modify/PUTLLC CAS loop (func_00025584: r19=0xD0
+   GETLLAR, r18=0xB4 PUTLLC, `if RdAtomicStat != 0 goto retry`). The runtime
+   emulated GETLLAR as a plain GET, PUTLLC as a plain PUT, and RdAtomicStat as
+   ALWAYS 0 -- so concurrent SPU kernel threads (3 dispatched on the same queue)
+   could both "succeed" and corrupt the queue.
+ * Implemented real 128-byte lock-line reservations under a global spinlock
+   (spu_channels.c spu_mfc_atomic + spu_context resv state): PUTLLC commits and
+   succeeds only if the line is unchanged since GETLLAR, else fails -> SPU
+   retries. MFC_RdAtomicStat returns the real per-context status. Confirmed hit
+   at runtime (GETLLAR/PUTLLC exercised, PUTLLC succeeds).
+ * This was necessary but NOT sufficient: the [1,1,1,1] descriptor is produced
+   before the contended CAS path even matters -- it's the taskset content, not
+   the atomicity, that's wrong.
+
+VERIFIED HARD-GATED: over a 30s run the title does ZERO cellFs I/O and ZERO GCM
+commands beyond _cellGcmInitBody -- it never advances to asset-load/render. The
+PPU update loop runs but its state machine waits for the SPURS subsystem to
+report ready (SPU completion -> mailbox -> event queue), which never happens
+because the SPU can't launch a valid task.
+
+NEXT (the real frontier to pixels): populate the SPURS taskset/workload context
+in the PPU-side cellSpurs HLE in the exact binary layout func_00026F18 validates,
+so the kernel claims a real workload and launches the task (entry+arg with the
+0x40-high descriptor) -- then wire SPU_WrOutIntrMbox -> sys_event_queue_inject so
+completion reaches the PPU. Only then does the game proceed to render its own
+graphics. (Rendering must come from real recompiled code, so the SPURS plumbing
+is the legitimate path -- not faking frames.)
