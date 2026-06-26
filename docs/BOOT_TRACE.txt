@@ -1352,3 +1352,58 @@ WHAT THIS MEANS FOR YDKJ:
    CRT-abort-via-longjmp workaround. YDKJ's 0x544370 TOC-as-vtable garbage call is
    likely the same broken-constructor class -- worth checking spu/ppu_lifter for
    the same bug.
+
+================================================================================
+2026-06-26  libsre FULLY INTEGRATED -> cellSpurs init SUCCEEDS -> window open
+================================================================================
+Major breakthrough session. The game went from "stuck/crashing in SPURS firmware"
+to "boots through REAL recompiled libsre cellSpurs, inits successfully, opens the
+window with the D3D12 backend ready, no crash." Run with YDKJ_LIBSRE=1.
+
+WHAT WAS FIXED (all committed + pushed, both repos):
+ 1. libsre re-lifted CLEAN (1290 fns, 4.7MB; was a bloated 87MB lifting data as
+    code). func list = flOw func0.json (355) + 197 indirect-only func-export OPD
+    code addrs, bounded tightly, capped at the TRUE code end 0x1D718 (everything
+    >= 0x1D718 is the import PLT + data, NOT code -- that mis-lift was the source
+    of the 0x39800000 garbage-TOC branch).
+ 2. libsre's 32 .lib.stub import trampolines (PLT 0x3001D718-0x3001DAF8) decoded
+    from libsre.prx's import section (2 cellLibprof + 30 sysPrxForUser) ->
+    prx/libsre.imports.json -> ppu_lifter --hle-stubs emits ps3_hle_call(nid) for
+    each, dispatching libsre's imports into the title HLE bridge. (Also fixed a
+    real lifter bug: _worker_init never forwarded hle_stub_nids to parallel
+    workers, so with -j>1 the trampolines were lifted as literal garbage code.)
+ 3. sysPrxForUser CRT shims (_sys_memset/memcpy/memcmp/str*) treated guest ptrs as
+    host ptrs -> AV the moment libsre (first real caller) used them. Added vm_base
+    guest->host translation + the missing _sys_strcpy/_sys_strncat/_sys_strncmp.
+ 4. ** SPU SYSCALL NUMBERING BUG ** lv2_syscall_table.h had GROUP_START=172 and
+    THREAD_INITIALIZE=181, but real lv2 numbering (verified: 170=group_create,
+    171=destroy) puts THREAD_INITIALIZE=172, GROUP_START=173. So cellSpurs'
+    sys_spu_thread_initialize(172) was misrouted to group_start_handler -> "group
+    not found" -> -1 -> cellSpurs rolled back + returned -1. Renumbered SPU block
+    to canonical 169-185. -> all 5 SPURS SPU threads now init; cellSpurs init OK.
+ 5. sys_lwcond_* had no ctx wrapper (only sys_lwmutex_* did) -> generic adapter
+    passed raw guest ptr -> AV in sys_lwcond_create. Added guest-addressed
+    sys_lwcond_create/destroy/signal/signal_all/signal_to/wait ctx handlers.
+
+CURRENT WALL (the SPU-side SPURS kernel):
+ - cellSpursInitialize does: group_create(170), thread_initialize x5(172),
+   event_queue_create(128) -> RETURNS 0. It never calls group_start(173) or
+   connect_event(181). The 5 SPU threads get entry=0x00000000 and never run.
+ - The SPURS *SPU kernel* (embedded in libsre as an SPU binary) is what would run
+   on those threads and dispatch the title's lifted SPU task images. Our runtime
+   neither lifts libsre's SPU kernel nor HLE-dispatches it, so the SPU side is
+   inert. The PPU main loop (post window-open) then spin-waits on event/semaphore
+   polling for SPURS task completions that never arrive -> watchdog.
+ - 0 GCM draws issued (the title's render data is produced by SPURS tasks). So the
+   window still shows only the backend clear -- NO real content pixels yet.
+
+NEXT STEP (well-defined, substantial):
+ - Bring up the SPURS SPU side. Either (a) extract libsre's embedded SPU SPURS
+   kernel binary, lift it with the SPU lifter, register it so sys_spu_thread_
+   initialize gives the threads a real entry + group_start runs it; or (b) HLE the
+   SPURS kernel: on group_start (or workload attach) pull workloads from the SPURS
+   queue and run the title's lifted SPU task images via the existing
+   spu_workload_dispatch infrastructure. (a) is the "real recompiled code" path.
+ - Caveat (flOw reference): even a fully working libsre+SPURS only reached the GCM
+   clear there; YDKJ's content draws depend on the SPU task pipeline actually
+   producing geometry, which is the real remaining bring-up.
