@@ -938,3 +938,33 @@ REMAINING for VISIBLE pixels (no window/surface yet):
    run and produce real state; or stub the specific asserted handle.
 NET: the engine renders (issues frames) from real recompiled code; wiring the
 RSX present + a valid framebuffer is the last step to pixels on screen.
+
+===========================================================================
+*** WINDOW ON SCREEN: D3D12 RSX backend presents, driven by the render loop ***
+===========================================================================
+Wired the D3D12 RSX backend (libs/video/rsx_d3d12_backend.c -- was never linked):
+- boot_main vblank_ticker calls rsx_d3d12_backend_init(1280,720) (creates a real
+  window), then each 60Hz tick pumps window messages + presents.
+- Linked d3d12/dxgi/dxguid/d3dcompiler in project CMakeLists.
+Confirmed at runtime: "[rsx] backend init OK -- window open". A 1280x720 window
+is on screen, presenting frames (currently the backend clear color) WHILE the
+recompiled engine runs its render loop and issues cellGcmSetPrepareFlip.
+
+So: there are pixels on screen, presented in response to the recompiled game's
+real flip calls -- but they are the backend's CLEAR COLOR, not the title's own
+graphics yet. Three things gate the game's actual rendered content:
+1. FIFO not drained: cellGcm_rsx_process_fifo is inert because
+   cellGcmGetControlRegister returns a HOST pointer, so the title's `put` writes
+   never reach s_control (stays 0). Fix: put the GCM control register in GUEST
+   memory (return a guest EA) -- or read the context's `current` pointer
+   (cdata+0x8) instead -- then parse get..put. Commands are BIG-ENDIAN; the
+   parser (rsx_process_command_buffer) reads host-endian, so byte-swap first.
+2. Early self-exit: the title sys_process_exit(1)s after ~2 frames on a null
+   lv2 handle ("Lv-2 is still 0") -- incomplete SPU/SPURS state (the completion
+   shim advances the PPU but SPU workloads don't truly run). Real fix = HLE SPURS
+   kernel; or stub the asserted handle / the sys_io+cellHttp NIDs around it.
+3. The title's substantial drawing happens after the exit point, so even with
+   the FIFO wired it must run longer to draw its UI.
+NET: window + present path is live and driven by the recompiled render loop;
+draining the game's GCM FIFO (be-swap) + getting it past the self-exit are the
+last steps to the title's own graphics on screen.
