@@ -29,15 +29,33 @@ file(GLOB GEN_SOURCES    "src/gen/*.cpp")
 # Lifted SPU images (one spu_recomp.c per embedded SPU ELF) + workload registry.
 file(GLOB SPU_SOURCES    "src/spu_gen/*/spu_recomp.c" "src/spu_gen/ydkj_spu_workloads.c")
 
+# Real system-PRX modules (libsre = Sony cellSpurs/cellSync). Lifted + namespaced
+# (libsre_* prefix) so it links alongside the title; the runtime PRX loader
+# places the relocated image (prx/libsre.linked.bin) into guest RAM and registers
+# its exports so cellSpurs imports dispatch into real recompiled Sony code instead
+# of HLE stubs. Reused from the flОw project (firmware-version-close; covers 66/82
+# of YDKJ's SPURS NIDs). The lifted .c uses C++ constructs -> force C++.
+file(GLOB PRX_MODULE_SOURCES
+    "prx/libsre_ns/ppu_recomp.c"
+    "prx/libsre_ns/libsre_exports.c"
+    "prx/libsre_ns/libsre_externs.cpp"
+)
+if(PRX_MODULE_SOURCES)
+    set_source_files_properties(${PRX_MODULE_SOURCES} PROPERTIES LANGUAGE CXX)
+endif()
+
 add_executable(ydkj_boot
     "${PS3RECOMP_DIR}/runtime/ppu/tests/boot_main.cpp"   # generic boot harness
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_loader.cpp"        # vm + ELF loader + run
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_hle.cpp"           # NID -> handler dispatch
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_sysprx.cpp"        # boot-critical CRT
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_fs.cpp"            # cellFs VFS
+    "${PS3RECOMP_DIR}/runtime/prx/prx_loader.c"          # real-PRX loader (libsre)
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/prx_init.cpp"       # libsre load hook
     ${GEN_SOURCES}
     ${RECOMP_SOURCES}
     ${SPU_SOURCES}
+    ${PRX_MODULE_SOURCES}
 )
 
 # Every libs/* subdir (the generated NID table #includes each module's header).
@@ -48,7 +66,9 @@ target_include_directories(ydkj_boot PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/recomp"            # ppu_recomp.h
     "${PS3RECOMP_DIR}/runtime/ppu"
     "${PS3RECOMP_DIR}/runtime/spu"
+    "${PS3RECOMP_DIR}/runtime/prx"
     "${PS3RECOMP_DIR}/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/prx/libsre_ns"          # libsre ppu_recomp.h
     ${LIB_INC_DIRS}
 )
 
