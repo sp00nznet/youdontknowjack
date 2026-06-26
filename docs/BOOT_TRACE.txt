@@ -811,3 +811,19 @@ multi-session reverse-engineering project (the SPURS object model is large);
 each turn here maps one more layer. Layers mapped so far: r3 ABI; queue-context
 is a lock-free claim queue; claim gate func_00026F18==1; context+0x10 = aligned
 workload pointer; claim DMAs + validates the workload struct it points to.
+
+---------------------------------------------------------------------------
+Empirical: a single context field is NOT enough — claim needs valid queue state
+---------------------------------------------------------------------------
+Attempted (and reverted) building a minimal context: zeroed a 0x200 region at
+0x10000000, set context+0x10 = workload pointer 0x10001000 (8-byte aligned), and
+dispatched the task runtime with r3 = {0x00400000 handle, 0x10000000}. Observed
+DMAs: the runtime GET-modify-PUTs the 64-byte context at 0x10000000 (good — it
+reads our context), but the workload-load DMA still targets ea=0 (and PUT size=1
+ea=1). I.e. the atomic claim concludes "no work claimed" because the queue's
+LOCK-FREE STATE (head/tail/ready fields it reads + atomically updates) is not a
+valid, internally-consistent ready-workload state. So filling one pointer field
+is insufficient; the claim requires the full lock-free queue protocol's invariants
+to hold. CONFIRMS empirically that constructing a passing queue == implementing
+the SPURS lock-free workload-queue protocol (func_00026F18 + helpers), i.e. the
+HLE SPURS kernel — not a struct-fill. This is the dedicated subsystem to build.
