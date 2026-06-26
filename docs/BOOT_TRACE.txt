@@ -968,3 +968,69 @@ graphics yet. Three things gate the game's actual rendered content:
 NET: window + present path is live and driven by the recompiled render loop;
 draining the game's GCM FIFO (be-swap) + getting it past the self-exit are the
 last steps to the title's own graphics on screen.
+
+===========================================================================
+*** SESSION UPDATE: SPURS task ABI fixed -- real SPU code now runs one
+*** iteration; render gate is the SPURS lock-free workload queue ***
+===========================================================================
+State of boot changed substantially since the "self-exit" notes above: the
+title no longer sys_process_exit(1)s. It now boots, inits GCM, spawns workers,
+and runs its REAL PPU update loop (the watchdog shows the main thread cycling
+through game-logic functions: func_00379224 -> func_00375384/400 ->
+func_000880B0 [per-frame virtual-method dispatch] -> func_0006E6E0 ...). It is
+NOT hard-deadlocked -- it is running, just pre-render.
+
+KEY DIAGNOSIS -- why no pixels yet:
+ * The game emits ZERO GCM commands. The GCM context's `current` pointer
+   (cdata+0x8, cdata=0x0F800000) never advances past `begin` (ioAddr 0x4AA00000),
+   so cellGcm_rsx_process_fifo has nothing to drain. Only _cellGcmInitBody is
+   ever called -- no SetSurface/clear/draw/flip.
+ * The game does ZERO cellFs file I/O -- it never loads any assets. So it is
+   stuck in early init, BEFORE the asset-load + render stage.
+ * The render worker thread (func_0030B48C, a spawned ppu_thread) idles forever
+   in a consumer loop polling a guest "job pending" byte at 0x543580 (the only
+   hot-poll in the whole run, 250+/sample). Producers func_0030B7C8/func_0030B8D4
+   set 0x543580=1; the main thread never calls them -> no render jobs submitted.
+ * The main loop polls event queues q=2/q=3 (event_queue_receive timeout=30) and
+   sceNpBasicGetEvent (NO_EVENT) -- it is waiting for the SPURS subsystem to
+   report "ready" before it advances to asset loading + rendering.
+
+ROOT CAUSE = the SPURS task (SPU image 22, fp 0xA7633F37ACB95C25, sym
+spu_0021_at_004E5F80, entry spu_func_00003050) was trapping immediately.
+
+FIX APPLIED (real, committed) -- SPURS task kernel ABI in r3:
+ * Was: spu_run_lifted_job_img set only r3.word0 = args_ea (simple-job ABI).
+ * The SPURS task entry needs r3 (128-bit) = { word0 = {high half 0x40 marker,
+   low half = DMA tag}, word1 = eaContext }. Verified against the lifted entry:
+   spu_func_00003E68 checks (r3.word0 >> 16) == 0x40 (rotmai r3,112 -> >>16 ;
+   ceqi ==64) then branches to real work (spu_func_00003ED8), which DMA-GETs 64
+   bytes from EAL=r3.word1, tag=r3.word0&0xFFFF. With word0=args_ea (0x0FEFF480)
+   the check failed -> branch to spu_func_00003ED0 (`br .` fatal trap loop).
+ * cellSpurs passes eaContext as the dispatch `args_ea`; that belongs in
+   r3.word1, and word0 needs the 0x40 marker. New spu_run_lifted_job_abi() sets
+   word0=0x00400000, word1=args_ea when spurs_task_abi=1 (spu_workload.c async
+   path passes 1). The async path IS the SPURS-task path.
+ * RESULT: the SPURS kernel's FIRST iteration now runs real recompiled SPU work
+   (DMA of the context, etc.). The context at 0x0FEFF480 is valid SPURS data
+   (e.g. +0x10 = 0x00400001, a real 0x40-high handle; EAs 0x006B4780/0x006B6C00).
+
+REMAINING GATE (the deep SPURS frontier):
+ * The SPURS kernel is a persistent loop: process workload -> branch back to
+   spu_func_00003E68 (via the image's indirect-branch table) to claim the next.
+   The 2nd claim computes r3 = [1,1,1,1] (garbage, not the next handle) -> traps.
+ * The first iteration writes NO SPU_WrOutIntrMbox / SPU_WrOutMbox -- it traps
+   before doing the workload body that would signal completion. So the PPU's
+   event-queue wait is never satisfied.
+ * Two infrastructure gaps to close next:
+     (a) The lock-free workload-queue CLAIM must read the next handle correctly
+         (atomics/DMA/channel emulation along spu_func_00003ED8 -> 00003FD8 ->
+         00025860; claim helper ~func_00026F18). Today the 2nd claim yields
+         [1,1,1,1].
+     (b) SPU_WrOutIntrMbox is a DEAD buffer: spu_wrch writes ctx->ch_out_intr_mbox
+         and nothing on the PPU reads it. To unblock the PPU's q=2/q=3 wait, wire
+         SPU_WrOutIntrMbox -> sys_event_queue_inject (primitive already exists in
+         sys_event.c). Needs the SPU->lv2-event-queue connection
+         (sys_spu_thread_connect_event / cellSpursAttachLv2EventQueue mapping).
+ * Net: real SPU code runs further than before; getting the SPURS kernel to
+   complete a workload and signal the PPU is the next concrete step to unblocking
+   the game's asset-load + render path (and thus its own pixels).
