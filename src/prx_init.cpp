@@ -35,6 +35,16 @@ static void ydkj_prx_register(uint32_t addr, void (*host)(void*))
 
 extern "C" void ps3_load_prx_modules(void)
 {
+    /* Proven path (flОw) but under active integration: libsre's lifted code still
+     * has TOC/GOT-relocation gaps + unresolved mid-function jump-table targets
+     * that leave SPURS construction incomplete, so it currently gets the title
+     * stuck earlier than the HLE-stub path. Gate behind YDKJ_LIBSRE=1 so the
+     * default build keeps the stub behaviour until the libsre execution is fixed.
+     * Set YDKJ_LIBSRE=1 to dispatch cellSpurs into real recompiled Sony code. */
+    { const char* e = getenv("YDKJ_LIBSRE"); if (!(e && e[0]=='1')) {
+        fprintf(stderr, "[init] libsre disabled (set YDKJ_LIBSRE=1 to load real cellSpurs)\n");
+        return; } }
+
     /* libsre.linked.bin lives in the project's prx/ (cwd is the project dir when
      * launched as ./build/ydkj_boot.exe input/EBOOT.elf). */
     const char* candidates[] = {
