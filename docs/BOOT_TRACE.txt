@@ -1285,3 +1285,25 @@ Everything funnels back to running the SPU task body, which image 22's standalon
 task-runtime cannot do without the firmware kernel we don't emulate. That HLE
 (emulate the kernel, or short-circuit: run each task body + post the q=1
 completion event with the right format) is the substantial remaining work.
+
+--- Update 7: clean longjmp SPU halt (committed ps3 8768648); still task-body gated
+The `br .` terminal-halt idiom is now a real abort: spu_halt() longjmps to a
+setjmp pad in spu_run_with_halt() (the status-flag approach failed -- lifted code
+never checks status, so it ran past into 1.8M garbage branches). The lifter
+detects infinite no-op self-loops and emits spu_halt(); the in-tree image-22
+source is hand-patched pending a re-lift. CONFIRMED: image 22 now "RETURNED rc=0"
+-- 0 hung SPU threads (was 3 spinning forever), 8 contained branches not 1.8M;
+the dispatcher cleanly regains control after each SPU job.
+
+But the game STILL does not progress (25s run = 0 cellFs, 0 GCM, ~2-3 SPU
+dispatches then idle). The SPU returns by reaching the terminal halt = "no
+dispatchable work" -- it never ran a task BODY (DMA = context handshake only).
+Verified the surrounding plumbing is all fine and NOT the gate:
+  - cellSpursEventFlagWait force-satisfy DOES set eventFlag->bits and return the
+    pattern; the title's per-iteration SPURS wait is satisfied, not blocking.
+  - event ports 1/2/3 -> queues 1/2/3 are connected; port_send reaches them.
+  - q=1 hard-waiter wakes on port_send; NP drain is normal per-frame.
+So every event/flag/port mechanism works; the one missing thing is the SPU task
+producing real output. That requires running the task body, which needs the
+firmware SPURS kernel/policy-module to switch to it -- the standalone task elf
+can't. This is the singular, well-characterized remaining blocker.
