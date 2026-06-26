@@ -827,3 +827,23 @@ is insufficient; the claim requires the full lock-free queue protocol's invarian
 to hold. CONFIRMS empirically that constructing a passing queue == implementing
 the SPURS lock-free workload-queue protocol (func_00026F18 + helpers), i.e. the
 HLE SPURS kernel — not a struct-fill. This is the dedicated subsystem to build.
+
+---------------------------------------------------------------------------
+No SPURS layout reference exists; completion bridge identified (WrOutIntrMbox)
+---------------------------------------------------------------------------
+Checked for a reusable SPURS layout: runtime/spu/tests/test_taskset_main.c is an
+explicit "minimal host stand-in for cellSpurs" (a cellSync LFQueue + host runner),
+NOT the SDK's instance/queue layout. So the lock-free queue/instance object graph
+must be reversed from the SPU kernel itself (no shortcut reference).
+BUT the test pins the COMPLETION-SIGNAL path: the SPU posts completion via
+SPU_WrOutIntrMbox, which the host delivers to the taskset event queue (test uses
+event source 0x7 = SPU group). In OUR runtime, spu_wrch(SPU_WrOutIntrMbox) just
+writes ctx->ch_out_intr_mbox (a local queue nothing reads) -> the completion
+never reaches the lv2 event queue (q=1) the PPU waits on. So even once the SPU
+kernel runs a task, a BRIDGE is needed: spu_wrch(WrOutIntrMbox) -> post an event
+(source = SPU-group/port id) to the connected lv2 event queue via the kept
+sys_event_queue_inject() primitive. That is the completion half of the HLE SPURS
+kernel (the claim/dispatch half is the queue-layout RE).
+NET (still): two halves to build — (1) reverse + construct the lock-free
+workload queue so the claim dispatches a task; (2) bridge WrOutIntrMbox->event
+queue so completion reaches the PPU. Both are the dedicated HLE-SPURS-kernel work.
