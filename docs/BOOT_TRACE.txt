@@ -644,3 +644,33 @@ back to the lv2 event flag/queue the PPU waits on. That replaces the current
 the task runtime's context contract. Only then does the SPURS handshake complete
 and the game advance toward its first cellGcmSetFlip (then: framebuffer EA fix
 for AddressToOffset(0), and the rsx_d3d12_backend.c present path -> pixels).
+
+---------------------------------------------------------------------------
+SPU halt is REAL binary (not a lifter bug) — exact assert + ruled-out shortcuts
+---------------------------------------------------------------------------
+Disassembled the SPU ELF (spu_disasm) at the halt to rule out a mis-lift.
+LS 0x3000 maps to file 0x100; LS 0x3EC0 region is, verbatim in the binary:
+    3ECC: brnz $r2, 0x3ED8        ; take real path iff r2 != 0
+    3ED0: nop
+    3ED4: br   0x3ED0             ; genuine infinite halt-loop (NOT a lifter bug)
+    3ED8: ...real path (MFC DMA)...
+and the condition (func_00003E68) is, verbatim:
+    3E70: rotmai $r3, $r3, 112    ; r3 = arg >> 16  (arithmetic)
+    3E88: ceqi   $r2, $r3, 64     ; r2 = (arg>>16 == 64)
+So the SPU task runtime requires its r3 argument to satisfy (r3 >> 16) == 64,
+i.e. r3 in [0x00400000, 0x0040FFFF].
+
+Logged every candidate guest EA we could pass as r3:
+    taskset_ea = 0x4005E000  (>>16 = 0x4005)
+    spurs_ea   = 0x40009D00  (>>16 = 0x4000)
+    elf_ea     = 0x004F5F80  (>>16 = 0x004F)
+    ctx_ea     = 0x0FEFF480  (>>16 = 0x0FEF)
+NONE is 0x0040xxxx. So the required r3 is NOT any pointer the HLE has -- it is a
+value the SPURS KERNEL constructs when it dispatches a task (a packed
+magic<<16 | index, or a pointer into a SPURS-reserved region). This conclusively
+rules out the quick fixes (swap which EA we pass as r3; patch the lifter) and
+confirms the only correct path is implementing the SPURS kernel's task-dispatch
+ABI: run the SPURS policy module, have it pull tasks from the taskset queue and
+invoke each task image with the kernel-constructed r3 + LS/context, then signal
+completion to the lv2 event flag/queue (flag 1000) the PPU busy-polls. That is
+the next milestone before the game advances to cellGcmSetFlip and pixels.
