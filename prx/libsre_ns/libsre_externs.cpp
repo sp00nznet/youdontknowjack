@@ -6,3 +6,7 @@
 #include "ppu_recomp.h"
 
 void libsre_func_3001DAF8(ppu_context* ctx) { (void)ctx; }
+
+/* Garbage discovered call target (0xFFFFFFE4 = -0x1C, a mis-decoded relative
+ * branch in the deeper-lifted set). No-op: it is never a real entry point. */
+void libsre_func_FFFFFFE4(ppu_context* ctx) { (void)ctx; }
