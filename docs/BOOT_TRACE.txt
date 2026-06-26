@@ -745,3 +745,26 @@ and post the correctly-formatted completion event. The injector was reverted;
 the reusable sys_event_queue_inject() primitive is kept (the future HLE SPURS
 kernel will post completion through it). Net: the only path to unblocking the
 PPU's real render code is the SPURS-kernel emulation already scoped above.
+
+---------------------------------------------------------------------------
+SPURS kernel claim decision located (the proceed-vs-spin branch)
+---------------------------------------------------------------------------
+Disassembled the task-runtime past the atomic queue read and found the decision
+that gates everything (LS 0x3FD4..0x4018):
+    brsl 0x25860                 ; (DMA-wait / lock helper)
+    lqr  r34, 0x32510            ; read queue-context field +0x10
+    brsl 0x26F18                 ; <-- the QUEUE-CLAIM function (returns a result)
+    lqd  r31, 0x20(r1)           ; r31 = claim result (spilled)
+    rotqbyi r30, r31, 14         ; extract result field (halfword at byte 14)
+    ceqhi r29, r30, 1            ; == 1 ?
+    brhz  r29, 0x40F0            ; if NOT 1 -> 0x40F0 (no-work path / loop)
+    ... (==1) -> load + run the workload (further MFC DMA at 0x4034+)
+So the runtime runs a workload only when the claim (func_00026F18) reports
+work-available (field==1); with our empty/invalid queue it reports 0 and spins.
+func_00026F18 (+ the helpers 0x25860/0x254D0/0x26F18) ARE the SPURS lock-free
+queue-claim protocol; reversing them yields the exact queue-context layout to
+build in the HLE cellSpursInitialize so a created task is advertised as ready.
+PROGRESS LADDER so far (each validated, committed): r3={handle,ctx_EA} ABI ->
+context is a lock-free queue -> image 22 = SPURS kernel -> completion-shim ruled
+out (sys_event_queue_inject kept) -> claim decision = func_00026F18 result==1.
+NEXT: reverse func_00026F18's reads to map the ready-workload fields.
