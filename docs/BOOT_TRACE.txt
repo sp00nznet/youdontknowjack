@@ -1728,3 +1728,25 @@ recomp) or a from-scratch RE of the SPURS task scheduler's worker-LS layout. The
 path to real geometry is the README's remaining-wiring effort (HLE the task
 dispatch), a substantial dedicated subsystem -- not a single-session fix, and not
 something to fabricate.
+
+--- 2026-06-26 (cont.): BOTH kernel images examined -- policy module is dynamic ---
+Examined lift_a AND lift_b (both ~480 insns, 11 funcs). Both are SPURS kernel
+bootstraps: they DMA a policy module and branch into dynamically-loaded code
+(lift_b spu_recomp.c:395 = indirect branch to a register-held LS target; lift_a
+likewise). NEITHER contains the task-dispatch policy module with the worker-LS
+setup (the LS[0xBEC0] patch). libsre.linked.bin scan = only these 2 SPU ELFs.
+=> Definitively confirmed from every angle (empirical LS dump, host backtrace,
+descriptor contents, RPCS3 runs-real-kernel, README plan, AND both lifted kernel
+images): the LS[0xBEC0] task-control-block pointer is produced by the dynamic
+SPURS task policy module, which is not statically present and must be located via
+the live taskset/DMA at runtime, extracted, lifted, and wired (full kernel
+dispatch + SPU->PPU completion bridge). Substantial multi-session RE; no static
+shortcut except fabricating the pointer (prohibited -- would yield non-real pixels).
+FORWARD PATH (legitimate, no faking), in order:
+  1. Instrument/trace the SPURS kernel DMA (or parse the live CellSpursTaskset at
+     0x4005F900) to find the task policy module's main-memory EA.
+  2. Extract + lift that policy module (spu_lifter, like the other SPU images).
+  3. Register it at its runtime LS load address under the kernel image_id so the
+     kernel's indirect dispatch branch resolves.
+  4. Run kernel -> policy -> task; it sets up the worker LS (incl. 0xBEC0) -> the
+     task computes real geometry -> bridge completion -> GCM draws.
