@@ -674,3 +674,32 @@ ABI: run the SPURS policy module, have it pull tasks from the taskset queue and
 invoke each task image with the kernel-constructed r3 + LS/context, then signal
 completion to the lv2 event flag/queue (flag 1000) the PPU busy-polls. That is
 the next milestone before the game advances to cellGcmSetFlip and pixels.
+
+---------------------------------------------------------------------------
+SPU DISPATCH ABI — REVERSE-ENGINEERED (validated empirically)
+---------------------------------------------------------------------------
+Made concrete progress decoding the SPURS task-dispatch ABI by experiment
+(temporarily forcing a passing r3 + logging every MFC DMA, then reverted):
+
+1. r3 is NOT a scalar EA — it is a 128-bit {handle, context_EA} pair:
+     r3.word0 = handle; its HIGH halfword must == 0x40 (the assert
+                rotmai r3,112 == 64, i.e. (word0>>16)==0x40 -- a type tag).
+     r3.word1 = the effective address of the task/kernel CONTEXT.
+   Proven: forcing r3.word0=0x00400000 passes the assert; then forcing
+   r3.word1=0x12340000 made the runtime's first DMA read exactly
+   `GET lsa=0x32500 ea=0x12340000 size=64` (hand-derived through the quadword
+   shuffle `rotqbyi r9,4; rotqmbyi …,124; shlqbyi …,4` and confirmed at runtime).
+   r4 does NOT feed the EA (tested: r4=0x12340000 changed nothing).
+
+2. The runtime then GETs a 64-byte context from r3.word1 into LS 0x32500,
+   reads pointer fields out of it (e.g. lqr from LS 0x32510/0x32530), and issues
+   further DMAs (128 bytes -> LS 0x32580, etc.) from EAs stored IN that context.
+   With an empty/zero context it loops re-reading EA 0 forever (the spin we see).
+
+NEXT CONCRETE STEP (continue the RE): map the 64-byte context layout — trace
+which LS 0x32500+offset words the runtime loads and how it uses them (they are
+the EAs for the 128-byte GET etc.), then build a matching context in guest mem,
+set r3 = {0x0040xxxx handle, context_EA}, and iterate until the runtime stops
+spinning and runs the task body. This is the foundation of the HLE SPURS kernel
+(cellSpursInitialize must allocate the context region + the kernel must encode
+this r3 per task and signal completion to lv2 event flag 1000 on task end).
