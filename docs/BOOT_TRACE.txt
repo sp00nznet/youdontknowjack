@@ -1264,3 +1264,24 @@ kernel/policy-module handshake (or short-circuiting it: run each created task's
 body directly + post the completion event the PPU waits on) is the real remaining
 work to unblock init -> render. The SP-init (6be0fbb) and r3-capture (62b4e79)
 fixes stand and got the task runtime to claim real work.
+
+--- Update 6 addendum 2: ruled out NP and q=1 as independent gates
+Probed two non-SPURS theories for the init stall; both came back to the SPU:
+ * NP is NOT the gate: the hot loop is sys_lwmutex_lock + sceNpBasicGetEvent, but
+   that is the title's normal per-frame PSN event drain (`while(GetEvent()==OK)`);
+   returning NO_EVENT correctly ENDS the drain each frame -- it is running, not
+   blocked. The unresolved NIDs near it are cellHttp (0x522180BC/0x9638F766) +
+   sys_io (0xA703A51D/0x1CF98800), called a few times, game continues past them.
+ * A thread IS hard-blocked on event queue 1 (event_queue_receive timeout=0 =
+   infinite). Injecting events into q=1 from the vblank thread DID wake it (it
+   then loops consuming them, 18 receives) but produced NO render progress with
+   null event data -- because q=1 is the SPURS event-handler queue that the SPU's
+   interrupt mailbox feeds; it needs REAL workload-completion events, which only
+   arrive once the SPU runs a task body. Reverted the injection.
+So the dependency chain is confirmed: render <- init-complete <- the q=1 SPURS
+handler getting a real completion event <- the SPU posting its interrupt mailbox
+<- the SPU running a task BODY <- the firmware SPURS kernel handshake (the gap).
+Everything funnels back to running the SPU task body, which image 22's standalone
+task-runtime cannot do without the firmware kernel we don't emulate. That HLE
+(emulate the kernel, or short-circuit: run each task body + post the q=1
+completion event with the right format) is the substantial remaining work.
