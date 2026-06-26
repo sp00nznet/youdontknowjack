@@ -1240,3 +1240,27 @@ returns instead of spinning (correct SPU halt semantics; lets spu_async_run
 regain control); (b) bridge SPU task completion -> the PPU: write the completion
 counter / inject the SPURS event into the PPU's q=2/q=3 (sys_event_queue_inject)
 so the init wait advances. Then the game proceeds to asset load + GCM rendering.
+
+--- Update 6 addendum: halt-fix tried + reverted; gate is the firmware SPURS kernel
+The "lift br-to-self as halt+return" idea (Update 6 NEXT step a) was implemented
+and REVERTED: setting ctx->status=STOPPED_BY_HALT and returning does NOT stop the
+SPU, because the lifted code never checks status between calls -- so execution
+ran PAST the intended halt into garbage (1.8M "unknown LS address" branches). A
+real halt would need stack unwinding (setjmp/longjmp in spu_run_lifted_job + a
+longjmp at the halt), but that would only cleanly stop at the TERMINAL trap --
+which is reached because the kernel found "no more tasks", i.e. it never ran a
+task BODY. Confirmed: the SPU does only the context handshake DMA, never any
+game-data I/O, so no task body executes.
+
+ROOT (clearer): image 22 is the SPURS TASK elf (game task code + linked
+libspurs_task runtime). On hardware a separate FIRMWARE SPURS KERNEL/policy
+module runs continuously, owns the taskset, and dispatches each task's body to
+an SPU; the task elf's runtime just handshakes with it. We run the task elf
+standalone with NO firmware kernel, so its runtime claims queue entries (now with
+valid descriptors, post-r3-fix) but there is no kernel to actually switch to /
+run the task body, and the PPU's event_queue_receive(q=2/q=3) wait for the
+kernel's completion event is never satisfied. Emulating that firmware
+kernel/policy-module handshake (or short-circuiting it: run each created task's
+body directly + post the completion event the PPU waits on) is the real remaining
+work to unblock init -> render. The SP-init (6be0fbb) and r3-capture (62b4e79)
+fixes stand and got the task runtime to claim real work.
