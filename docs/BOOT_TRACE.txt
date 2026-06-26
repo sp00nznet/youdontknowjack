@@ -1471,3 +1471,52 @@ suspects) that running libsre's SPU kernel is incompatible with static recomp.
    atomics + longjmp-halt (prior sessions). Remaining unknowns needing RE: the
    exact "SPURS ready" signal the title waits on post-init, and the SPU->PPU
    completion bridge (WrOutIntrMbox -> event queue) format.
+
+================================================================================
+2026-06-26  RENDER-PIPELINE VERIFICATION + GARBAGE-CONFIG ROOT (new this session)
+================================================================================
+Instrumented the full GCM->RSX->D3D12 path (libs/video) and ran to steady state.
+KEY FINDINGS:
+
+1. THE RENDER PIPELINE IS FULLY WIRED AND EXECUTING. Every present-thread frame
+   (boot_main vblank_ticker) calls cellGcm_rsx_process_fifo() ->
+   rsx_process_command_buffer() (a real NV4097 FIFO parser) -> rsx_d3d12_backend.
+   It IS draining and parsing ~262144 words/frame. So the backend is NOT the
+   blocker -- it is being fed junk.
+
+2. THE GAME FEEDS GARBAGE RENDER CONFIG to GCM, despite correct video state:
+     [cellVideoOut] GetResolution(id=2) -> 1280x720 ; Configure pitch=5120   (CORRECT)
+   but then:
+     cellGcmSetTile(index=0/1/2, loc=0, offset=0x0, size=0x948D0000, pitch=2149648131=0x80258003)
+     cellGcmSetDisplayBuffer(id=0/1, offset=0x0, pitch=0x80258003, dims garbage)
+   The SAME garbage (size=0x948D0000, pitch=0x80258003) is passed for tile index
+   0,1,2 -- a loop reading a garbage/uninitialised source struct. The game HAD the
+   right pitch (5120) from VideoOut but computes 0x80258003 downstream. This is an
+   SPU-INDEPENDENT data bug (happens during the game's own render init), and is
+   the most tractable next lead.
+
+3. THE FIFO CONTEXT `current` POINTER (gcmContext+0x8) READS 0xC708C708 (garbage),
+   so cellGcm_rsx_process_fifo drains get..garbage = 1MB of uninitialised FIFO
+   memory each frame -> 0 real draws (NV4097_DRAW_ARRAYS never logged). Also the
+   control register path is known-broken (cellGcmGetControlRegister returns a HOST
+   pointer; cellGcmSys.c:432) so put/get never advance.
+
+4. caller_lr for the garbage SetDisplayBuffer call resolves to 0x00000000 via
+   g_active_ctx (ppu_active_lr()), i.e. g_active_ctx is null on the thread issuing
+   these GCM calls -- the import-thunk dispatch path apparently does not set
+   g_active_ctx (or the call runs on a thread that never did). Pinning the exact
+   guest function that emits the garbage config still needs a different hook
+   (e.g. a guest-side LR captured in the import thunk, or RWATCH on the source).
+
+5. The main thread is STILL SPU-gated: it spins in sys_timer_usleep (sc 141,
+   2.7M times) and the PROHIBITED SPU-completion shim (sys_event.c:721, bitpat==0
+   path) is firing to half-satisfy it. That shim is debt -- it forges the SPU
+   completion counter; it must be replaced by real SPU output, not relied upon.
+
+NEXT CONCRETE LEADS (both real, no faking):
+ (a) Trace the source of the 0x80258003 / 0x948D0000 garbage render config
+     (RWATCH the guest struct the tile/displaybuffer params are read from; this is
+     upstream of the SPU and may be a byte-swap / uninitialised-pointer bug whose
+     fix cascades into a valid framebuffer + real draws for non-SPU content).
+ (b) Back cellGcmGetControlRegister with GUEST memory so put/get advance, enabling
+     the real FIFO handshake (and stopping the flush-callback spin).
