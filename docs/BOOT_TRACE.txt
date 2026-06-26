@@ -578,3 +578,33 @@ return, or loop? which channels does it write?), then bridge the SPU signal to
 the lv2 event flag / event queue the PPU waits on. THEN the game should pass the
 SPURS handshake toward its render loop + first cellGcmSetFlip. (Framebuffer EA
 still resolves to 0 -- AddressToOffset(0) -- so the present path needs that too.)
+
+---------------------------------------------------------------------------
+SPU FRONTIER, precisely characterized (diagnostic added)
+---------------------------------------------------------------------------
+Added a completion log to the async SPU runner: of 3 spawned image-22 jobs,
+0 RETURN -- image 22 is a PERSISTENT SPURS SPU kernel that loops forever (polls
+the SPURS workload/taskset structures in main memory, runs tasks, signals the
+PPU). It never returns and never signals.
+
+Downstream symptom on the PPU: the game busy-polls
+  sys_event_flag_wait(flag=1000, bits=0x0)   ~1.8 MILLION times
+bits=0 -> CELL_EINVAL immediately -> retry. The wait bit-pattern is read from a
+structure the SPU kernel is supposed to populate; since the kernel never does,
+it stays 0, so the game spins. (Tried a grace-based force-satisfy on
+sys_event_flag_wait -- it can't help: the bits=0 EINVAL path returns before any
+wait. Reverted to keep lv2 behaviour faithful.)
+
+ROOT, and why my async dispatch isn't enough: spu_workload_dispatch_async runs
+the lifted SPU kernel directly on a host thread with a BARE spu_context -- its
+channel writes (mailboxes, SPU events, atomic-DMA stop-and-signal) go into
+spu_channels.c sinks that are NOT wired back to the PPU (no lv2 event-flag /
+event-queue delivery, no mailbox reader). The lv2 SPU-thread path
+(spu_lifted_fallback / spu_fallback_thread_proc) is where that plumbing lives.
+So the SPU kernel runs but is deaf/mute to the PPU.
+NEXT (the real unblock): route SPURS task/kernel execution through the lv2
+SPU-thread group so the channel ABI reaches PPU-side mailboxes + event delivery,
+and bridge the SPU readiness signal to sys_event_flag_set(flag=1000). Then the
+game's wait pattern populates, the busy-poll ends, and it advances toward its
+first cellGcmSetFlip. (Framebuffer EA still resolves to 0 via AddressToOffset(0);
+the RSX present path -- rsx_d3d12_backend.c -- is the final step to pixels.)
