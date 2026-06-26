@@ -704,38 +704,13 @@ loc_30000EE4:
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         ctx->gpr[11] = ppc_rldicl(ctx->gpr[31], 0, 32);
         goto loc_30000E40;
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30000F24; return; }
 }
 
 void libsre_func_30000F20(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30000F24; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30000F44; return; }
 }
 
-void libsre_func_30000F24(ppu_context* ctx) {
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0x90, ctx->gpr[1]); ctx->gpr[1] += -0x90;
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[0]);
-        ctx->gpr[30] = ctx->gpr[4] | ctx->gpr[4];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30000F6C; return; }
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[3] = ctx->gpr[3] | 0x111;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xA0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x90);
-        return;
-}
 
 void libsre_func_300010DC(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
@@ -919,29 +894,14 @@ loc_3000182C:
         libsre_func_300035C8(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_300016F4; return; }
-        ctx->gpr[12] = ctx->cr;
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30001850; return; }
 }
 
 void libsre_func_30001848(ppu_context* ctx) {
         ctx->gpr[12] = ctx->cr;
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30001850; return; }
-}
-
-void libsre_func_30001850(ppu_context* ctx) {
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        ctx->gpr[31] = ctx->gpr[4] | ctx->gpr[4];
-        vm_write32(ctx->gpr[1] + 0xB8, ctx->gpr[12]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30001874; return; }
 }
+
 
 void libsre_func_30001874(ppu_context* ctx) {
         uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x80);
@@ -5152,30 +5112,13 @@ void libsre_func_300059B0(ppu_context* ctx) {
         ctx->gpr[3] = (int64_t)(int32_t)(0);
         vm_write32(ctx->gpr[4] + 0x4, ctx->gpr[11]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_300059A8; return; }
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300059F8; return; }
 }
 
 void libsre_func_300059F4(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300059F8; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30005A10; return; }
 }
 
-void libsre_func_300059F8(ppu_context* ctx) {
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0x70, ctx->gpr[1]); ctx->gpr[1] += -0x70;
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[0]);
-        ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[6] = ctx->gpr[5] | ctx->gpr[5];
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30005A2C; return; }
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[3] = ctx->gpr[3] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x80);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
-        ctx->lr = ctx->gpr[0];
-        return;
-}
 
 void libsre_func_30005C88(ppu_context* ctx) {
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 25, 31);
@@ -5423,42 +5366,13 @@ void libsre_func_3000603C(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30005FB4; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006068; return; }
 }
 
 void libsre_func_30006064(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006068; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30006090; return; }
 }
 
-void libsre_func_30006068(ppu_context* ctx) {
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[0]);
-        ctx->gpr[30] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[31] = ctx->gpr[5] | ctx->gpr[5];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300060BC; return; }
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[3] = ctx->gpr[3] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xB0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xA0);
-        return;
-}
 
 void libsre_func_300061C8(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
@@ -5548,46 +5462,13 @@ void libsre_func_300062CC(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000623C; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300062FC; return; }
 }
 
 void libsre_func_300062F8(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300062FC; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000632C; return; }
 }
 
-void libsre_func_300062FC(ppu_context* ctx) {
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[0]);
-        ctx->gpr[30] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[29] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[31] = ctx->gpr[5] | ctx->gpr[5];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000635C; return; }
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[3] = ctx->gpr[3] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xC0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xB0);
-        return;
-}
 
 void libsre_func_30006418(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
@@ -5674,49 +5555,13 @@ void libsre_func_30006514(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000648C; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006540; return; }
 }
 
 void libsre_func_3000653C(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006540; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30006574; return; }
 }
 
-void libsre_func_30006540(ppu_context* ctx) {
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[0]);
-        ctx->gpr[29] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[30] = ctx->gpr[5] | ctx->gpr[5];
-        ctx->gpr[28] = ctx->gpr[6] | ctx->gpr[6];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300065A8; return; }
-        ctx->gpr[31] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[31] = ctx->gpr[31] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xC0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[31];
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xB0);
-        return;
-}
 
 void libsre_func_300066B8(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
@@ -5803,49 +5648,13 @@ void libsre_func_300067B4(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000672C; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300067E0; return; }
 }
 
 void libsre_func_300067DC(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300067E0; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30006814; return; }
 }
 
-void libsre_func_300067E0(ppu_context* ctx) {
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[0]);
-        ctx->gpr[28] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[29] = ctx->gpr[5] | ctx->gpr[5];
-        ctx->gpr[30] = ctx->gpr[6] | ctx->gpr[6];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30006848; return; }
-        ctx->gpr[31] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[31] = ctx->gpr[31] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xC0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[31];
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xB0);
-        return;
-}
 
 void libsre_func_30006964(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
@@ -5932,53 +5741,13 @@ void libsre_func_30006A60(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_300069D8; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006A8C; return; }
 }
 
 void libsre_func_30006A88(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30006A8C; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30006AC8; return; }
 }
 
-void libsre_func_30006A8C(ppu_context* ctx) {
-        uint64_t _cs_25 = ctx->gpr[25];
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xC0, ctx->gpr[1]); ctx->gpr[1] += -0xC0;
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[25]);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0xB8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xD0, ctx->gpr[0]);
-        ctx->gpr[29] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[30] = ctx->gpr[5] | ctx->gpr[5];
-        ctx->gpr[28] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[27] = ctx->gpr[7] | ctx->gpr[7];
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30006B00; return; }
-        ctx->gpr[31] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[31] = ctx->gpr[31] | 0x302;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xD0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[31];
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xC0);
-        return;
-}
 
 void libsre_func_30006C24(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
@@ -7150,10 +6919,7 @@ void libsre_func_30008608(ppu_context* ctx) {
         ctx->gpr[9] = (int64_t)(int32_t)(0);
         { g_trampoline_fn = (void(*)(void*))libsre_func_300085F4; return; }
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30008670; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30008664; return; }
 }
 
 void libsre_func_30008660(ppu_context* ctx) {
@@ -7161,15 +6927,18 @@ void libsre_func_30008660(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30008670; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30008664; return; }
 }
 
-void libsre_func_30008670(ppu_context* ctx) {
+void libsre_func_30008664(ppu_context* ctx) {
         uint64_t _cs_27 = ctx->gpr[27];
         uint64_t _cs_28 = ctx->gpr[28];
         uint64_t _cs_29 = ctx->gpr[29];
         uint64_t _cs_30 = ctx->gpr[30];
         uint64_t _cs_31 = ctx->gpr[31];
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
         vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
         vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
@@ -8676,10 +8445,6 @@ void libsre_func_3000A158(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000A168; return; }
-}
-
-void libsre_func_3000A168(ppu_context* ctx) {
         vm_write64(ctx->gpr[1] + -0x70, ctx->gpr[1]); ctx->gpr[1] += -0x70;
         vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[0]);
         ctx->gpr[3] = ctx->gpr[3] | 0x811;
@@ -8795,10 +8560,7 @@ loc_3000A2E8:
         vm_write8(ctx->gpr[10] + 0x72, ctx->gpr[0]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000A178; return; }
         ctx->gpr[7] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[7]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000A314; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000A308; return; }
 }
 
 void libsre_func_3000A304(ppu_context* ctx) {
@@ -8806,11 +8568,14 @@ void libsre_func_3000A304(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         { int64_t a = (int32_t)ctx->gpr[7]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000A314; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000A308; return; }
 }
 
-void libsre_func_3000A314(ppu_context* ctx) {
+void libsre_func_3000A308(ppu_context* ctx) {
         uint64_t _cs_31 = ctx->gpr[31];
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[7]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         vm_write64(ctx->gpr[1] + -0x80, ctx->gpr[1]); ctx->gpr[1] += -0x80;
         vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[31]);
         vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[0]);
@@ -9460,10 +9225,14 @@ void libsre_func_3000B0D8(ppu_context* ctx) {
         ctx->gpr[7] = (int64_t)(int32_t)(0);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000AF2C; return; }
         ctx->gpr[12] = ctx->cr;
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B0E4; return; }
+}
+
+void libsre_func_3000B0E4(ppu_context* ctx) {
         ctx->gpr[11] = ctx->gpr[3] | ctx->gpr[3];
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B0E0; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B10C; return; }
 }
 
 void libsre_func_3000B10C(ppu_context* ctx) {
@@ -9745,11 +9514,10 @@ loc_3000B4E0:
         libsre_func_3000CAB8(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         goto loc_3000B438;
-        ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B508; return; }
 }
 
-void libsre_func_3000B508(ppu_context* ctx) {
+void libsre_func_3000B504(ppu_context* ctx) {
+        ctx->gpr[12] = ctx->cr;
         vm_write64(ctx->gpr[1] + -0x230, ctx->gpr[1]); ctx->gpr[1] += -0x230;
         vm_write64(ctx->gpr[1] + 0x1D0, ctx->gpr[20]);
         ctx->gpr[20] = vm_read32(ctx->gpr[2] + -0x7E30);
@@ -11297,10 +11065,6 @@ void libsre_func_3000CCD8(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[11] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         ctx->gpr[10] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 25, 31);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000CCE8; return; }
-}
-
-void libsre_func_3000CCE8(ppu_context* ctx) {
         vm_write64(ctx->gpr[1] + -0x70, ctx->gpr[1]); ctx->gpr[1] += -0x70;
         vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[0]);
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
@@ -11786,10 +11550,6 @@ void libsre_func_3000D30C(ppu_context* ctx) {
         ctx->gpr[4] = (int64_t)(int32_t)(0);
         ctx->gpr[3] = vm_read32(ctx->gpr[2] + -0x7DD0);
         ctx->gpr[5] = (int64_t)(int32_t)(0);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000D318; return; }
-}
-
-void libsre_func_3000D318(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         vm_write64(ctx->gpr[1] + -0x70, ctx->gpr[1]); ctx->gpr[1] += -0x70;
         vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[0]);
@@ -14098,63 +13858,13 @@ void libsre_func_3000FB8C(ppu_context* ctx) {
         libsre_func_3000CAB8(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_3000FB24; return; }
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000FBAC; return; }
 }
 
 void libsre_func_3000FBA8(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000FBAC; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000FBF8; return; }
 }
 
-void libsre_func_3000FBAC(ppu_context* ctx) {
-        uint64_t _cs_22 = ctx->gpr[22];
-        uint64_t _cs_23 = ctx->gpr[23];
-        uint64_t _cs_24 = ctx->gpr[24];
-        uint64_t _cs_25 = ctx->gpr[25];
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xC0, ctx->gpr[1]); ctx->gpr[1] += -0xC0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x70, ctx->gpr[22]);
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[23]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[24]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[25]);
-        vm_write64(ctx->gpr[1] + 0xB8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xD0, ctx->gpr[0]);
-        ctx->gpr[28] = ctx->gpr[4] | ctx->gpr[4];
-        ctx->gpr[29] = ctx->gpr[5] | ctx->gpr[5];
-        ctx->gpr[26] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[27] = ctx->gpr[8] | ctx->gpr[8];
-        ctx->gpr[30] = ctx->gpr[4] | ctx->gpr[4];
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000FC3C; return; }
-        ctx->gpr[31] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[31] = ctx->gpr[31] | 0x711;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xD0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[31];
-        ctx->gpr[22] = _cs_22;
-        ctx->gpr[23] = _cs_23;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[24] = _cs_24;
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xC0);
-        return;
-}
 
 void libsre_func_30010084(ppu_context* ctx) {
         uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0xA0);
@@ -15174,16 +14884,15 @@ loc_30011114:
         ctx->gpr[0] = vm_read64(ctx->gpr[27] + 0x8);
         vm_write64(ctx->gpr[30] + 0x38, ctx->gpr[0]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30010E2C; return; }
-        ctx->gpr[9] = (int64_t)(int32_t)((int32_t)ctx->gpr[6] >> 6);
-        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result < ctx->gpr[9]) ? (1u << 29) : 0); ctx->gpr[9] = result; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001113C; return; }
 }
 
-void libsre_func_3001113C(ppu_context* ctx) {
+void libsre_func_30011134(ppu_context* ctx) {
         uint64_t _cs_28 = ctx->gpr[28];
         uint64_t _cs_29 = ctx->gpr[29];
         uint64_t _cs_30 = ctx->gpr[30];
         uint64_t _cs_31 = ctx->gpr[31];
+        ctx->gpr[9] = (int64_t)(int32_t)((int32_t)ctx->gpr[6] >> 6);
+        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result < ctx->gpr[9]) ? (1u << 29) : 0); ctx->gpr[9] = result; }
         ctx->gpr[0] = ctx->lr;
         vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
         ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 2, 0, 29);
@@ -15330,53 +15039,13 @@ void libsre_func_30011474(ppu_context* ctx) {
         libsre_func_3001302C(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_30011404; return; }
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30011488; return; }
 }
 
 void libsre_func_30011484(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30011488; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_300114C4; return; }
 }
 
-void libsre_func_30011488(ppu_context* ctx) {
-        uint64_t _cs_25 = ctx->gpr[25];
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        ctx->gpr[28] = ctx->gpr[4] | ctx->gpr[4];
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[25]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[0]);
-        ctx->gpr[31] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[29] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[4] = ctx->gpr[5] | ctx->gpr[5];
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300114FC; return; }
-        ctx->gpr[30] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[30] = ctx->gpr[30] | 0x911;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xC0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[30];
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xB0);
-        return;
-}
 
 void libsre_func_300116FC(ppu_context* ctx) {
         uint64_t _cs_30 = ctx->gpr[30];
@@ -15479,53 +15148,13 @@ void libsre_func_30011810(ppu_context* ctx) {
         libsre_func_3001302C(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_300117C8; return; }
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30011858; return; }
 }
 
 void libsre_func_30011854(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30011858; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30011894; return; }
 }
 
-void libsre_func_30011858(ppu_context* ctx) {
-        uint64_t _cs_25 = ctx->gpr[25];
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xB0, ctx->gpr[1]); ctx->gpr[1] += -0xB0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[31]);
-        ctx->gpr[28] = ctx->gpr[4] | ctx->gpr[4];
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[25]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[0]);
-        ctx->gpr[31] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[29] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[4] = ctx->gpr[5] | ctx->gpr[5];
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300118CC; return; }
-        ctx->gpr[30] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[30] = ctx->gpr[30] | 0x911;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xC0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[30];
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xB0);
-        return;
-}
 
 void libsre_func_30011F60(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
@@ -15550,14 +15179,6 @@ void libsre_func_30012520(ppu_context* ctx) {
 }
 
 void libsre_func_300125D8(ppu_context* ctx) {
-        ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300125E8; return; }
-}
-
-void libsre_func_300125E8(ppu_context* ctx) {
         uint64_t _cs_22 = ctx->gpr[22];
         uint64_t _cs_23 = ctx->gpr[23];
         uint64_t _cs_24 = ctx->gpr[24];
@@ -15568,6 +15189,10 @@ void libsre_func_300125E8(ppu_context* ctx) {
         uint64_t _cs_29 = ctx->gpr[29];
         uint64_t _cs_30 = ctx->gpr[30];
         uint64_t _cs_31 = ctx->gpr[31];
+        ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         vm_write64(ctx->gpr[1] + -0xC0, ctx->gpr[1]); ctx->gpr[1] += -0xC0;
         vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[30]);
         vm_write64(ctx->gpr[1] + 0xB8, ctx->gpr[31]);
@@ -16680,12 +16305,11 @@ void libsre_func_30013840(ppu_context* ctx) {
         libsre_func_3001302C(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_30013828; return; }
-        ctx->gpr[12] = ctx->cr;
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001386C; return; }
 }
 
-void libsre_func_3001386C(ppu_context* ctx) {
+void libsre_func_30013864(ppu_context* ctx) {
+        ctx->gpr[12] = ctx->cr;
+        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         vm_write64(ctx->gpr[1] + -0xD0, ctx->gpr[1]); ctx->gpr[1] += -0xD0;
         vm_write64(ctx->gpr[1] + 0xB8, ctx->gpr[29]);
         vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[30]);
@@ -16846,10 +16470,7 @@ loc_30013A4C:
         ctx->gpr[5] = (int64_t)(int32_t)(1);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30013864; return; }
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30013AA0; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30013A94; return; }
 }
 
 void libsre_func_30013A80(ppu_context* ctx) {
@@ -16861,32 +16482,16 @@ void libsre_func_30013A88(ppu_context* ctx) {
         ctx->gpr[5] = (int64_t)(int32_t)(1);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30013864; return; }
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30013A94; return; }
+}
+
+void libsre_func_30013A94(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30013AA0; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30013ABC; return; }
 }
 
-void libsre_func_30013AA0(ppu_context* ctx) {
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        vm_write64(ctx->gpr[1] + -0x90, ctx->gpr[1]); ctx->gpr[1] += -0x90;
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[0]);
-        ctx->gpr[3] = ctx->gpr[3] | 0x911;
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30013ADC; return; }
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xA0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x90);
-        return;
-}
 
 void libsre_func_30013BEC(ppu_context* ctx) {
         uint64_t _cs_30 = ctx->gpr[30];
@@ -16935,49 +16540,15 @@ void libsre_func_30013C6C(ppu_context* ctx) {
         libsre_func_3000CB40(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_30013C2C; return; }
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[11] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30013C90; return; }
 }
 
 void libsre_func_30013C84(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[11] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30013C90; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30013CBC; return; }
 }
 
-void libsre_func_30013C90(ppu_context* ctx) {
-        uint64_t _cs_26 = ctx->gpr[26];
-        uint64_t _cs_27 = ctx->gpr[27];
-        uint64_t _cs_28 = ctx->gpr[28];
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0x70, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[0]);
-        ctx->gpr[31] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[11] = ctx->gpr[11] | 0x911;
-        if ((!((ctx->cr >> 28) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30013CE8; return; }
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xB0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[11];
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xA0);
-        return;
-}
 
 void libsre_func_30013E08(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -17431,12 +17002,11 @@ loc_30014A48:
         libsre_func_3001302C(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         goto loc_30014A20;
-        ctx->gpr[12] = ctx->cr;
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30014A60; return; }
 }
 
-void libsre_func_30014A60(ppu_context* ctx) {
+void libsre_func_30014A58(ppu_context* ctx) {
+        ctx->gpr[12] = ctx->cr;
+        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
         vm_write64(ctx->gpr[1] + -0x2F0, ctx->gpr[1]); ctx->gpr[1] += -0x2F0;
         vm_write64(ctx->gpr[1] + 0x2C0, ctx->gpr[26]);
         vm_write64(ctx->gpr[1] + 0x2C8, ctx->gpr[27]);
@@ -17696,10 +17266,7 @@ loc_30014DB4:
         /* sync: cache/sync � no-op */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_30014D2C; return; }
         ctx->gpr[8] = (int64_t)(int32_t)(0);
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[9] = (int64_t)(int32_t)(0x1900);
-        ctx->gpr[10] = (int64_t)(int32_t)(0);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30014DD4; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30014DC8; return; }
 }
 
 void libsre_func_30014DC4(ppu_context* ctx) {
@@ -17707,10 +17274,13 @@ void libsre_func_30014DC4(ppu_context* ctx) {
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[9] = (int64_t)(int32_t)(0x1900);
         ctx->gpr[10] = (int64_t)(int32_t)(0);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30014DD4; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30014DC8; return; }
 }
 
-void libsre_func_30014DD4(ppu_context* ctx) {
+void libsre_func_30014DC8(ppu_context* ctx) {
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[9] = (int64_t)(int32_t)(0x1900);
+        ctx->gpr[10] = (int64_t)(int32_t)(0);
         vm_write64(ctx->gpr[1] + -0x70, ctx->gpr[1]); ctx->gpr[1] += -0x70;
         vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[0]);
         libsre_func_30014A58(ctx); DRAIN_TRAMPOLINE(ctx);
@@ -19037,40 +18607,13 @@ void libsre_func_300171A4(ppu_context* ctx) {
         { uint64_t a = (uint32_t)ctx->gpr[0]; uint64_t b = (uint64_t)0x1F; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if ((!((ctx->cr >> 0) & 4))) { g_trampoline_fn = (void(*)(void*))libsre_func_3001716C; return; }
         { g_trampoline_fn = (void(*)(void*))libsre_func_30017190; return; }
-        ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300171BC; return; }
 }
 
 void libsre_func_300171B8(ppu_context* ctx) {
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300171BC; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_300171EC; return; }
 }
 
-void libsre_func_300171BC(ppu_context* ctx) {
-        uint64_t _cs_29 = ctx->gpr[29];
-        uint64_t _cs_30 = ctx->gpr[30];
-        uint64_t _cs_31 = ctx->gpr[31];
-        ctx->gpr[0] = ctx->lr;
-        vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[0]);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 25, 31);
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[30]);
-        ctx->gpr[31] = ctx->gpr[4] | ctx->gpr[4];
-        ctx->gpr[3] = ctx->gpr[3] | 0x910;
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3001720C; return; }
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xB0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0xA0);
-        return;
-}
 
 void libsre_func_30017344(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -19677,46 +19220,15 @@ loc_30017D1C:
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
         if ((!((ctx->cr >> 0) & 2))) goto loc_30017BB4;
         goto loc_30017C74;
-        { int64_t a = (int64_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[9] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30017D4C; return; }
 }
 
 void libsre_func_30017D40(ppu_context* ctx) {
         { int64_t a = (int64_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
         ctx->gpr[0] = ctx->lr;
         ctx->gpr[9] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30017D4C; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30017DA8; return; }
 }
 
-void libsre_func_30017D4C(ppu_context* ctx) {
-        uint64_t _cs_31 = ctx->gpr[31];
-        vm_write64(ctx->gpr[1] + -0x90, ctx->gpr[1]); ctx->gpr[1] += -0x90;
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[0]);
-        ctx->gpr[31] = ctx->gpr[4] | ctx->gpr[4];
-        ctx->gpr[9] = ctx->gpr[9] | 0x911;
-        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
-        ctx->gpr[3] = ppc_rldicl(ctx->gpr[3], 0, 32);
-        if (((ctx->cr >> 28) & 2)) goto loc_30017D90;
-        libsre_func_300044C0(ctx); DRAIN_TRAMPOLINE(ctx);
-        /* nop */;
-        ctx->gpr[0] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = ctx->gpr[0] | 0x900;
-        ctx->gpr[3] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 24, 31);
-        ctx->gpr[10] = (int64_t)(int32_t)(0);
-        ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[0];
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30017DA8; return; }
-loc_30017D90:
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0xA0);
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[9];
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x90);
-        ctx->lr = ctx->gpr[0];
-        return;
-}
 
 void libsre_func_30017DE4(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -22604,40 +22116,13 @@ void libsre_func_3001BF64(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001BD70; return; }
-        ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001BFA0; return; }
 }
 
 void libsre_func_3001BF9C(ppu_context* ctx) {
         ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001BFA0; return; }
-}
-
-void libsre_func_3001BFA0(ppu_context* ctx) {
-        vm_write64(ctx->gpr[1] + -0xE0, ctx->gpr[1]); ctx->gpr[1] += -0xE0;
-        vm_write64(ctx->gpr[1] + 0xB8, ctx->gpr[27]);
-        ctx->gpr[27] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[9] = (int64_t)(int32_t)(-1);
-        ctx->gpr[11] = (int64_t)(int32_t)(0);
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[22]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[23]);
-        vm_write64(ctx->gpr[1] + 0xA0, ctx->gpr[24]);
-        vm_write64(ctx->gpr[1] + 0xB0, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0xC8, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0xD0, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0xD8, ctx->gpr[31]);
-        vm_write64(ctx->gpr[1] + 0xA8, ctx->gpr[25]);
-        vm_write64(ctx->gpr[1] + 0xC0, ctx->gpr[28]);
-        ctx->gpr[26] = ctx->gpr[4] | ctx->gpr[4];
-        ctx->gpr[30] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[24] = ctx->gpr[7] | ctx->gpr[7];
-        ctx->gpr[31] = ctx->gpr[8] | ctx->gpr[8];
-        ctx->gpr[22] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[23] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[29] = ctx->gpr[4] | ctx->gpr[4];
-        vm_write32(ctx->gpr[1] + 0xE8, ctx->gpr[12]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001BFF8; return; }
 }
+
 
 void libsre_func_3001BFF8(ppu_context* ctx) {
         uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x90);
@@ -22838,27 +22323,13 @@ void libsre_func_3001C260(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001C06C; return; }
-        ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001C29C; return; }
 }
 
 void libsre_func_3001C298(ppu_context* ctx) {
         ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001C29C; return; }
-}
-
-void libsre_func_3001C29C(ppu_context* ctx) {
-        vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x70, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[31]);
-        ctx->gpr[30] = ctx->gpr[3] | ctx->gpr[3];
-        vm_write32(ctx->gpr[1] + 0xA8, ctx->gpr[12]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001C2C0; return; }
 }
+
 
 void libsre_func_3001C2C0(ppu_context* ctx) {
         uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x70);
@@ -23011,27 +22482,13 @@ void libsre_func_3001C4A0(ppu_context* ctx) {
         libsre_func_3001D978(ctx); DRAIN_TRAMPOLINE(ctx);
         ctx->gpr[2] = vm_read64(ctx->gpr[1] + 0x28);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001C350; return; }
-        ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001C4C8; return; }
 }
 
 void libsre_func_3001C4C4(ppu_context* ctx) {
         ctx->gpr[12] = ctx->cr;
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001C4C8; return; }
-}
-
-void libsre_func_3001C4C8(ppu_context* ctx) {
-        vm_write64(ctx->gpr[1] + -0xA0, ctx->gpr[1]); ctx->gpr[1] += -0xA0;
-        vm_write64(ctx->gpr[1] + 0x90, ctx->gpr[30]);
-        vm_write64(ctx->gpr[1] + 0x70, ctx->gpr[26]);
-        vm_write64(ctx->gpr[1] + 0x78, ctx->gpr[27]);
-        vm_write64(ctx->gpr[1] + 0x80, ctx->gpr[28]);
-        vm_write64(ctx->gpr[1] + 0x88, ctx->gpr[29]);
-        vm_write64(ctx->gpr[1] + 0x98, ctx->gpr[31]);
-        ctx->gpr[30] = ctx->gpr[3] | ctx->gpr[3];
-        vm_write32(ctx->gpr[1] + 0xA8, ctx->gpr[12]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_3001C4EC; return; }
 }
+
 
 void libsre_func_3001C4EC(ppu_context* ctx) {
         uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x70);
@@ -28091,10 +27548,7 @@ loc_3000AC00:
 
 void libsre_func_3000B0E0(ppu_context* ctx) {
         ctx->gpr[12] = ctx->cr;
-        ctx->gpr[11] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B10C; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000B0E4; return; }
 }
 
 void libsre_func_3000B118(ppu_context* ctx) {
@@ -33679,9 +33133,6 @@ loc_30011114:
         ctx->gpr[0] = vm_read64(ctx->gpr[27] + 0x8);
         vm_write64(ctx->gpr[30] + 0x38, ctx->gpr[0]);
         { g_trampoline_fn = (void(*)(void*))libsre_func_30010E2C; return; }
-        ctx->gpr[9] = (int64_t)(int32_t)((int32_t)ctx->gpr[6] >> 6);
-        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result < ctx->gpr[9]) ? (1u << 29) : 0); ctx->gpr[9] = result; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001113C; return; }
 }
 
 void libsre_func_30011404(ppu_context* ctx) {
@@ -33761,8 +33212,6 @@ void libsre_func_30011840(ppu_context* ctx) {
         libsre_func_3001302C(ctx); DRAIN_TRAMPOLINE(ctx);
         /* nop */;
         { g_trampoline_fn = (void(*)(void*))libsre_func_300117C8; return; }
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30011858; return; }
 }
 
 void libsre_func_30012628(ppu_context* ctx) {
@@ -35775,12 +35224,6 @@ void libsre_func_30013828(ppu_context* ctx) {
         return;
 }
 
-void libsre_func_30013864(ppu_context* ctx) {
-        ctx->gpr[12] = ctx->cr;
-        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001386C; return; }
-}
-
 void libsre_func_300138A0(ppu_context* ctx) {
         uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0xA0);
         uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0xA8);
@@ -35829,10 +35272,7 @@ void libsre_func_300138A8(ppu_context* ctx) {
 
 void libsre_func_30013A90(ppu_context* ctx) {
         ctx->gpr[9] = ctx->gpr[3] | ctx->gpr[3];
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30013AA0; return; }
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30013A94; return; }
 }
 
 void libsre_func_30013C1C(ppu_context* ctx) {
@@ -35919,12 +35359,6 @@ void libsre_func_300149A0(ppu_context* ctx) {
         ctx->lr = ctx->gpr[0];
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x80);
         return;
-}
-
-void libsre_func_30014A58(ppu_context* ctx) {
-        ctx->gpr[12] = ctx->cr;
-        { int64_t a = (int64_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 28)) | (cr_val << 28); }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30014A60; return; }
 }
 
 void libsre_func_30014AB8(ppu_context* ctx) {
@@ -47102,12 +46536,13 @@ void libsre_func_3000365C(ppu_context* ctx) {
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x198);
 loc_3000365C:
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300039D8; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300039D8;
         ctx->gpr[9] = ppc_rldicl(ctx->gpr[19], 0, 32);
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[7] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[7]; }
         /* sync: cache/sync � no-op */;
         ctx->gpr[9] = vm_read64(ctx->gpr[1] + 0xF0);
         ctx->gpr[26] = vm_read64(ctx->gpr[9] + 0x0);
+loc_30003678:
         ctx->gpr[4] = ppc_rldicl(ctx->gpr[7], 16, 48);
         ctx->gpr[25] = ppc_rldicl(ctx->gpr[26], 48, 16);
         { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int32_t)ctx->gpr[20]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47236,8 +46671,9 @@ loc_30003814:
         ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
 loc_30003844:
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[30]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039CC; return; }
-        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039D4; return; }
+        if (((ctx->cr >> 0) & 2)) goto loc_300039CC;
+        if (((ctx->cr >> 4) & 2)) goto loc_300039D4;
+loc_30003850:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47271,7 +46707,8 @@ loc_30003894:
         ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
 loc_300038C4:
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[30]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039E8; return; }
+        if (((ctx->cr >> 0) & 2)) goto loc_300039E8;
+loc_300038CC:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47284,11 +46721,12 @@ loc_300038EC:
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         ctx->gpr[7] = ppc_rldimi(ctx->gpr[7], ctx->gpr[3], 16, 32);
         ctx->gpr[26] = ppc_rldimi(ctx->gpr[26], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300039F0; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300039F0;
         ctx->gpr[9] = ppc_rldicl(ctx->gpr[19], 0, 32);
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+loc_3000390C:
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if (((ctx->cr >> 0) & 2)) goto loc_3000365C;
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47299,11 +46737,11 @@ loc_300038EC:
 loc_30003928:
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
         { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A00; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A00;
         /* sync: cache/sync � no-op */;
         ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A0C; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A0C;
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
@@ -47339,6 +46777,32 @@ loc_30003958:
         ctx->gpr[31] = _cs_31;
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1A0);
         return;
+loc_300039CC:
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[21]);
+        if ((!((ctx->cr >> 4) & 2))) goto loc_30003850;
+loc_300039D4:
+        ctx->gpr[16] = (int64_t)(int32_t)(1);
+loc_300039D8:
+        { uint64_t ea = ctx->gpr[17]; ctx->gpr[26] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[26]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[7] = vm_read64(ctx->gpr[19] + 0x0);
+        goto loc_30003678;
+loc_300039E8:
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[22]);
+        goto loc_300038CC;
+loc_300039F0:
+        { uint64_t ea = ctx->gpr[17]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[26]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        goto loc_3000390C;
+loc_30003A00:
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[0];
+        goto loc_3000365C;
+loc_30003A0C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[9];
+        goto loc_3000365C;
 }
 
 void libsre_func_30003678(ppu_context* ctx) {
@@ -47360,6 +46824,7 @@ void libsre_func_30003678(ppu_context* ctx) {
         uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x188);
         uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x190);
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x198);
+loc_30003678:
         ctx->gpr[4] = ppc_rldicl(ctx->gpr[7], 16, 48);
         ctx->gpr[25] = ppc_rldicl(ctx->gpr[26], 48, 16);
         { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int32_t)ctx->gpr[20]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47488,8 +46953,9 @@ loc_30003814:
         ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
 loc_30003844:
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[30]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039CC; return; }
-        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039D4; return; }
+        if (((ctx->cr >> 0) & 2)) goto loc_300039CC;
+        if (((ctx->cr >> 4) & 2)) goto loc_300039D4;
+loc_30003850:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47523,7 +46989,8 @@ loc_30003894:
         ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
 loc_300038C4:
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[30]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039E8; return; }
+        if (((ctx->cr >> 0) & 2)) goto loc_300039E8;
+loc_300038CC:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47536,11 +47003,12 @@ loc_300038EC:
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         ctx->gpr[7] = ppc_rldimi(ctx->gpr[7], ctx->gpr[3], 16, 32);
         ctx->gpr[26] = ppc_rldimi(ctx->gpr[26], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300039F0; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300039F0;
         ctx->gpr[9] = ppc_rldicl(ctx->gpr[19], 0, 32);
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+loc_3000390C:
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47551,11 +47019,11 @@ loc_300038EC:
 loc_30003928:
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
         { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A00; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A00;
         /* sync: cache/sync � no-op */;
         ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A0C; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A0C;
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
@@ -47591,6 +47059,31 @@ loc_30003958:
         ctx->gpr[31] = _cs_31;
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1A0);
         return;
+loc_300039CC:
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[21]);
+        if ((!((ctx->cr >> 4) & 2))) goto loc_30003850;
+loc_300039D4:
+        ctx->gpr[16] = (int64_t)(int32_t)(1);
+        { uint64_t ea = ctx->gpr[17]; ctx->gpr[26] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[26]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[7] = vm_read64(ctx->gpr[19] + 0x0);
+        goto loc_30003678;
+loc_300039E8:
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[22]);
+        goto loc_300038CC;
+loc_300039F0:
+        { uint64_t ea = ctx->gpr[17]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[26]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        goto loc_3000390C;
+loc_30003A00:
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[0];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
+loc_30003A0C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[9];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
 }
 
 void libsre_func_30003850(ppu_context* ctx) {
@@ -47612,6 +47105,7 @@ void libsre_func_30003850(ppu_context* ctx) {
         uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x188);
         uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x190);
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x198);
+loc_30003850:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47644,7 +47138,8 @@ loc_30003894:
         ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
 loc_300038C4:
         { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[30]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300039E8; return; }
+        if (((ctx->cr >> 0) & 2)) goto loc_300039E8;
+loc_300038CC:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47656,11 +47151,12 @@ loc_300038C4:
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         ctx->gpr[7] = ppc_rldimi(ctx->gpr[7], ctx->gpr[3], 16, 32);
         ctx->gpr[26] = ppc_rldimi(ctx->gpr[26], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300039F0; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300039F0;
         ctx->gpr[9] = ppc_rldicl(ctx->gpr[19], 0, 32);
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+loc_3000390C:
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47671,11 +47167,11 @@ loc_300038C4:
 loc_30003928:
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
         { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A00; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A00;
         /* sync: cache/sync � no-op */;
         ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A0C; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A0C;
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
@@ -47711,6 +47207,29 @@ loc_30003958:
         ctx->gpr[31] = _cs_31;
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1A0);
         return;
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[21]);
+        if ((!((ctx->cr >> 4) & 2))) goto loc_30003850;
+        ctx->gpr[16] = (int64_t)(int32_t)(1);
+        { uint64_t ea = ctx->gpr[17]; ctx->gpr[26] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[26]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[7] = vm_read64(ctx->gpr[19] + 0x0);
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30003678; return; }
+loc_300039E8:
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[22]);
+        goto loc_300038CC;
+loc_300039F0:
+        { uint64_t ea = ctx->gpr[17]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[26]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        goto loc_3000390C;
+loc_30003A00:
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[0];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
+loc_30003A0C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[9];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
 }
 
 void libsre_func_300038CC(ppu_context* ctx) {
@@ -47732,6 +47251,7 @@ void libsre_func_300038CC(ppu_context* ctx) {
         uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x188);
         uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x190);
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x198);
+loc_300038CC:
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
         ctx->gpr[6] = (int64_t)(int32_t)(ctx->gpr[6] + 1);
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
@@ -47743,11 +47263,12 @@ void libsre_func_300038CC(ppu_context* ctx) {
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         ctx->gpr[7] = ppc_rldimi(ctx->gpr[7], ctx->gpr[3], 16, 32);
         ctx->gpr[26] = ppc_rldimi(ctx->gpr[26], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_300039F0; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300039F0;
         ctx->gpr[9] = ppc_rldicl(ctx->gpr[19], 0, 32);
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+loc_3000390C:
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47758,11 +47279,11 @@ void libsre_func_300038CC(ppu_context* ctx) {
 loc_30003928:
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
         { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A00; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A00;
         /* sync: cache/sync � no-op */;
         ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A0C; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A0C;
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
@@ -47798,6 +47319,28 @@ loc_30003958:
         ctx->gpr[31] = _cs_31;
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1A0);
         return;
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[21]);
+        if ((!((ctx->cr >> 4) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003850; return; }
+        ctx->gpr[16] = (int64_t)(int32_t)(1);
+        { uint64_t ea = ctx->gpr[17]; ctx->gpr[26] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[26]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[7] = vm_read64(ctx->gpr[19] + 0x0);
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30003678; return; }
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[22]);
+        goto loc_300038CC;
+loc_300039F0:
+        { uint64_t ea = ctx->gpr[17]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[26]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        goto loc_3000390C;
+loc_30003A00:
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[0];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
+loc_30003A0C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[9];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
 }
 
 void libsre_func_3000390C(ppu_context* ctx) {
@@ -47819,6 +47362,7 @@ void libsre_func_3000390C(ppu_context* ctx) {
         uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x188);
         uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x190);
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x198);
+loc_3000390C:
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
         { int64_t a = (int32_t)ctx->gpr[16]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
@@ -47829,11 +47373,11 @@ void libsre_func_3000390C(ppu_context* ctx) {
 loc_30003928:
         { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
         { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A00; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A00;
         /* sync: cache/sync � no-op */;
         ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
         { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003A0C; return; }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30003A0C;
         { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[7]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
         ctx->gpr[0] = ctx->cr;
         ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
@@ -47869,6 +47413,27 @@ loc_30003958:
         ctx->gpr[31] = _cs_31;
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1A0);
         return;
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[21]);
+        if ((!((ctx->cr >> 4) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30003850; return; }
+        ctx->gpr[16] = (int64_t)(int32_t)(1);
+        { uint64_t ea = ctx->gpr[17]; ctx->gpr[26] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[26]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[7] = vm_read64(ctx->gpr[19] + 0x0);
+        { g_trampoline_fn = (void(*)(void*))libsre_func_30003678; return; }
+        vm_write32(ctx->gpr[8] + 0x0, ctx->gpr[22]);
+        { g_trampoline_fn = (void(*)(void*))libsre_func_300038CC; return; }
+        { uint64_t ea = ctx->gpr[17]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[26]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        goto loc_3000390C;
+loc_30003A00:
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[0];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
+loc_30003A0C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[24], 2, 0, 29);
+        ctx->lr = ctx->gpr[9];
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000365C; return; }
 }
 
 void libsre_func_30003A9C(ppu_context* ctx) {
@@ -50504,6 +50069,981 @@ loc_30003EB8:
         return;
 }
 
+void libsre_func_30003FC8(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+loc_30003FC8:
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004348; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[6] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[6]; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0xF0);
+        ctx->gpr[27] = vm_read64(ctx->gpr[9] + 0x0);
+        ctx->gpr[28] = ppc_rldicl(ctx->gpr[6], 16, 48);
+        ctx->gpr[25] = ppc_rldicl(ctx->gpr[27], 48, 16);
+        { int64_t a = (int32_t)ctx->gpr[28]; int64_t b = (int32_t)ctx->gpr[19]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[18] = ctx->gpr[6] | ctx->gpr[6];
+        ctx->gpr[3] = ppc_rldicl(ctx->gpr[6], 48, 16);
+        ctx->gpr[8] = ppc_rldicl(ctx->gpr[27], 16, 48);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[6], 32, 32);
+        ctx->gpr[10] = (int64_t)(int16_t)ctx->gpr[6];
+        ctx->gpr[31] = (int64_t)(int16_t)ctx->gpr[27];
+        ctx->gpr[30] = ctx->gpr[19] - ctx->gpr[28];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_3000401C;
+        ctx->gpr[0] = ctx->gpr[28] - ctx->gpr[22];
+        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x108);
+        ctx->gpr[30] = ctx->gpr[9] - ctx->gpr[0];
+loc_3000401C:
+        ctx->gpr[26] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 16, 31);
+        ctx->gpr[29] = ppc_rldicl(ctx->gpr[26], 54, 59);
+        ctx->gpr[0] = ppc_rldicl(ctx->gpr[26], 59, 59);
+        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[7] = ctx->gpr[29] - ctx->gpr[0];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004038;
+        ctx->gpr[7] = (int64_t)(int32_t)(ctx->gpr[7] + 0x1E);
+loc_30004038:
+        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[10]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[10];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004050;
+        ctx->gpr[9] = ctx->gpr[10] - ctx->gpr[22];
+        ctx->gpr[0] = ctx->gpr[22] + ctx->gpr[8];
+        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[9];
+loc_30004050:
+        ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[4] = ctx->gpr[0] - ctx->gpr[7];
+        ctx->gpr[7] = ppc_rldicl(ctx->gpr[12], 54, 59);
+        ctx->gpr[0] = ppc_rldicl(ctx->gpr[12], 59, 59);
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = ctx->gpr[7] - ctx->gpr[0];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004070;
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
+loc_30004070:
+        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[31]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[10] = ctx->gpr[31] - ctx->gpr[8];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004088;
+        ctx->gpr[9] = ctx->gpr[22] + ctx->gpr[31];
+        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[22];
+        ctx->gpr[10] = ctx->gpr[9] - ctx->gpr[0];
+loc_30004088:
+        ctx->gpr[9] = (int64_t)(int32_t)(0xF - (int32_t)ctx->gpr[30]);
+        ctx->gpr[0] = (int64_t)(int32_t)(1);
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[11], 0, 16, 31);
+        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[9] & 0x20) ? 0u : ((uint32_t)ctx->gpr[0] << (ctx->gpr[9] & 0x1F)));
+        ctx->gpr[30] = ctx->gpr[10] + ctx->gpr[5];
+        ctx->gpr[11] = ctx->gpr[11] | ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ((uint64_t)0xFFFF << 16);
+        ctx->gpr[9] = ~(ctx->gpr[9] | ctx->gpr[9]);
+        ctx->gpr[9] = __builtin_clz((uint32_t)ctx->gpr[9]);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[9] + -16);
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[8];
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[14]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 8)) goto loc_300040C0;
+        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[14];
+loc_300040C0:
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
+        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x104);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 0, 27, 31);
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[31] = ctx->gpr[9] - ctx->gpr[7];
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000437C; return; }
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = (int64_t)(int32_t)(0);
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[26], 0, 27, 31);
+        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = ctx->gpr[9] - ctx->gpr[29];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
+loc_30004104:
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[8] + 1);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 48, 0);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[9], 0, 32);
+        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[8] & 0x20) ? 0u : ((uint32_t)ctx->gpr[11] << (ctx->gpr[8] & 0x1F)));
+        ctx->gpr[29] = (int64_t)(int32_t)(0);
+        ctx->ctr = (uint32_t)ctx->gpr[9];
+        ctx->gpr[26] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = vm_read64(ctx->gpr[1] + 0x110);
+        ctx->gpr[20] = (int64_t)(int32_t)(0);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 32, 16);
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[29] = ctx->gpr[29] | 0xFFFF;
+        ctx->gpr[26] = ctx->gpr[26] | 0xFF01;
+        ctx->gpr[20] = ctx->gpr[20] | 0xFF02;
+        ctx->gpr[28] = ctx->gpr[0] + ctx->gpr[9];
+        ctx->gpr[12] = (int64_t)(int32_t)(0);
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
+loc_30004148:
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) == 0)) goto loc_3000425C;
+loc_30004150:
+        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_300041CC;
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 4))) goto loc_300041CC;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[3], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_3000417C;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_3000417C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_300041AC;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_300041AC:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000435C; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[4] + -1);
+        ctx->gpr[3] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + -1);
+loc_300041CC:
+        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_30004200:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_30004230:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
+        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
+        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) goto loc_30004150;
+loc_3000425C:
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
+        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30003FC8;
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
+void libsre_func_30003FE4(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+        ctx->gpr[28] = ppc_rldicl(ctx->gpr[6], 16, 48);
+        ctx->gpr[25] = ppc_rldicl(ctx->gpr[27], 48, 16);
+        { int64_t a = (int32_t)ctx->gpr[28]; int64_t b = (int32_t)ctx->gpr[19]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[18] = ctx->gpr[6] | ctx->gpr[6];
+        ctx->gpr[3] = ppc_rldicl(ctx->gpr[6], 48, 16);
+        ctx->gpr[8] = ppc_rldicl(ctx->gpr[27], 16, 48);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[6], 32, 32);
+        ctx->gpr[10] = (int64_t)(int16_t)ctx->gpr[6];
+        ctx->gpr[31] = (int64_t)(int16_t)ctx->gpr[27];
+        ctx->gpr[30] = ctx->gpr[19] - ctx->gpr[28];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_3000401C;
+        ctx->gpr[0] = ctx->gpr[28] - ctx->gpr[22];
+        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x108);
+        ctx->gpr[30] = ctx->gpr[9] - ctx->gpr[0];
+loc_3000401C:
+        ctx->gpr[26] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 16, 31);
+        ctx->gpr[29] = ppc_rldicl(ctx->gpr[26], 54, 59);
+        ctx->gpr[0] = ppc_rldicl(ctx->gpr[26], 59, 59);
+        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[7] = ctx->gpr[29] - ctx->gpr[0];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004038;
+        ctx->gpr[7] = (int64_t)(int32_t)(ctx->gpr[7] + 0x1E);
+loc_30004038:
+        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[10]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[10];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004050;
+        ctx->gpr[9] = ctx->gpr[10] - ctx->gpr[22];
+        ctx->gpr[0] = ctx->gpr[22] + ctx->gpr[8];
+        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[9];
+loc_30004050:
+        ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[4] = ctx->gpr[0] - ctx->gpr[7];
+        ctx->gpr[7] = ppc_rldicl(ctx->gpr[12], 54, 59);
+        ctx->gpr[0] = ppc_rldicl(ctx->gpr[12], 59, 59);
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = ctx->gpr[7] - ctx->gpr[0];
+        if ((!((ctx->cr >> 0) & 8))) goto loc_30004070;
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
+loc_30004070:
+        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[31]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[10] = ctx->gpr[31] - ctx->gpr[8];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004088;
+        ctx->gpr[9] = ctx->gpr[22] + ctx->gpr[31];
+        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[22];
+        ctx->gpr[10] = ctx->gpr[9] - ctx->gpr[0];
+loc_30004088:
+        ctx->gpr[9] = (int64_t)(int32_t)(0xF - (int32_t)ctx->gpr[30]);
+        ctx->gpr[0] = (int64_t)(int32_t)(1);
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[11], 0, 16, 31);
+        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[9] & 0x20) ? 0u : ((uint32_t)ctx->gpr[0] << (ctx->gpr[9] & 0x1F)));
+        ctx->gpr[30] = ctx->gpr[10] + ctx->gpr[5];
+        ctx->gpr[11] = ctx->gpr[11] | ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ((uint64_t)0xFFFF << 16);
+        ctx->gpr[9] = ~(ctx->gpr[9] | ctx->gpr[9]);
+        ctx->gpr[9] = __builtin_clz((uint32_t)ctx->gpr[9]);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[9] + -16);
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[8];
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[14]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 8)) goto loc_300040C0;
+        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[14];
+loc_300040C0:
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
+        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x104);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 0, 27, 31);
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[31] = ctx->gpr[9] - ctx->gpr[7];
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000437C; return; }
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = (int64_t)(int32_t)(0);
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[26], 0, 27, 31);
+        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = ctx->gpr[9] - ctx->gpr[29];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
+loc_30004104:
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[8] + 1);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 48, 0);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[9], 0, 32);
+        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[8] & 0x20) ? 0u : ((uint32_t)ctx->gpr[11] << (ctx->gpr[8] & 0x1F)));
+        ctx->gpr[29] = (int64_t)(int32_t)(0);
+        ctx->ctr = (uint32_t)ctx->gpr[9];
+        ctx->gpr[26] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = vm_read64(ctx->gpr[1] + 0x110);
+        ctx->gpr[20] = (int64_t)(int32_t)(0);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 32, 16);
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[29] = ctx->gpr[29] | 0xFFFF;
+        ctx->gpr[26] = ctx->gpr[26] | 0xFF01;
+        ctx->gpr[20] = ctx->gpr[20] | 0xFF02;
+        ctx->gpr[28] = ctx->gpr[0] + ctx->gpr[9];
+        ctx->gpr[12] = (int64_t)(int32_t)(0);
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
+loc_30004148:
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) == 0)) goto loc_3000425C;
+loc_30004150:
+        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_300041CC;
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 4))) goto loc_300041CC;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[3], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_3000417C;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_3000417C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_300041AC;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_300041AC:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000435C; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[4] + -1);
+        ctx->gpr[3] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + -1);
+loc_300041CC:
+        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_30004200:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_30004230:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
+        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
+        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) goto loc_30004150;
+loc_3000425C:
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
+        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
+void libsre_func_300040E4(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = (int64_t)(int32_t)(0);
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[26], 0, 27, 31);
+        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[5] = ctx->gpr[9] - ctx->gpr[29];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
+loc_30004104:
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[8] + 1);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 48, 0);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[9], 0, 32);
+        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[8] & 0x20) ? 0u : ((uint32_t)ctx->gpr[11] << (ctx->gpr[8] & 0x1F)));
+        ctx->gpr[29] = (int64_t)(int32_t)(0);
+        ctx->ctr = (uint32_t)ctx->gpr[9];
+        ctx->gpr[26] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = vm_read64(ctx->gpr[1] + 0x110);
+        ctx->gpr[20] = (int64_t)(int32_t)(0);
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 32, 16);
+        ctx->gpr[0] = ctx->lr;
+        ctx->gpr[29] = ctx->gpr[29] | 0xFFFF;
+        ctx->gpr[26] = ctx->gpr[26] | 0xFF01;
+        ctx->gpr[20] = ctx->gpr[20] | 0xFF02;
+        ctx->gpr[28] = ctx->gpr[0] + ctx->gpr[9];
+        ctx->gpr[12] = (int64_t)(int32_t)(0);
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
+loc_30004148:
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) == 0)) goto loc_3000425C;
+loc_30004150:
+        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_300041CC;
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 4))) goto loc_300041CC;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[3], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_3000417C;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_3000417C:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_300041AC;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_300041AC:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000435C; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[4] + -1);
+        ctx->gpr[3] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + -1);
+loc_300041CC:
+        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004148;
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_30004148;
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_30004200:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_30004230:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
+        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
+        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) goto loc_30004150;
+loc_3000425C:
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
+        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
+void libsre_func_300041B4(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[4] + -1);
+        ctx->gpr[3] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + -1);
+        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
+        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
+        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
+        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
+        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
+loc_30004200:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
+        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[7] = (int64_t)(int32_t)(0);
+        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
+        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
+        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
+        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
+        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
+loc_30004230:
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
+        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
+        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004150; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
+        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
+void libsre_func_3000423C(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
+        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
+        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
+        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
+        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
+        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
+        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004150; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
+        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
+void libsre_func_3000427C(ppu_context* ctx) {
+        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
+        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
+        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
+        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
+        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
+        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
+        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
+        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
+        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
+        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
+        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
+        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
+        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
+        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
+        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
+        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
+        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
+        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
+        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
+        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
+        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
+        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
+loc_30004298:
+        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
+        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
+loc_300042C8:
+        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
+        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
+        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
+        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
+        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
+        ctx->gpr[14] = _cs_14;
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
+        ctx->gpr[15] = _cs_15;
+        ctx->gpr[16] = _cs_16;
+        ctx->lr = ctx->gpr[0];
+        ctx->gpr[17] = _cs_17;
+        ctx->gpr[18] = _cs_18;
+        ctx->gpr[19] = _cs_19;
+        ctx->gpr[20] = _cs_20;
+        ctx->gpr[21] = _cs_21;
+        ctx->gpr[22] = _cs_22;
+        ctx->gpr[23] = _cs_23;
+        ctx->gpr[24] = _cs_24;
+        ctx->gpr[25] = _cs_25;
+        ctx->gpr[26] = _cs_26;
+        ctx->gpr[27] = _cs_27;
+        ctx->gpr[28] = _cs_28;
+        ctx->gpr[29] = _cs_29;
+        ctx->gpr[30] = _cs_30;
+        ctx->gpr[31] = _cs_31;
+        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
+        return;
+}
+
 void libsre_func_30004A4C(ppu_context* ctx) {
         uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x70);
         uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x78);
@@ -51358,15 +51898,196 @@ void libsre_func_3000A328(ppu_context* ctx) {
 }
 
 void libsre_func_3000AAD0(ppu_context* ctx) {
+loc_3000AAD0:
         ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         ctx->gpr[3] = ctx->gpr[3] | 0x811;
+loc_3000AAD8:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         return;
+        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AAD0;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 25, 31);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[3] = ctx->gpr[3] | 0x810;
+        if ((!((ctx->cr >> 0) & 2))) goto loc_3000AAD8;
+        ctx->gpr[9] = vm_read64(ctx->gpr[10] + 0x70);
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 1, 1);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + -1);
+        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ~ctx->gpr[9] + ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result <= ctx->gpr[9] && ca) ? (1u << 29) : 0); ctx->gpr[9] = result; }
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 0, 27);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x20);
+        { uint64_t a = (uint32_t)ctx->gpr[9]; uint64_t b = (uint32_t)ctx->gpr[4]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB28;
+loc_3000AB1C:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0x802;
+        goto loc_3000AAD8;
+loc_3000AB28:
+        { uint64_t a = (uint32_t)ctx->gpr[6]; uint64_t b = (uint64_t)0xFF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB1C;
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint64_t)0xFF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB1C;
+        ctx->gpr[0] = (int64_t)(int32_t)(0x1F - (int32_t)ctx->gpr[4]);
+        ctx->gpr[9] = vm_read32(ctx->gpr[10] + 0xB0);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[9] = (int64_t)(int32_t)((ctx->gpr[0] & 0x20) ? 0u : ((uint32_t)ctx->gpr[9] >> (ctx->gpr[0] & 0x1F)));
+        ctx->gpr[3] = ctx->gpr[3] | 0x805;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 31, 31);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[10], 0, 32);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AAD8;
+        ctx->gpr[0] = vm_read32(ctx->gpr[10] + 0xD6C);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AB74;
+loc_3000AB68:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0x80F;
+        goto loc_3000AAD8;
+loc_3000AB74:
+        { uint64_t a = (uint32_t)ctx->gpr[4]; uint64_t b = (uint64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AC00;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 28, 31);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x80);
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[11] = vm_read8((ctx->gpr[11] + ctx->gpr[9]));
+        ctx->gpr[11] = ctx->gpr[11] ^ 0x2;
+        ctx->gpr[11] = (int64_t)(int32_t)(ctx->gpr[11] + -1);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[11], 1, 63);
+loc_3000AB98:
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AB68;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 0, 29);
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 30, 31);
+        ctx->gpr[0] = ctx->gpr[10] + ctx->gpr[0];
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[3] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[1] + -64);
+        ctx->gpr[4] = ctx->gpr[0] + ctx->gpr[9];
+loc_3000ABC0:
+        { uint64_t ea = ctx->gpr[3]; ctx->gpr[0] = vm_read32(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        vm_write32(ctx->gpr[1] + -0x10, ctx->gpr[0]);
+        ctx->gpr[9] = vm_read8(ctx->gpr[4] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[6]; int64_t b = (int32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        vm_write32(ctx->gpr[5] + 0x0, ctx->gpr[9]);
+        if ((!((ctx->cr >> 0) & 2))) goto loc_3000ABDC;
+        ctx->gpr[9] = ctx->gpr[7] | ctx->gpr[7];
+loc_3000ABDC:
+        vm_write8(ctx->gpr[4] + 0x30, ctx->gpr[9]);
+        ctx->gpr[0] = vm_read32(ctx->gpr[1] + -0x10);
+        { uint64_t ea = ctx->gpr[3]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write32(ea, (uint32_t)ctx->gpr[0]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000ABC0;
+        ctx->gpr[3] = (int64_t)(int32_t)(0);
+        goto loc_3000AAD8;
+loc_3000AC00:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 28, 31);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x80);
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[9] = ctx->gpr[11] + ctx->gpr[9];
+        ctx->gpr[11] = vm_read8(ctx->gpr[9] + 0x50);
+        ctx->gpr[11] = ctx->gpr[11] ^ 0x2;
+        ctx->gpr[11] = (int64_t)(int32_t)(ctx->gpr[11] + -1);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[11], 1, 63);
+        goto loc_3000AB98;
 }
 
 void libsre_func_3000AAD8(ppu_context* ctx) {
+loc_3000AAD8:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         return;
+        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000AAD0; return; }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 25, 31);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[3] = ctx->gpr[3] | 0x810;
+        if ((!((ctx->cr >> 0) & 2))) goto loc_3000AAD8;
+        ctx->gpr[9] = vm_read64(ctx->gpr[10] + 0x70);
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 1, 1);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + -1);
+        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ~ctx->gpr[9] + ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result <= ctx->gpr[9] && ca) ? (1u << 29) : 0); ctx->gpr[9] = result; }
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 0, 27);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x20);
+        { uint64_t a = (uint32_t)ctx->gpr[9]; uint64_t b = (uint32_t)ctx->gpr[4]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB28;
+loc_3000AB1C:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0x802;
+        goto loc_3000AAD8;
+loc_3000AB28:
+        { uint64_t a = (uint32_t)ctx->gpr[6]; uint64_t b = (uint64_t)0xFF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB1C;
+        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint64_t)0xFF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AB1C;
+        ctx->gpr[0] = (int64_t)(int32_t)(0x1F - (int32_t)ctx->gpr[4]);
+        ctx->gpr[9] = vm_read32(ctx->gpr[10] + 0xB0);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[9] = (int64_t)(int32_t)((ctx->gpr[0] & 0x20) ? 0u : ((uint32_t)ctx->gpr[9] >> (ctx->gpr[0] & 0x1F)));
+        ctx->gpr[3] = ctx->gpr[3] | 0x805;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 31, 31);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[10], 0, 32);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AAD8;
+        ctx->gpr[0] = vm_read32(ctx->gpr[10] + 0xD6C);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AB74;
+loc_3000AB68:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0x80F;
+        goto loc_3000AAD8;
+loc_3000AB74:
+        { uint64_t a = (uint32_t)ctx->gpr[4]; uint64_t b = (uint64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 4)) goto loc_3000AC00;
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 28, 31);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x80);
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[11] = vm_read8((ctx->gpr[11] + ctx->gpr[9]));
+        ctx->gpr[11] = ctx->gpr[11] ^ 0x2;
+        ctx->gpr[11] = (int64_t)(int32_t)(ctx->gpr[11] + -1);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[11], 1, 63);
+loc_3000AB98:
+        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000AB68;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 0, 29);
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 30, 31);
+        ctx->gpr[0] = ctx->gpr[10] + ctx->gpr[0];
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[3] = ppc_rldicl(ctx->gpr[0], 0, 32);
+        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[1] + -64);
+        ctx->gpr[4] = ctx->gpr[0] + ctx->gpr[9];
+loc_3000ABC0:
+        { uint64_t ea = ctx->gpr[3]; ctx->gpr[0] = vm_read32(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        vm_write32(ctx->gpr[1] + -0x10, ctx->gpr[0]);
+        ctx->gpr[9] = vm_read8(ctx->gpr[4] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[6]; int64_t b = (int32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        vm_write32(ctx->gpr[5] + 0x0, ctx->gpr[9]);
+        if ((!((ctx->cr >> 0) & 2))) goto loc_3000ABDC;
+        ctx->gpr[9] = ctx->gpr[7] | ctx->gpr[7];
+loc_3000ABDC:
+        vm_write8(ctx->gpr[4] + 0x30, ctx->gpr[9]);
+        ctx->gpr[0] = vm_read32(ctx->gpr[1] + -0x10);
+        { uint64_t ea = ctx->gpr[3]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write32(ea, (uint32_t)ctx->gpr[0]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_3000ABC0;
+        ctx->gpr[3] = (int64_t)(int32_t)(0);
+        goto loc_3000AAD8;
+loc_3000AC00:
+        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 28, 31);
+        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x80);
+        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
+        ctx->gpr[9] = ctx->gpr[11] + ctx->gpr[9];
+        ctx->gpr[11] = vm_read8(ctx->gpr[9] + 0x50);
+        ctx->gpr[11] = ctx->gpr[11] ^ 0x2;
+        ctx->gpr[11] = (int64_t)(int32_t)(ctx->gpr[11] + -1);
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[11], 1, 63);
+        goto loc_3000AB98;
 }
 
 void libsre_func_3000AF68(ppu_context* ctx) {
@@ -51959,22 +52680,22 @@ loc_3000C820:
 }
 
 void libsre_func_3000CDF0(ppu_context* ctx) {
-loc_3000CDF0:
+        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[9];
+        return;
+}
+
+void libsre_func_3000CEB4(ppu_context* ctx) {
+loc_3000CEB4:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[9];
         return;
         ctx->gpr[9] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
         ctx->gpr[3] = ppc_rldicl(ctx->gpr[3], 0, 32);
         ctx->gpr[9] = ctx->gpr[9] | 0x710;
-        if ((!((ctx->cr >> 4) & 2))) goto loc_3000CDF0;
+        if ((!((ctx->cr >> 4) & 2))) goto loc_3000CEB4;
         ctx->gpr[4] = vm_read32(ctx->gpr[11] + 0x950);
         ctx->gpr[4] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[4], 0, 30, 30);
         ctx->gpr[4] = (int64_t)(int32_t)ctx->gpr[4];
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000CD54; return; }
-}
-
-void libsre_func_3000CEB4(ppu_context* ctx) {
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[9];
-        return;
+        { g_trampoline_fn = (void(*)(void*))libsre_func_3000CE18; return; }
 }
 
 void libsre_func_3000D480(ppu_context* ctx) {
@@ -53240,12 +53961,6 @@ loc_30010B98:
         goto loc_30010B2C;
 }
 
-void libsre_func_30011134(ppu_context* ctx) {
-        ctx->gpr[9] = (int64_t)(int32_t)((int32_t)ctx->gpr[6] >> 6);
-        { uint64_t ca = (ctx->xer >> 29) & 1; uint64_t result = ctx->gpr[9] + ca; ctx->xer = (ctx->xer & ~(1u << 29)) | ((result < ctx->gpr[9]) ? (1u << 29) : 0); ctx->gpr[9] = result; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3001113C; return; }
-}
-
 void libsre_func_300111E0(ppu_context* ctx) {
         uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x80);
         uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x88);
@@ -54428,20 +55143,8 @@ loc_30014F08:
 }
 
 void libsre_func_30014FC0(ppu_context* ctx) {
-loc_30014FC0:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         return;
-        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[11], 0, 25, 31);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
-        if (((ctx->cr >> 0) & 2)) goto loc_30014FC0;
-        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
-        ctx->gpr[3] = ctx->gpr[3] | 0x910;
-        if ((!((ctx->cr >> 4) & 2))) goto loc_30014FC0;
-        ctx->gpr[0] = vm_read32(ctx->gpr[11] + 0x74);
-        ctx->gpr[3] = (int64_t)(int32_t)(0);
-        vm_write32(ctx->gpr[4] + 0x0, ctx->gpr[0]);
-        goto loc_30014FC0;
 }
 
 void libsre_func_300157AC(ppu_context* ctx) {
@@ -54487,8 +55190,41 @@ void libsre_func_300157F8(ppu_context* ctx) {
 }
 
 void libsre_func_3001687C(ppu_context* ctx) {
+loc_3001687C:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         return;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 0, 25, 31);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[3] = ctx->gpr[3] | 0x910;
+        if ((!((ctx->cr >> 0) & 2))) goto loc_3001687C;
+        ctx->gpr[3] = ctx->gpr[9] | ctx->gpr[9];
+        ctx->gpr[11] = ppc_rldicl(ctx->gpr[9], 0, 32);
+loc_300168A0:
+        { uint64_t ea = ctx->gpr[11]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
+        ctx->gpr[9] = vm_read32(ctx->gpr[3] + 0x0);
+        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 8)) goto loc_300168F0;
+        ctx->gpr[0] = vm_read32(ctx->gpr[3] + 0x4);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 8)) goto loc_300168F0;
+        ctx->gpr[0] = vm_read8(ctx->gpr[3] + 0x20);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300168F0;
+        ctx->gpr[0] = vm_read8(ctx->gpr[3] + 0x30);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_300168F0;
+        { uint64_t ea = ctx->gpr[11]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[0]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
+        ctx->gpr[0] = ctx->cr;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
+        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_300168A0;
+        ctx->gpr[3] = (int64_t)(int32_t)(0);
+        goto loc_3001687C;
+loc_300168F0:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0x90A;
+        goto loc_3001687C;
 }
 
 void libsre_func_300171EC(ppu_context* ctx) {
@@ -54508,6 +55244,7 @@ void libsre_func_300171EC(ppu_context* ctx) {
 void libsre_func_30018EE4(ppu_context* ctx) {
         uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x70);
         uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x78);
+loc_30018EE4:
         ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x90);
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         ctx->gpr[30] = _cs_30;
@@ -54515,11 +55252,64 @@ void libsre_func_30018EE4(ppu_context* ctx) {
         ctx->lr = ctx->gpr[0];
         ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x80);
         return;
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[31], 0, 25, 31);
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[3] = ctx->gpr[3] | 0xA10;
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30018EE4;
+        ctx->gpr[4] = vm_read32(ctx->gpr[31] + 0x74);
+        { uint64_t a = (uint32_t)ctx->gpr[4]; uint64_t b = (uint64_t)0x1F; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 4))) goto loc_30018F2C;
+loc_30018F20:
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0xA02;
+        goto loc_30018EE4;
+loc_30018F2C:
+        ctx->gpr[30] = ppc_rldicl(ctx->gpr[4], 0, 32);
+        ctx->gpr[3] = vm_read32(ctx->gpr[31] + 0x7C);
+        ctx->gpr[4] = ctx->gpr[30] | ctx->gpr[30];
+        libsre_func_3000A304(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30018F74;
+        ctx->gpr[4] = ctx->gpr[30] | ctx->gpr[30];
+        ctx->gpr[3] = vm_read32(ctx->gpr[31] + 0x7C);
+        libsre_func_3000A50C(ctx); DRAIN_TRAMPOLINE(ctx);
+        /* nop */;
+        { int64_t a = (int32_t)ctx->gpr[3]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30018EE4;
+        /* sync: cache/sync � no-op */;
+        ctx->gpr[0] = (int64_t)(int32_t)(0x20);
+        ctx->gpr[3] = vm_read32(ctx->gpr[31] + 0x80);
+        vm_write32(ctx->gpr[31] + 0x74, ctx->gpr[0]);
+        goto loc_30018EE4;
+loc_30018F74:
+        ctx->gpr[0] = ctx->gpr[3] ^ ((uint64_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0x802; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30018F20;
+        ctx->gpr[0] = ctx->gpr[3] ^ ((uint64_t)0x8041 << 16);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0x80F; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        if ((!((ctx->cr >> 0) & 2))) goto loc_30018EE4;
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0xA0F;
+        goto loc_30018EE4;
 }
 
 void libsre_func_30019184(ppu_context* ctx) {
+loc_30019184:
         ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
         return;
+        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
+        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[11], 0, 25, 31);
+        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
+        if (((ctx->cr >> 0) & 2)) goto loc_30019184;
+        ctx->gpr[3] = (int64_t)(int32_t)((uint32_t)0x8041 << 16);
+        ctx->gpr[3] = ctx->gpr[3] | 0xA10;
+        if ((!((ctx->cr >> 4) & 2))) goto loc_30019184;
+        ctx->gpr[0] = vm_read32(ctx->gpr[11] + 0x74);
+        ctx->gpr[3] = (int64_t)(int32_t)(0);
+        vm_write32(ctx->gpr[4] + 0x0, ctx->gpr[0]);
+        goto loc_30019184;
 }
 
 void libsre_func_300192FC(ppu_context* ctx) {
@@ -60499,281 +61289,6 @@ loc_3001D350:
         return;
 }
 
-void libsre_func_30003FC8(ppu_context* ctx) {
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004348; return; }
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-        { uint64_t ea = ctx->gpr[9]; ctx->gpr[6] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[6]; }
-        /* sync: cache/sync � no-op */;
-        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0xF0);
-        ctx->gpr[27] = vm_read64(ctx->gpr[9] + 0x0);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_30003FE4; return; }
-}
-
-void libsre_func_30003FE4(ppu_context* ctx) {
-        ctx->gpr[28] = ppc_rldicl(ctx->gpr[6], 16, 48);
-        ctx->gpr[25] = ppc_rldicl(ctx->gpr[27], 48, 16);
-        { int64_t a = (int32_t)ctx->gpr[28]; int64_t b = (int32_t)ctx->gpr[19]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[18] = ctx->gpr[6] | ctx->gpr[6];
-        ctx->gpr[3] = ppc_rldicl(ctx->gpr[6], 48, 16);
-        ctx->gpr[8] = ppc_rldicl(ctx->gpr[27], 16, 48);
-        ctx->gpr[11] = ppc_rldicl(ctx->gpr[6], 32, 32);
-        ctx->gpr[10] = (int64_t)(int16_t)ctx->gpr[6];
-        ctx->gpr[31] = (int64_t)(int16_t)ctx->gpr[27];
-        ctx->gpr[30] = ctx->gpr[19] - ctx->gpr[28];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_3000401C;
-        ctx->gpr[0] = ctx->gpr[28] - ctx->gpr[22];
-        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x108);
-        ctx->gpr[30] = ctx->gpr[9] - ctx->gpr[0];
-loc_3000401C:
-        ctx->gpr[26] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 0, 16, 31);
-        ctx->gpr[29] = ppc_rldicl(ctx->gpr[26], 54, 59);
-        ctx->gpr[0] = ppc_rldicl(ctx->gpr[26], 59, 59);
-        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[7] = ctx->gpr[29] - ctx->gpr[0];
-        if ((!((ctx->cr >> 0) & 8))) goto loc_30004038;
-        ctx->gpr[7] = (int64_t)(int32_t)(ctx->gpr[7] + 0x1E);
-loc_30004038:
-        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[10]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[10];
-        if ((!((ctx->cr >> 0) & 8))) goto loc_30004050;
-        ctx->gpr[9] = ctx->gpr[10] - ctx->gpr[22];
-        ctx->gpr[0] = ctx->gpr[22] + ctx->gpr[8];
-        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[9];
-loc_30004050:
-        ctx->gpr[12] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
-        ctx->gpr[4] = ctx->gpr[0] - ctx->gpr[7];
-        ctx->gpr[7] = ppc_rldicl(ctx->gpr[12], 54, 59);
-        ctx->gpr[0] = ppc_rldicl(ctx->gpr[12], 59, 59);
-        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[5] = ctx->gpr[7] - ctx->gpr[0];
-        if ((!((ctx->cr >> 0) & 8))) goto loc_30004070;
-        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
-loc_30004070:
-        { int64_t a = (int32_t)ctx->gpr[8]; int64_t b = (int32_t)ctx->gpr[31]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[10] = ctx->gpr[31] - ctx->gpr[8];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_30004088;
-        ctx->gpr[9] = ctx->gpr[22] + ctx->gpr[31];
-        ctx->gpr[0] = ctx->gpr[8] - ctx->gpr[22];
-        ctx->gpr[10] = ctx->gpr[9] - ctx->gpr[0];
-loc_30004088:
-        ctx->gpr[9] = (int64_t)(int32_t)(0xF - (int32_t)ctx->gpr[30]);
-        ctx->gpr[0] = (int64_t)(int32_t)(1);
-        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[11], 0, 16, 31);
-        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[9] & 0x20) ? 0u : ((uint32_t)ctx->gpr[0] << (ctx->gpr[9] & 0x1F)));
-        ctx->gpr[30] = ctx->gpr[10] + ctx->gpr[5];
-        ctx->gpr[11] = ctx->gpr[11] | ctx->gpr[0];
-        ctx->gpr[9] = ctx->gpr[11] | ((uint64_t)0xFFFF << 16);
-        ctx->gpr[9] = ~(ctx->gpr[9] | ctx->gpr[9]);
-        ctx->gpr[9] = __builtin_clz((uint32_t)ctx->gpr[9]);
-        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[9] + -16);
-        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[8];
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[14]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 8)) goto loc_300040C0;
-        ctx->gpr[0] = ctx->gpr[0] - ctx->gpr[14];
-loc_300040C0:
-        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
-        ctx->gpr[9] = vm_read32(ctx->gpr[1] + 0x104);
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004364; return; }
-        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 0, 27, 31);
-        { uint64_t a = (uint32_t)ctx->gpr[7]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[31] = ctx->gpr[9] - ctx->gpr[7];
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000437C; return; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300040E4; return; }
-}
-
-void libsre_func_300040E4(ppu_context* ctx) {
-        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[5] = (int64_t)(int32_t)(0);
-        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
-        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[26], 0, 27, 31);
-        { uint64_t a = (uint32_t)ctx->gpr[29]; uint64_t b = (uint32_t)ctx->gpr[9]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[5] = ctx->gpr[9] - ctx->gpr[29];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_30004104;
-        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + 0x1E);
-loc_30004104:
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[8] + 1);
-        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 48, 0);
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[9], 0, 32);
-        ctx->gpr[0] = (int64_t)(int32_t)((ctx->gpr[8] & 0x20) ? 0u : ((uint32_t)ctx->gpr[11] << (ctx->gpr[8] & 0x1F)));
-        ctx->gpr[29] = (int64_t)(int32_t)(0);
-        ctx->ctr = (uint32_t)ctx->gpr[9];
-        ctx->gpr[26] = (int64_t)(int32_t)(0);
-        ctx->gpr[9] = vm_read64(ctx->gpr[1] + 0x110);
-        ctx->gpr[20] = (int64_t)(int32_t)(0);
-        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[0], 32, 16);
-        ctx->gpr[0] = ctx->lr;
-        ctx->gpr[29] = ctx->gpr[29] | 0xFFFF;
-        ctx->gpr[26] = ctx->gpr[26] | 0xFF01;
-        ctx->gpr[20] = ctx->gpr[20] | 0xFF02;
-        ctx->gpr[28] = ctx->gpr[0] + ctx->gpr[9];
-        ctx->gpr[12] = (int64_t)(int32_t)(0);
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 4)) | (cr_val << 4); }
-        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
-        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) == 0)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000425C; return; }
-        { int64_t a = (int32_t)ctx->gpr[5]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_300041CC; return; }
-        { int64_t a = (int32_t)ctx->gpr[4]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 4))) { g_trampoline_fn = (void(*)(void*))libsre_func_300041CC; return; }
-        ctx->gpr[11] = ppc_rldicl(ctx->gpr[3], 54, 59);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
-        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
-        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_3000417C;
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
-loc_3000417C:
-        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
-        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x30);
-        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
-        ctx->gpr[7] = (int64_t)(int32_t)(0);
-        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
-        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
-        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
-        if (((ctx->cr >> 0) & 2)) goto loc_300041AC;
-        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
-        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
-loc_300041AC:
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000435C; return; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_300041B4; return; }
-}
-
-void libsre_func_300041B4(ppu_context* ctx) {
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[3], 17, 5, 31);
-        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
-        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[4] + -1);
-        ctx->gpr[3] = ctx->gpr[0] | ctx->gpr[7];
-        ctx->gpr[5] = (int64_t)(int32_t)(ctx->gpr[5] + -1);
-        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
-        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
-        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
-loc_30004200:
-        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
-        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
-        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
-        ctx->gpr[7] = (int64_t)(int32_t)(0);
-        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
-        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
-        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
-        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
-        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
-        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
-loc_30004230:
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
-        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000423C; return; }
-}
-
-void libsre_func_3000423C(ppu_context* ctx) {
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
-        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
-        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
-        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
-        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
-        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
-        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004150; return; }
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
-        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { g_trampoline_fn = (void(*)(void*))libsre_func_3000427C; return; }
-}
-
-void libsre_func_3000427C(ppu_context* ctx) {
-        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
-        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
-        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
-        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
-        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
-        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
-        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
-        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
-        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
-        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
-        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
-        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
-        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
-        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
-        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
-        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
-        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
-        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
-        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
-        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-loc_30004298:
-        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
-        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
-        /* sync: cache/sync � no-op */;
-        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
-loc_300042C8:
-        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
-        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
-        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
-        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
-        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
-        /* nop */;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
-        ctx->gpr[14] = _cs_14;
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[15] = _cs_15;
-        ctx->gpr[16] = _cs_16;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[17] = _cs_17;
-        ctx->gpr[18] = _cs_18;
-        ctx->gpr[19] = _cs_19;
-        ctx->gpr[20] = _cs_20;
-        ctx->gpr[21] = _cs_21;
-        ctx->gpr[22] = _cs_22;
-        ctx->gpr[23] = _cs_23;
-        ctx->gpr[24] = _cs_24;
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
-        return;
-}
-
 void libsre_func_3000F508(ppu_context* ctx) {
         ctx->gpr[9] = vm_read32(ctx->gpr[2] + -0x7D20);
         ctx->gpr[3] = vm_read32(ctx->gpr[9] + 0x10);
@@ -61922,202 +62437,6 @@ loc_30004230:
         ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
         ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
         if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) goto loc_30004150;
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
-        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
-        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
-        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-loc_30004298:
-        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
-        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
-        /* sync: cache/sync � no-op */;
-        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
-loc_300042C8:
-        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
-        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
-        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
-        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
-        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
-        /* nop */;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
-        ctx->gpr[14] = _cs_14;
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[15] = _cs_15;
-        ctx->gpr[16] = _cs_16;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[17] = _cs_17;
-        ctx->gpr[18] = _cs_18;
-        ctx->gpr[19] = _cs_19;
-        ctx->gpr[20] = _cs_20;
-        ctx->gpr[21] = _cs_21;
-        ctx->gpr[22] = _cs_22;
-        ctx->gpr[23] = _cs_23;
-        ctx->gpr[24] = _cs_24;
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
-        return;
-}
-
-void libsre_func_300041CC(ppu_context* ctx) {
-        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
-        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
-        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
-        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
-        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
-        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
-        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
-        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
-        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
-        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
-        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
-        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
-        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
-        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
-        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
-        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
-        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
-        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
-        { int64_t a = (int32_t)ctx->gpr[23]; int64_t b = (int32_t)ctx->gpr[8]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        { int64_t a = (int32_t)ctx->gpr[31]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        { int64_t a = (int32_t)ctx->gpr[30]; int64_t b = (int64_t)0xF; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 4)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004148; return; }
-        ctx->gpr[11] = ppc_rldicl(ctx->gpr[25], 54, 59);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[12], 2, 0, 29);
-        { uint64_t a = (uint32_t)ctx->gpr[11]; uint64_t b = (uint64_t)0xE; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[0] = ctx->gpr[28] + ctx->gpr[0];
-        ctx->gpr[9] = ctx->gpr[11] | ctx->gpr[11];
-        if ((!((ctx->cr >> 0) & 4))) goto loc_30004200;
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[11] + -15);
-loc_30004200:
-        ctx->gpr[9] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[9], 1, 0, 30);
-        ctx->gpr[10] = ppc_rldicl(ctx->gpr[0], 0, 32);
-        ctx->gpr[9] = (int64_t)(int32_t)(ctx->gpr[9] + 0x50);
-        { int64_t a = (int32_t)ctx->gpr[11]; int64_t b = (int64_t)0x1D; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[9] = (int64_t)(int32_t)ctx->gpr[9];
-        ctx->gpr[7] = (int64_t)(int32_t)(0);
-        ctx->gpr[9] = ctx->gpr[24] + ctx->gpr[9];
-        ctx->gpr[9] = vm_read16(ctx->gpr[9] + 0x2);
-        vm_write32(ctx->gpr[10] + 0x0, ctx->gpr[9]);
-        if (((ctx->cr >> 0) & 2)) goto loc_30004230;
-        ctx->gpr[0] = (int64_t)(int32_t)(ctx->gpr[11] + 1);
-        ctx->gpr[7] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 10, 0, 21);
-loc_30004230:
-        { int64_t a = (int32_t)ctx->gpr[9]; int64_t b = (int32_t)ctx->gpr[29]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_3000433C; return; }
-        if (((ctx->cr >> 4) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004344; return; }
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 17, 5, 31);
-        ctx->gpr[12] = (int64_t)(int32_t)(ctx->gpr[12] + 1);
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 15, 0, 31);
-        ctx->gpr[30] = (int64_t)(int32_t)(ctx->gpr[30] + 1);
-        ctx->gpr[25] = ctx->gpr[0] | ctx->gpr[7];
-        ctx->gpr[31] = (int64_t)(int32_t)(ctx->gpr[31] + -1);
-        ctx->gpr[8] = (int64_t)(int32_t)(ctx->gpr[8] + -1);
-        if (((ctx->ctr = (uint32_t)(ctx->ctr - 1)) != 0)) { g_trampoline_fn = (void(*)(void*))libsre_func_30004150; return; }
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
-        ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_3000436C; return; }
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) { g_trampoline_fn = (void(*)(void*))libsre_func_30003FC8; return; }
-        { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        ctx->gpr[23] = ctx->gpr[23] + ctx->gpr[12];
-        if (((ctx->cr >> 0) & 2)) goto loc_300042C8;
-        ctx->gpr[11] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[25], 0, 16, 31);
-        ctx->gpr[9] = ppc_rldicl(ctx->gpr[21], 0, 32);
-loc_30004298:
-        { uint64_t ea = ctx->gpr[9]; ctx->gpr[0] = vm_read64(ea); ctx->reserve_addr = (uint32_t)ea; ctx->reserve_value = ctx->gpr[0]; }
-        { int64_t a = (int64_t)ctx->gpr[18]; int64_t b = (int64_t)ctx->gpr[0]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004384; return; }
-        /* sync: cache/sync � no-op */;
-        ctx->gpr[0] = vm_read16(ctx->gpr[15] + 0x0);
-        { int64_t a = (int32_t)ctx->gpr[0]; int64_t b = (int32_t)ctx->gpr[11]; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if ((!((ctx->cr >> 0) & 2))) { g_trampoline_fn = (void(*)(void*))libsre_func_30004390; return; }
-        { uint64_t ea = ctx->gpr[9]; if (ctx->reserve_addr == (uint32_t)ea) { vm_write64(ea, ctx->gpr[6]); ctx->cr = (ctx->cr & ~(0xFu << 28)) | (2u << 28); } else { ctx->cr = (ctx->cr & ~(0xFu << 28)); } ctx->reserve_addr = 0; }
-        ctx->gpr[0] = ctx->cr;
-        ctx->gpr[0] = (int64_t)(int32_t)ppc_rlwinm((uint32_t)ctx->gpr[0], 0, 2, 2);
-        { int64_t a = (int64_t)ctx->gpr[0]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
-        if (((ctx->cr >> 0) & 2)) goto loc_30004298;
-loc_300042C8:
-        ctx->gpr[3] = ctx->gpr[24] | ctx->gpr[24];
-        ctx->gpr[6] = vm_read32(ctx->gpr[1] + 0x100);
-        ctx->gpr[4] = (int64_t)(int32_t)(ctx->gpr[1] + 0x70);
-        ctx->gpr[5] = ppc_rldicl(ctx->gpr[23], 0, 32);
-        libsre_func_3000439C(ctx); DRAIN_TRAMPOLINE(ctx);
-        /* nop */;
-        ctx->gpr[0] = vm_read64(ctx->gpr[1] + 0x1C0);
-        ctx->gpr[14] = _cs_14;
-        ctx->gpr[3] = (int64_t)(int32_t)ctx->gpr[3];
-        ctx->gpr[15] = _cs_15;
-        ctx->gpr[16] = _cs_16;
-        ctx->lr = ctx->gpr[0];
-        ctx->gpr[17] = _cs_17;
-        ctx->gpr[18] = _cs_18;
-        ctx->gpr[19] = _cs_19;
-        ctx->gpr[20] = _cs_20;
-        ctx->gpr[21] = _cs_21;
-        ctx->gpr[22] = _cs_22;
-        ctx->gpr[23] = _cs_23;
-        ctx->gpr[24] = _cs_24;
-        ctx->gpr[25] = _cs_25;
-        ctx->gpr[26] = _cs_26;
-        ctx->gpr[27] = _cs_27;
-        ctx->gpr[28] = _cs_28;
-        ctx->gpr[29] = _cs_29;
-        ctx->gpr[30] = _cs_30;
-        ctx->gpr[31] = _cs_31;
-        ctx->gpr[1] = (int64_t)(int32_t)(ctx->gpr[1] + 0x1B0);
-        return;
-}
-
-void libsre_func_3000425C(ppu_context* ctx) {
-        uint64_t _cs_14 = vm_read64(ctx->gpr[1] + 0x120);
-        uint64_t _cs_15 = vm_read64(ctx->gpr[1] + 0x128);
-        uint64_t _cs_16 = vm_read64(ctx->gpr[1] + 0x130);
-        uint64_t _cs_17 = vm_read64(ctx->gpr[1] + 0x138);
-        uint64_t _cs_18 = vm_read64(ctx->gpr[1] + 0x140);
-        uint64_t _cs_19 = vm_read64(ctx->gpr[1] + 0x148);
-        uint64_t _cs_20 = vm_read64(ctx->gpr[1] + 0x150);
-        uint64_t _cs_21 = vm_read64(ctx->gpr[1] + 0x158);
-        uint64_t _cs_22 = vm_read64(ctx->gpr[1] + 0x160);
-        uint64_t _cs_23 = vm_read64(ctx->gpr[1] + 0x168);
-        uint64_t _cs_24 = vm_read64(ctx->gpr[1] + 0x170);
-        uint64_t _cs_25 = vm_read64(ctx->gpr[1] + 0x178);
-        uint64_t _cs_26 = vm_read64(ctx->gpr[1] + 0x180);
-        uint64_t _cs_27 = vm_read64(ctx->gpr[1] + 0x188);
-        uint64_t _cs_28 = vm_read64(ctx->gpr[1] + 0x190);
-        uint64_t _cs_29 = vm_read64(ctx->gpr[1] + 0x198);
-        uint64_t _cs_30 = vm_read64(ctx->gpr[1] + 0x1A0);
-        uint64_t _cs_31 = vm_read64(ctx->gpr[1] + 0x1A8);
         { int64_t a = (int32_t)ctx->gpr[17]; int64_t b = (int64_t)0; uint32_t cr_val = (a < b) ? 8 : (a > b) ? 4 : 2; ctx->cr = (ctx->cr & ~(0xFu << 0)) | (cr_val << 0); }
         ctx->gpr[6] = ppc_rldimi(ctx->gpr[6], ctx->gpr[3], 16, 32);
         ctx->gpr[27] = ppc_rldimi(ctx->gpr[27], ctx->gpr[25], 16, 32);
@@ -64153,7 +64472,7 @@ const func_entry libsre_function_table[] = {
     { 0x30000DC0ULL, libsre_func_30000DC0, "libsre_func_30000DC0" },
     { 0x30000DFCULL, libsre_func_30000DFC, "libsre_func_30000DFC" },
     { 0x30000F20ULL, libsre_func_30000F20, "libsre_func_30000F20" },
-    { 0x30000F24ULL, libsre_func_30000F24, "libsre_func_30000F24" },
+    { 0x30000F20ULL, libsre_func_30000F20, "libsre_func_30000F20" },
     { 0x300010DCULL, libsre_func_300010DC, "libsre_func_300010DC" },
     { 0x300012A4ULL, libsre_func_300012A4, "libsre_func_300012A4" },
     { 0x30001328ULL, libsre_func_30001328, "libsre_func_30001328" },
@@ -64164,7 +64483,7 @@ const func_entry libsre_function_table[] = {
     { 0x300016E0ULL, libsre_func_300016E0, "libsre_func_300016E0" },
     { 0x30001728ULL, libsre_func_30001728, "libsre_func_30001728" },
     { 0x30001848ULL, libsre_func_30001848, "libsre_func_30001848" },
-    { 0x30001850ULL, libsre_func_30001850, "libsre_func_30001850" },
+    { 0x30001848ULL, libsre_func_30001848, "libsre_func_30001848" },
     { 0x30001874ULL, libsre_func_30001874, "libsre_func_30001874" },
     { 0x300018BCULL, libsre_func_300018BC, "libsre_func_300018BC" },
     { 0x300019E8ULL, libsre_func_300019E8, "libsre_func_300019E8" },
@@ -64231,7 +64550,7 @@ const func_entry libsre_function_table[] = {
     { 0x3000598CULL, libsre_func_3000598C, "libsre_func_3000598C" },
     { 0x300059B0ULL, libsre_func_300059B0, "libsre_func_300059B0" },
     { 0x300059F4ULL, libsre_func_300059F4, "libsre_func_300059F4" },
-    { 0x300059F8ULL, libsre_func_300059F8, "libsre_func_300059F8" },
+    { 0x300059F4ULL, libsre_func_300059F4, "libsre_func_300059F4" },
     { 0x30005C88ULL, libsre_func_30005C88, "libsre_func_30005C88" },
     { 0x30005CA4ULL, libsre_func_30005CA4, "libsre_func_30005CA4" },
     { 0x30005DFCULL, libsre_func_30005DFC, "libsre_func_30005DFC" },
@@ -64241,31 +64560,31 @@ const func_entry libsre_function_table[] = {
     { 0x30006014ULL, libsre_func_30006014, "libsre_func_30006014" },
     { 0x3000603CULL, libsre_func_3000603C, "libsre_func_3000603C" },
     { 0x30006064ULL, libsre_func_30006064, "libsre_func_30006064" },
-    { 0x30006068ULL, libsre_func_30006068, "libsre_func_30006068" },
+    { 0x30006064ULL, libsre_func_30006064, "libsre_func_30006064" },
     { 0x300061C8ULL, libsre_func_300061C8, "libsre_func_300061C8" },
     { 0x30006274ULL, libsre_func_30006274, "libsre_func_30006274" },
     { 0x300062A0ULL, libsre_func_300062A0, "libsre_func_300062A0" },
     { 0x300062CCULL, libsre_func_300062CC, "libsre_func_300062CC" },
     { 0x300062F8ULL, libsre_func_300062F8, "libsre_func_300062F8" },
-    { 0x300062FCULL, libsre_func_300062FC, "libsre_func_300062FC" },
+    { 0x300062F8ULL, libsre_func_300062F8, "libsre_func_300062F8" },
     { 0x30006418ULL, libsre_func_30006418, "libsre_func_30006418" },
     { 0x300064C4ULL, libsre_func_300064C4, "libsre_func_300064C4" },
     { 0x300064ECULL, libsre_func_300064EC, "libsre_func_300064EC" },
     { 0x30006514ULL, libsre_func_30006514, "libsre_func_30006514" },
     { 0x3000653CULL, libsre_func_3000653C, "libsre_func_3000653C" },
-    { 0x30006540ULL, libsre_func_30006540, "libsre_func_30006540" },
+    { 0x3000653CULL, libsre_func_3000653C, "libsre_func_3000653C" },
     { 0x300066B8ULL, libsre_func_300066B8, "libsre_func_300066B8" },
     { 0x30006764ULL, libsre_func_30006764, "libsre_func_30006764" },
     { 0x3000678CULL, libsre_func_3000678C, "libsre_func_3000678C" },
     { 0x300067B4ULL, libsre_func_300067B4, "libsre_func_300067B4" },
     { 0x300067DCULL, libsre_func_300067DC, "libsre_func_300067DC" },
-    { 0x300067E0ULL, libsre_func_300067E0, "libsre_func_300067E0" },
+    { 0x300067DCULL, libsre_func_300067DC, "libsre_func_300067DC" },
     { 0x30006964ULL, libsre_func_30006964, "libsre_func_30006964" },
     { 0x30006A10ULL, libsre_func_30006A10, "libsre_func_30006A10" },
     { 0x30006A38ULL, libsre_func_30006A38, "libsre_func_30006A38" },
     { 0x30006A60ULL, libsre_func_30006A60, "libsre_func_30006A60" },
     { 0x30006A88ULL, libsre_func_30006A88, "libsre_func_30006A88" },
-    { 0x30006A8CULL, libsre_func_30006A8C, "libsre_func_30006A8C" },
+    { 0x30006A88ULL, libsre_func_30006A88, "libsre_func_30006A88" },
     { 0x30006C24ULL, libsre_func_30006C24, "libsre_func_30006C24" },
     { 0x30006CD0ULL, libsre_func_30006CD0, "libsre_func_30006CD0" },
     { 0x30006CF8ULL, libsre_func_30006CF8, "libsre_func_30006CF8" },
@@ -64303,7 +64622,7 @@ const func_entry libsre_function_table[] = {
     { 0x300085D0ULL, libsre_func_300085D0, "libsre_func_300085D0" },
     { 0x30008608ULL, libsre_func_30008608, "libsre_func_30008608" },
     { 0x30008660ULL, libsre_func_30008660, "libsre_func_30008660" },
-    { 0x30008670ULL, libsre_func_30008670, "libsre_func_30008670" },
+    { 0x30008664ULL, libsre_func_30008664, "libsre_func_30008664" },
     { 0x30008B90ULL, libsre_func_30008B90, "libsre_func_30008B90" },
     { 0x30008C28ULL, libsre_func_30008C28, "libsre_func_30008C28" },
     { 0x30008C70ULL, libsre_func_30008C70, "libsre_func_30008C70" },
@@ -64329,10 +64648,9 @@ const func_entry libsre_function_table[] = {
     { 0x3000A000ULL, libsre_func_3000A000, "libsre_func_3000A000" },
     { 0x3000A090ULL, libsre_func_3000A090, "libsre_func_3000A090" },
     { 0x3000A158ULL, libsre_func_3000A158, "libsre_func_3000A158" },
-    { 0x3000A168ULL, libsre_func_3000A168, "libsre_func_3000A168" },
     { 0x3000A18CULL, libsre_func_3000A18C, "libsre_func_3000A18C" },
     { 0x3000A304ULL, libsre_func_3000A304, "libsre_func_3000A304" },
-    { 0x3000A314ULL, libsre_func_3000A314, "libsre_func_3000A314" },
+    { 0x3000A308ULL, libsre_func_3000A308, "libsre_func_3000A308" },
     { 0x3000A50CULL, libsre_func_3000A50C, "libsre_func_3000A50C" },
     { 0x3000A750ULL, libsre_func_3000A750, "libsre_func_3000A750" },
     { 0x3000A884ULL, libsre_func_3000A884, "libsre_func_3000A884" },
@@ -64344,6 +64662,7 @@ const func_entry libsre_function_table[] = {
     { 0x3000AE80ULL, libsre_func_3000AE80, "libsre_func_3000AE80" },
     { 0x3000AF2CULL, libsre_func_3000AF2C, "libsre_func_3000AF2C" },
     { 0x3000B0D8ULL, libsre_func_3000B0D8, "libsre_func_3000B0D8" },
+    { 0x3000B0E4ULL, libsre_func_3000B0E4, "libsre_func_3000B0E4" },
     { 0x3000B10CULL, libsre_func_3000B10C, "libsre_func_3000B10C" },
     { 0x3000B140ULL, libsre_func_3000B140, "libsre_func_3000B140" },
     { 0x3000B23CULL, libsre_func_3000B23C, "libsre_func_3000B23C" },
@@ -64351,7 +64670,7 @@ const func_entry libsre_function_table[] = {
     { 0x3000B2ECULL, libsre_func_3000B2EC, "libsre_func_3000B2EC" },
     { 0x3000B38CULL, libsre_func_3000B38C, "libsre_func_3000B38C" },
     { 0x3000B3D0ULL, libsre_func_3000B3D0, "libsre_func_3000B3D0" },
-    { 0x3000B508ULL, libsre_func_3000B508, "libsre_func_3000B508" },
+    { 0x3000B504ULL, libsre_func_3000B504, "libsre_func_3000B504" },
     { 0x3000B594ULL, libsre_func_3000B594, "libsre_func_3000B594" },
     { 0x3000B778ULL, libsre_func_3000B778, "libsre_func_3000B778" },
     { 0x3000B85CULL, libsre_func_3000B85C, "libsre_func_3000B85C" },
@@ -64383,7 +64702,6 @@ const func_entry libsre_function_table[] = {
     { 0x3000CBF4ULL, libsre_func_3000CBF4, "libsre_func_3000CBF4" },
     { 0x3000CC90ULL, libsre_func_3000CC90, "libsre_func_3000CC90" },
     { 0x3000CCD8ULL, libsre_func_3000CCD8, "libsre_func_3000CCD8" },
-    { 0x3000CCE8ULL, libsre_func_3000CCE8, "libsre_func_3000CCE8" },
     { 0x3000CD14ULL, libsre_func_3000CD14, "libsre_func_3000CD14" },
     { 0x3000CD54ULL, libsre_func_3000CD54, "libsre_func_3000CD54" },
     { 0x3000CD90ULL, libsre_func_3000CD90, "libsre_func_3000CD90" },
@@ -64402,7 +64720,6 @@ const func_entry libsre_function_table[] = {
     { 0x3000D1ECULL, libsre_func_3000D1EC, "libsre_func_3000D1EC" },
     { 0x3000D2CCULL, libsre_func_3000D2CC, "libsre_func_3000D2CC" },
     { 0x3000D30CULL, libsre_func_3000D30C, "libsre_func_3000D30C" },
-    { 0x3000D318ULL, libsre_func_3000D318, "libsre_func_3000D318" },
     { 0x3000D368ULL, libsre_func_3000D368, "libsre_func_3000D368" },
     { 0x3000D380ULL, libsre_func_3000D380, "libsre_func_3000D380" },
     { 0x3000D418ULL, libsre_func_3000D418, "libsre_func_3000D418" },
@@ -64457,7 +64774,7 @@ const func_entry libsre_function_table[] = {
     { 0x3000FB6CULL, libsre_func_3000FB6C, "libsre_func_3000FB6C" },
     { 0x3000FB8CULL, libsre_func_3000FB8C, "libsre_func_3000FB8C" },
     { 0x3000FBA8ULL, libsre_func_3000FBA8, "libsre_func_3000FBA8" },
-    { 0x3000FBACULL, libsre_func_3000FBAC, "libsre_func_3000FBAC" },
+    { 0x3000FBA8ULL, libsre_func_3000FBA8, "libsre_func_3000FBA8" },
     { 0x30010084ULL, libsre_func_30010084, "libsre_func_30010084" },
     { 0x300102A0ULL, libsre_func_300102A0, "libsre_func_300102A0" },
     { 0x300102C8ULL, libsre_func_300102C8, "libsre_func_300102C8" },
@@ -64485,22 +64802,21 @@ const func_entry libsre_function_table[] = {
     { 0x30010E94ULL, libsre_func_30010E94, "libsre_func_30010E94" },
     { 0x30010EA4ULL, libsre_func_30010EA4, "libsre_func_30010EA4" },
     { 0x30010ED0ULL, libsre_func_30010ED0, "libsre_func_30010ED0" },
-    { 0x3001113CULL, libsre_func_3001113C, "libsre_func_3001113C" },
+    { 0x30011134ULL, libsre_func_30011134, "libsre_func_30011134" },
     { 0x300113D4ULL, libsre_func_300113D4, "libsre_func_300113D4" },
     { 0x30011474ULL, libsre_func_30011474, "libsre_func_30011474" },
     { 0x30011484ULL, libsre_func_30011484, "libsre_func_30011484" },
-    { 0x30011488ULL, libsre_func_30011488, "libsre_func_30011488" },
+    { 0x30011484ULL, libsre_func_30011484, "libsre_func_30011484" },
     { 0x300116FCULL, libsre_func_300116FC, "libsre_func_300116FC" },
     { 0x300117B4ULL, libsre_func_300117B4, "libsre_func_300117B4" },
     { 0x30011810ULL, libsre_func_30011810, "libsre_func_30011810" },
     { 0x30011854ULL, libsre_func_30011854, "libsre_func_30011854" },
-    { 0x30011858ULL, libsre_func_30011858, "libsre_func_30011858" },
+    { 0x30011854ULL, libsre_func_30011854, "libsre_func_30011854" },
     { 0x30011F60ULL, libsre_func_30011F60, "libsre_func_30011F60" },
     { 0x300121ECULL, libsre_func_300121EC, "libsre_func_300121EC" },
     { 0x30012310ULL, libsre_func_30012310, "libsre_func_30012310" },
     { 0x30012520ULL, libsre_func_30012520, "libsre_func_30012520" },
     { 0x300125D8ULL, libsre_func_300125D8, "libsre_func_300125D8" },
-    { 0x300125E8ULL, libsre_func_300125E8, "libsre_func_300125E8" },
     { 0x30012664ULL, libsre_func_30012664, "libsre_func_30012664" },
     { 0x300127CCULL, libsre_func_300127CC, "libsre_func_300127CC" },
     { 0x30012828ULL, libsre_func_30012828, "libsre_func_30012828" },
@@ -64530,17 +64846,18 @@ const func_entry libsre_function_table[] = {
     { 0x30013724ULL, libsre_func_30013724, "libsre_func_30013724" },
     { 0x30013810ULL, libsre_func_30013810, "libsre_func_30013810" },
     { 0x30013840ULL, libsre_func_30013840, "libsre_func_30013840" },
-    { 0x3001386CULL, libsre_func_3001386C, "libsre_func_3001386C" },
+    { 0x30013864ULL, libsre_func_30013864, "libsre_func_30013864" },
     { 0x30013894ULL, libsre_func_30013894, "libsre_func_30013894" },
     { 0x300138DCULL, libsre_func_300138DC, "libsre_func_300138DC" },
     { 0x30013A80ULL, libsre_func_30013A80, "libsre_func_30013A80" },
     { 0x30013A88ULL, libsre_func_30013A88, "libsre_func_30013A88" },
-    { 0x30013AA0ULL, libsre_func_30013AA0, "libsre_func_30013AA0" },
+    { 0x30013A94ULL, libsre_func_30013A94, "libsre_func_30013A94" },
+    { 0x30013A94ULL, libsre_func_30013A94, "libsre_func_30013A94" },
     { 0x30013BECULL, libsre_func_30013BEC, "libsre_func_30013BEC" },
     { 0x30013C58ULL, libsre_func_30013C58, "libsre_func_30013C58" },
     { 0x30013C6CULL, libsre_func_30013C6C, "libsre_func_30013C6C" },
     { 0x30013C84ULL, libsre_func_30013C84, "libsre_func_30013C84" },
-    { 0x30013C90ULL, libsre_func_30013C90, "libsre_func_30013C90" },
+    { 0x30013C84ULL, libsre_func_30013C84, "libsre_func_30013C84" },
     { 0x30013E08ULL, libsre_func_30013E08, "libsre_func_30013E08" },
     { 0x30013FE0ULL, libsre_func_30013FE0, "libsre_func_30013FE0" },
     { 0x300141A8ULL, libsre_func_300141A8, "libsre_func_300141A8" },
@@ -64556,13 +64873,13 @@ const func_entry libsre_function_table[] = {
     { 0x30014964ULL, libsre_func_30014964, "libsre_func_30014964" },
     { 0x30014974ULL, libsre_func_30014974, "libsre_func_30014974" },
     { 0x300149BCULL, libsre_func_300149BC, "libsre_func_300149BC" },
-    { 0x30014A60ULL, libsre_func_30014A60, "libsre_func_30014A60" },
+    { 0x30014A58ULL, libsre_func_30014A58, "libsre_func_30014A58" },
     { 0x30014AACULL, libsre_func_30014AAC, "libsre_func_30014AAC" },
     { 0x30014B08ULL, libsre_func_30014B08, "libsre_func_30014B08" },
     { 0x30014CF8ULL, libsre_func_30014CF8, "libsre_func_30014CF8" },
     { 0x30014D4CULL, libsre_func_30014D4C, "libsre_func_30014D4C" },
     { 0x30014DC4ULL, libsre_func_30014DC4, "libsre_func_30014DC4" },
-    { 0x30014DD4ULL, libsre_func_30014DD4, "libsre_func_30014DD4" },
+    { 0x30014DC8ULL, libsre_func_30014DC8, "libsre_func_30014DC8" },
     { 0x30014E38ULL, libsre_func_30014E38, "libsre_func_30014E38" },
     { 0x30014F6CULL, libsre_func_30014F6C, "libsre_func_30014F6C" },
     { 0x30014F90ULL, libsre_func_30014F90, "libsre_func_30014F90" },
@@ -64598,14 +64915,14 @@ const func_entry libsre_function_table[] = {
     { 0x30017134ULL, libsre_func_30017134, "libsre_func_30017134" },
     { 0x300171A4ULL, libsre_func_300171A4, "libsre_func_300171A4" },
     { 0x300171B8ULL, libsre_func_300171B8, "libsre_func_300171B8" },
-    { 0x300171BCULL, libsre_func_300171BC, "libsre_func_300171BC" },
+    { 0x300171B8ULL, libsre_func_300171B8, "libsre_func_300171B8" },
     { 0x30017344ULL, libsre_func_30017344, "libsre_func_30017344" },
     { 0x300174F8ULL, libsre_func_300174F8, "libsre_func_300174F8" },
     { 0x30017578ULL, libsre_func_30017578, "libsre_func_30017578" },
     { 0x300178D8ULL, libsre_func_300178D8, "libsre_func_300178D8" },
     { 0x30017938ULL, libsre_func_30017938, "libsre_func_30017938" },
     { 0x30017D40ULL, libsre_func_30017D40, "libsre_func_30017D40" },
-    { 0x30017D4CULL, libsre_func_30017D4C, "libsre_func_30017D4C" },
+    { 0x30017D40ULL, libsre_func_30017D40, "libsre_func_30017D40" },
     { 0x30017DE4ULL, libsre_func_30017DE4, "libsre_func_30017DE4" },
     { 0x30017EBCULL, libsre_func_30017EBC, "libsre_func_30017EBC" },
     { 0x30017F04ULL, libsre_func_30017F04, "libsre_func_30017F04" },
@@ -64684,7 +65001,7 @@ const func_entry libsre_function_table[] = {
     { 0x3001BF40ULL, libsre_func_3001BF40, "libsre_func_3001BF40" },
     { 0x3001BF64ULL, libsre_func_3001BF64, "libsre_func_3001BF64" },
     { 0x3001BF9CULL, libsre_func_3001BF9C, "libsre_func_3001BF9C" },
-    { 0x3001BFA0ULL, libsre_func_3001BFA0, "libsre_func_3001BFA0" },
+    { 0x3001BF9CULL, libsre_func_3001BF9C, "libsre_func_3001BF9C" },
     { 0x3001BFF8ULL, libsre_func_3001BFF8, "libsre_func_3001BFF8" },
     { 0x3001C1D4ULL, libsre_func_3001C1D4, "libsre_func_3001C1D4" },
     { 0x3001C1E0ULL, libsre_func_3001C1E0, "libsre_func_3001C1E0" },
@@ -64692,13 +65009,13 @@ const func_entry libsre_function_table[] = {
     { 0x3001C23CULL, libsre_func_3001C23C, "libsre_func_3001C23C" },
     { 0x3001C260ULL, libsre_func_3001C260, "libsre_func_3001C260" },
     { 0x3001C298ULL, libsre_func_3001C298, "libsre_func_3001C298" },
-    { 0x3001C29CULL, libsre_func_3001C29C, "libsre_func_3001C29C" },
+    { 0x3001C298ULL, libsre_func_3001C298, "libsre_func_3001C298" },
     { 0x3001C2C0ULL, libsre_func_3001C2C0, "libsre_func_3001C2C0" },
     { 0x3001C3A8ULL, libsre_func_3001C3A8, "libsre_func_3001C3A8" },
     { 0x3001C468ULL, libsre_func_3001C468, "libsre_func_3001C468" },
     { 0x3001C4A0ULL, libsre_func_3001C4A0, "libsre_func_3001C4A0" },
     { 0x3001C4C4ULL, libsre_func_3001C4C4, "libsre_func_3001C4C4" },
-    { 0x3001C4C8ULL, libsre_func_3001C4C8, "libsre_func_3001C4C8" },
+    { 0x3001C4C4ULL, libsre_func_3001C4C4, "libsre_func_3001C4C4" },
     { 0x3001C4ECULL, libsre_func_3001C4EC, "libsre_func_3001C4EC" },
     { 0x3001C5D4ULL, libsre_func_3001C5D4, "libsre_func_3001C5D4" },
     { 0x3001C694ULL, libsre_func_3001C694, "libsre_func_3001C694" },
@@ -64963,7 +65280,6 @@ const func_entry libsre_function_table[] = {
     { 0x300136E0ULL, libsre_func_300136E0, "libsre_func_300136E0" },
     { 0x30013734ULL, libsre_func_30013734, "libsre_func_30013734" },
     { 0x30013828ULL, libsre_func_30013828, "libsre_func_30013828" },
-    { 0x30013864ULL, libsre_func_30013864, "libsre_func_30013864" },
     { 0x300138A0ULL, libsre_func_300138A0, "libsre_func_300138A0" },
     { 0x300138A8ULL, libsre_func_300138A8, "libsre_func_300138A8" },
     { 0x30013A90ULL, libsre_func_30013A90, "libsre_func_30013A90" },
@@ -64972,7 +65288,6 @@ const func_entry libsre_function_table[] = {
     { 0x30014918ULL, libsre_func_30014918, "libsre_func_30014918" },
     { 0x30014928ULL, libsre_func_30014928, "libsre_func_30014928" },
     { 0x300149A0ULL, libsre_func_300149A0, "libsre_func_300149A0" },
-    { 0x30014A58ULL, libsre_func_30014A58, "libsre_func_30014A58" },
     { 0x30014AB8ULL, libsre_func_30014AB8, "libsre_func_30014AB8" },
     { 0x30014AC0ULL, libsre_func_30014AC0, "libsre_func_30014AC0" },
     { 0x30014D2CULL, libsre_func_30014D2C, "libsre_func_30014D2C" },
@@ -65150,6 +65465,12 @@ const func_entry libsre_function_table[] = {
     { 0x30003C20ULL, libsre_func_30003C20, "libsre_func_30003C20" },
     { 0x30003C3CULL, libsre_func_30003C3C, "libsre_func_30003C3C" },
     { 0x30003CA4ULL, libsre_func_30003CA4, "libsre_func_30003CA4" },
+    { 0x30003FC8ULL, libsre_func_30003FC8, "libsre_func_30003FC8" },
+    { 0x30003FE4ULL, libsre_func_30003FE4, "libsre_func_30003FE4" },
+    { 0x300040E4ULL, libsre_func_300040E4, "libsre_func_300040E4" },
+    { 0x300041B4ULL, libsre_func_300041B4, "libsre_func_300041B4" },
+    { 0x3000423CULL, libsre_func_3000423C, "libsre_func_3000423C" },
+    { 0x3000427CULL, libsre_func_3000427C, "libsre_func_3000427C" },
     { 0x30004A4CULL, libsre_func_30004A4C, "libsre_func_30004A4C" },
     { 0x30004ACCULL, libsre_func_30004ACC, "libsre_func_30004ACC" },
     { 0x30004E20ULL, libsre_func_30004E20, "libsre_func_30004E20" },
@@ -65213,7 +65534,6 @@ const func_entry libsre_function_table[] = {
     { 0x30010A7CULL, libsre_func_30010A7C, "libsre_func_30010A7C" },
     { 0x30010A8CULL, libsre_func_30010A8C, "libsre_func_30010A8C" },
     { 0x30010AF4ULL, libsre_func_30010AF4, "libsre_func_30010AF4" },
-    { 0x30011134ULL, libsre_func_30011134, "libsre_func_30011134" },
     { 0x300111E0ULL, libsre_func_300111E0, "libsre_func_300111E0" },
     { 0x300111ECULL, libsre_func_300111EC, "libsre_func_300111EC" },
     { 0x3001125CULL, libsre_func_3001125C, "libsre_func_3001125C" },
@@ -65302,12 +65622,6 @@ const func_entry libsre_function_table[] = {
     { 0x3001CD68ULL, libsre_func_3001CD68, "libsre_func_3001CD68" },
     { 0x3001D26CULL, libsre_func_3001D26C, "libsre_func_3001D26C" },
     { 0x3001D278ULL, libsre_func_3001D278, "libsre_func_3001D278" },
-    { 0x30003FC8ULL, libsre_func_30003FC8, "libsre_func_30003FC8" },
-    { 0x30003FE4ULL, libsre_func_30003FE4, "libsre_func_30003FE4" },
-    { 0x300040E4ULL, libsre_func_300040E4, "libsre_func_300040E4" },
-    { 0x300041B4ULL, libsre_func_300041B4, "libsre_func_300041B4" },
-    { 0x3000423CULL, libsre_func_3000423C, "libsre_func_3000423C" },
-    { 0x3000427CULL, libsre_func_3000427C, "libsre_func_3000427C" },
     { 0x3000F508ULL, libsre_func_3000F508, "libsre_func_3000F508" },
     { 0x30003168ULL, libsre_func_30003168, "libsre_func_30003168" },
     { 0x300037D8ULL, libsre_func_300037D8, "libsre_func_300037D8" },
@@ -65315,8 +65629,6 @@ const func_entry libsre_function_table[] = {
     { 0x30003C68ULL, libsre_func_30003C68, "libsre_func_30003C68" },
     { 0x30004148ULL, libsre_func_30004148, "libsre_func_30004148" },
     { 0x30004150ULL, libsre_func_30004150, "libsre_func_30004150" },
-    { 0x300041CCULL, libsre_func_300041CC, "libsre_func_300041CC" },
-    { 0x3000425CULL, libsre_func_3000425C, "libsre_func_3000425C" },
     { 0x300050B8ULL, libsre_func_300050B8, "libsre_func_300050B8" },
     { 0x300050BCULL, libsre_func_300050BC, "libsre_func_300050BC" },
     { 0x30005214ULL, libsre_func_30005214, "libsre_func_30005214" },
@@ -65334,4 +65646,4 @@ const func_entry libsre_function_table[] = {
     { 0x30005090ULL, libsre_func_30005090, "libsre_func_30005090" },
     { 0, NULL, NULL }
 };
-const uint64_t libsre_function_table_count = 1198;
+const uint64_t libsre_function_table_count = 1191;
