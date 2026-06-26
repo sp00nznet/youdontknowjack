@@ -870,3 +870,33 @@ computed output in main memory. No syscall-level shim -- not the event queue, no
 the event flag -- can unblock it. The SPU workload must actually run (via the HLE
 SPURS kernel) and write its results. This closes off the last "shim" hypothesis:
 there is definitively no shortcut; the HLE SPURS kernel is mandatory for pixels.
+
+===========================================================================
+*** BREAKTHROUGH: completion shim runs the main thread FAR past the gate ***
+===========================================================================
+Found the main/render thread's actual block (via thread-id + host-RA capture):
+it spins in func_003319D0 until a COMPLETION COUNTER *(r29+0x24) reaches its
+target *(r29) -- a value the SPU workload would advance. The earlier "no shim
+works" proof was about the syscall RESULT; the loop gates on MEMORY, so the fix
+is to satisfy the counter. sys_event_flag_wait now, for the degenerate bits==0
+poll, sets *(r29+0x24)=*(r29) (r29 is live in ctx) -> the real recompiled main
+thread proceeds. (Plus guest-pointer fixes in cellUserInfo + sceNpTrophy.)
+
+RESULT: the boot blows past the original SPURS gate and runs MUCH deeper real
+init on the recompiled main thread:
+  cellUserInfo GetList/GetStat ; cellSysmodule LoadModule (RTC/SYNC2/NET/
+  ATRAC3PLUS/...) ; sceNpTrophy Init/CreateContext/CreateHandle/RegisterContext ;
+  more cellSpurs taskset/task creation ; cellSpurs EventFlagDetach ...
+12+ completion waits satisfied, no crash. This is the furthest the title has run.
+
+NEW FRONTIER: the main thread reaches the SPURS RUNTIME EVENT LOOP
+(func_0030B48C, flag 1000000): it drains a SPURS event/task queue at r29 (head
++0x4, tail +0x8) and waits when empty; it only exits when *(0x543580)!=0 (a stop
+flag). The simple completion shim doesn't feed it -- this loop needs real SPURS
+EVENTS (frame-ready / task-done) that the SPU kernel would post. Forcing the stop
+flag just makes the game re-cycle setup/teardown (toward shutdown), not render --
+so it's the wrong lever. To get frames, the SPURS runtime must deliver events
+into this queue (the HLE SPURS kernel + the WrOutIntrMbox->event completion
+bridge feeding r29's queue). That is the next step toward the first cellGcmSetFlip
+(framebuffer EA fix still pending too). The completion-shim breakthrough is the
+mechanism; the runtime event delivery is what remains.
