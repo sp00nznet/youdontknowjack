@@ -394,3 +394,42 @@ in the shared frame. The clean fixes:
 Boundary recovery currently lands 4379 splits but ~452 functions stay merged
 (mflr-first / entry-quirk prologue patterns it doesn't yet match); closing those
 removes the tail-entries that still corrupt.
+
+===========================================================================
+*** Frame-drift CLASS largely fixed; boot advanced to RSX label setup ***
+===========================================================================
+Multiple committed root-cause fixes this round; the OOB corruption is gone and
+the boot reaches new code, but func_003DC468 still wedges in a residual loop.
+
+LANDED:
+ 1. Callee-saved register preservation (lift_function): restore r14-r31 from a
+    value captured at entry (a C local) instead of the frame slot a drifted
+    callee can clobber. PAIRED save/restore -> snapshot the register; a PURE
+    tail-entry (no stdu) -> snapshot from memory at entry. This removed the r29
+    -> TOC corruption and its 5.5M-iteration OOB loop (OOB 40 -> 0).
+ 2. `b` / conditional-`b` to a function-entry prologue inside a merged range is
+    a TAIL CALL, not a goto -> trampoline (so the callee runs on its own frame).
+    function_entries = every stdu r1,-N (8790), adjusted to a preceding mflr r0.
+    This advanced the boot PAST the entire func_0026xxxx parser subsystem into
+    func_0006E850 (RSX setup) in one config.
+ 3. cellGcmGetLabelAddress returned a HOST pointer; the recompiled game used it
+    as a guest address (vm_write32) -> OOB. Now returns a GUEST address into a
+    label window at 0x03000000. (The boot reaching RSX label setup is real
+    progress toward rendering.)
+
+RESIDUAL (resume here): func_003DC468 still spins. It has THREE loops on the
+data it builds:
+  * loc_003DC5D8 (count, r29)        -> FIXED (no OOB).
+  * loc_003DC614 (12-byte-elem walk, limit r26).
+  * loc_003DC548 (linked-list walk: gpr[9]=*(gpr[9]+8) next-pointer, limit r8)
+    <- the current wedge (a circular/garbage list or a corrupted limit).
+The feeding corruption is the SAME class one level deeper: a merged function in
+the subtree whose first function tail-calls the second NOT via a direct/cond
+branch (so the b-routing misses it) -- a FALL-THROUGH or computed (bctr) merge,
+OR a still-uncaught boundary. Options to finish:
+  (a) extend boundary/tail-call handling to fall-through and bctr merges (route
+      func.fallthrough_to and bctr to a function_entries target as a tail call);
+  (b) keep closing merged-function boundaries (mflr-first / noreturn-bl-preceded
+      prologues the recovery still misses) so no tail-entries share a frame.
+Each fix has advanced the boot a real step; this is the last frame-drift layer
+before the RSX path runs from real recompiled code.
