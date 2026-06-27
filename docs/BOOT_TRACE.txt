@@ -1817,3 +1817,27 @@ PROGRESS SUMMARY (this session, the SPU task gate, fully traced end to end):
   task crash @LS[0xBEC0] (kernel-patched) -> kernel loads policy via DMA from
   LS[0x3FF80] EA -> EA sourced from SPURS instance (runtime, kernel-inert so =0)
   -> policy module binary is STATIC in libsre 0x020000-0x032000 -> extract+lift+wire.
+
+--- 2026-06-26 (cont.): *** EXTRACTED + LIFTED the SPURS policy module ***
+Built a synthetic SPU ELF from libsre file 0x0214A0 (after kernel_b), vaddr 0xA00,
+size 0x3E68, and lifted it: 166 functions, 90.5% coverage -> prx/spu_kernel/lift_pol/.
+This is the SPURS TASK policy module (the code the kernel DMAs to LS 0xA00).
+*** Found the TASK CONTEXT RESTORE: pol_spu_func_00002D40 (called from the dispatch
+path func_00003C9C -> func_00003D08 -> restore -> func_00003D10 -> jump to task).
+It restores the task's SPU register file from an LS context region:
+   r0  <- LS[0xB200], r1 <- LS[0xB240], r80 <- LS[0xB280] ... r127 <- LS[0xBE40]
+   (stride 0x40). The register/context block is LS 0xB200-0xBE80, and LS[0xBEC0]
+   (the field the TASK crashes reading) is the control word immediately after it.
+=> So LS[0xBEC0] is part of the task's CONTEXT SAVE AREA, set up by the policy from
+   real game data (the context buffer cellSpursCreateTask initialises). NOT a
+   fabricated value -- it is recoverable real data.
+LEGITIMATE FIX PATH (no faking): replicate the policy's context restore in our
+direct dispatch -- locate the task's context-save buffer EA (from the task
+descriptor / one of the heap EAs in eaContext: 0x006B4500/0x006B6C00/0x0066AD18/
+0x006C8DD8), DMA/copy it into LS at 0xB200 before running the task so LS[0xBEC0]
+(and the saved registers) are set up correctly -> task no longer reads a
+placeholder -> dispatches and computes real geometry. (Or: ensure our HLE
+cellSpursCreateTask initialises that context buffer the way the SDK does.)
+NEXT: trace pol_spu_func back from the restore to find the context-load DMA's
+source EA + base, dump that buffer to confirm the real LS[0xBEC0] value, then
+implement the restore in spu_run_lifted_job_abi.
