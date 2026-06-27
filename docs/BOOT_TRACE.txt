@@ -1841,3 +1841,20 @@ cellSpursCreateTask initialises that context buffer the way the SDK does.)
 NEXT: trace pol_spu_func back from the restore to find the context-load DMA's
 source EA + base, dump that buffer to confirm the real LS[0xBEC0] value, then
 implement the restore in spu_run_lifted_job_abi.
+
+--- 2026-06-26 (cont.): context buffer uninitialised -> need SDK context-init too ---
+Dumped the candidate context-save buffers (heap EAs from the descriptor:
+0x006B4500/0x006B6C00/0x005878DC) at +0xCC0 (predicted LS[0xBEC0] offset): all
+ZERO. So in our environment the task's context save buffer is NOT initialised with
+the LS[0xBEC0] value. => The value is produced by cellSpursCreateTask's context-
+init logic (real SDK/libsre does it; our HLE does not), THEN restored by the policy
+module (pol_spu_func_00002D40). Full legitimate chain to make LS[0xBEC0] valid:
+  (1) cellSpursCreateTask initialises the task context buffer (initial regs +
+      the LS[0xBEC0] task-control-block field) -- SDK logic to extract/implement.
+  (2) The policy module DMAs that buffer into LS 0xB200 and restores it.
+  (3) Task runs with a valid LS[0xBEC0] -> no crash -> computes geometry.
+  (4) Bridge SPU completion -> PPU so the producer/main thread unblock -> draws.
+So real geometry needs the SDK context-init (1) + policy restore (2) [now extracted
+as lift_pol] + completion bridge (4). All real recompiled Sony code -- no
+fabrication -- but a multi-piece subsystem. (NOTE: offset 0xCC0 is the working
+estimate; confirm via the policy's context-load DMA source+base when implementing.)
