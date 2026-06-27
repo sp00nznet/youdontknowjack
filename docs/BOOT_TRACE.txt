@@ -1778,3 +1778,21 @@ NEXT CONCRETE STEPS (legitimate, real code):
   c. The policy module contains the worker-LS setup (the LS[0xBEC0] patch) + task
      dispatch -- study/replicate it (or register it + run kernel) to set up the
      task LS legitimately -> task computes real geometry -> draws.
+
+--- 2026-06-26 (cont.): libsre run shows policy module = 0 (kernel inert) ---
+Ran with YDKJ_LIBSRE=1. Real cellSpurs init runs; its diagnostic prints:
+  SPURS Instance @0x40009d00, revision 2, SPU group "CellSpursKernelGroup" (0x1000),
+  5 SPU threads CellSpursKernel0..4 (0x2000..0x2004).
+  SPURS Kernel Context: SPURS instance 0x000000ff, POLICY MODULE 0x00000000.
+=> Even with libsre, policy module = 0: the SPU kernel never runs (handler.c:198
+asserts "unexpected value 0x0"), so it never DMA-loads its policy module. The
+taskset struct (our-HLE path) is all zeros. So the policy module EA is NOT a
+populated runtime field we can read; the policy-module BINARY is embedded in
+libsre and must be located STATICALLY (libsre export/offset), then extracted+lifted.
+libsre = 1191 funcs / 269 exports, loaded at 0x30000000 (libsre.linked.bin).
+NEXT: search libsre's 269 exports / data sections for the taskset policy module
+SPU code blob (the code the kernel would DMA to LS 0xA00); extract + lift it; then
+either (A) wire kernel+policy execution, or (B) study its worker-LS-setup to
+replicate the LS[0xBEC0] task-control-block construction in our direct dispatch.
+This is the concrete continuing multi-session path -- real recompiled Sony code,
+no fabrication.
