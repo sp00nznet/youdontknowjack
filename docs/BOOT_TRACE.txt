@@ -1750,3 +1750,31 @@ FORWARD PATH (legitimate, no faking), in order:
      kernel's indirect dispatch branch resolves.
   4. Run kernel -> policy -> task; it sets up the worker LS (incl. 0xBEC0) -> the
      task computes real geometry -> bridge completion -> GCM draws.
+
+--- 2026-06-26 (cont., "keep going"): traced the kernel's POLICY-MODULE load ---
+Two concrete findings this pass:
+1. _cellSpursTaskAttributeInitialize logs szctx=0x0FF00010 (a stack pointer, not a
+   size) -> our HLE's arg extraction for that NID is misaligned (the u64 eaElf/
+   eaContext vs u32 sizeContext/argument register mapping). Concrete fixable bug;
+   may mean the task `argument` (r10) is also misread.
+2. The task context buffer @eaContext is a small stack-resident descriptor+saved-
+   state struct (TOC 0x544370 @+0x90, stack/heap ptrs 0FEFF5D0/0066AD18/006C8DD8),
+   NOT a 256KB LS snapshot -> LS[0xBEC0] is NOT restored from it; it is kernel-
+   constructed (confirms prior).
+3. *** KEY: traced HOW the kernel loads its policy module *** (lift_b
+   sk_b_spu_func, prx/spu_kernel/lift_b/spu_recomp.c ~L357-395):
+     r4 = LS[0x3FF80]                     # an EA from the kernel control region
+     DMA: MFC_LSA=0xA00, EAH=r4, EAL=r4<<4, Cmd=GET   # load policy module -> LS 0xA00
+     pc = 0xA00; spu_indirect_branch       # jump into the policy module
+   => The SPURS task/workload policy module lives in main memory at the EA stored
+   in the kernel's LS[0x3FF80], which the kernel loads from the SPURS instance.
+   So the policy module IS locatable: find that EA in the SPURS-instance/taskset
+   structures (it points into libsre's loaded image at 0x30000000+ or a workload
+   table), extract that real SPU code, and lift it like any SPU image.
+NEXT CONCRETE STEPS (legitimate, real code):
+  a. With libsre, dump the SPURS instance (0x40009D00) / taskset (0x4005F900) and
+     the kernel control region to find the policy-module EA (= source of LS[0x3FF80]).
+  b. Extract the policy module SPU code from that EA; lift it (spu_lifter).
+  c. The policy module contains the worker-LS setup (the LS[0xBEC0] patch) + task
+     dispatch -- study/replicate it (or register it + run kernel) to set up the
+     task LS legitimately -> task computes real geometry -> draws.
