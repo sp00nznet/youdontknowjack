@@ -1471,3 +1471,390 @@ suspects) that running libsre's SPU kernel is incompatible with static recomp.
    atomics + longjmp-halt (prior sessions). Remaining unknowns needing RE: the
    exact "SPURS ready" signal the title waits on post-init, and the SPU->PPU
    completion bridge (WrOutIntrMbox -> event queue) format.
+
+================================================================================
+2026-06-26  RENDER-PIPELINE VERIFICATION + GARBAGE-CONFIG ROOT (new this session)
+================================================================================
+Instrumented the full GCM->RSX->D3D12 path (libs/video) and ran to steady state.
+KEY FINDINGS:
+
+1. THE RENDER PIPELINE IS FULLY WIRED AND EXECUTING. Every present-thread frame
+   (boot_main vblank_ticker) calls cellGcm_rsx_process_fifo() ->
+   rsx_process_command_buffer() (a real NV4097 FIFO parser) -> rsx_d3d12_backend.
+   It IS draining and parsing ~262144 words/frame. So the backend is NOT the
+   blocker -- it is being fed junk.
+
+2. THE GAME FEEDS GARBAGE RENDER CONFIG to GCM, despite correct video state:
+     [cellVideoOut] GetResolution(id=2) -> 1280x720 ; Configure pitch=5120   (CORRECT)
+   but then:
+     cellGcmSetTile(index=0/1/2, loc=0, offset=0x0, size=0x948D0000, pitch=2149648131=0x80258003)
+     cellGcmSetDisplayBuffer(id=0/1, offset=0x0, pitch=0x80258003, dims garbage)
+   The SAME garbage (size=0x948D0000, pitch=0x80258003) is passed for tile index
+   0,1,2 -- a loop reading a garbage/uninitialised source struct. The game HAD the
+   right pitch (5120) from VideoOut but computes 0x80258003 downstream. This is an
+   SPU-INDEPENDENT data bug (happens during the game's own render init), and is
+   the most tractable next lead.
+
+3. THE FIFO CONTEXT `current` POINTER (gcmContext+0x8) READS 0xC708C708 (garbage),
+   so cellGcm_rsx_process_fifo drains get..garbage = 1MB of uninitialised FIFO
+   memory each frame -> 0 real draws (NV4097_DRAW_ARRAYS never logged). Also the
+   control register path is known-broken (cellGcmGetControlRegister returns a HOST
+   pointer; cellGcmSys.c:432) so put/get never advance.
+
+4. caller_lr for the garbage SetDisplayBuffer call resolves to 0x00000000 via
+   g_active_ctx (ppu_active_lr()), i.e. g_active_ctx is null on the thread issuing
+   these GCM calls -- the import-thunk dispatch path apparently does not set
+   g_active_ctx (or the call runs on a thread that never did). Pinning the exact
+   guest function that emits the garbage config still needs a different hook
+   (e.g. a guest-side LR captured in the import thunk, or RWATCH on the source).
+
+5. The main thread is STILL SPU-gated: it spins in sys_timer_usleep (sc 141,
+   2.7M times) and the PROHIBITED SPU-completion shim (sys_event.c:721, bitpat==0
+   path) is firing to half-satisfy it. That shim is debt -- it forges the SPU
+   completion counter; it must be replaced by real SPU output, not relied upon.
+
+NEXT CONCRETE LEADS (both real, no faking):
+ (a) Trace the source of the 0x80258003 / 0x948D0000 garbage render config
+     (RWATCH the guest struct the tile/displaybuffer params are read from; this is
+     upstream of the SPU and may be a byte-swap / uninitialised-pointer bug whose
+     fix cascades into a valid framebuffer + real draws for non-SPU content).
+ (b) Back cellGcmGetControlRegister with GUEST memory so put/get advance, enabling
+     the real FIFO handshake (and stopping the flush-callback spin).
+
+--- 2026-06-26 (cont.): garbage config traced to a zero display-width global ---
+Host-stack backtrace at cellGcmSetTile (symbolised via ydkj.map) -> the game's GCM
+init is func_0006E850 (it registers the flip/vblank/user handlers at exactly
+0x530D70/78/80, matching the log) and sets up tiles via func_0006F648/F6E4. Those
+read the display geometry from getters:
+  func_00062598: return vm_read16(0x546D50)   // "width"
+  func_000625A4: return vm_read16(0x546D52)   // "height"
+Runtime dump of that global struct:
+  0x546D40: 00000013 0000001F 00000000 00000000
+  0x546D50: 00001400 02000200 ...
+  -> vm_read16(0x546D50) = 0x0000  (WIDTH = 0  <-- the bug)
+     vm_read16(0x546D52) = 0x1400  (= 5120, the pitch, not a height)
+     vm_read16(0x546D54) = 0x0200  (= 512)
+So the game computes tile size/pitch and the display buffer from a display-WIDTH
+global that is 0 (should be 1280). VideoOut correctly returned 1280x720/pitch=5120,
+but that value never reached this struct at 0x546D50. This is the proximate,
+SPU-INDEPENDENT root of the garbage GCM config (size=0x948D0000 pitch=0x80258003).
+
+NEXT: find what writes guest 0x546D40..0x546D54 (the display-config global). It is
+non-zero (0x13,0x1F,...,0x1400,0x200) so SOMETHING populates it -- but the width
+halfword stays 0. Trace the video-init -> struct-write path (likely a
+cellVideoOutGetState/GetResolution result that should fill width@0x546D50 but
+doesn't, or fills it at the wrong offset/width). Fixing it should cascade into a
+valid framebuffer + tile config, and -- with the FIFO control-register handshake --
+real draws for non-SPU content.
+
+NOTE on method: host RtlCaptureStackBackTrace through the lifted (ppu_context*)
+functions is only partially reliable (the inner tile-arg mapping didn't match), but
+the handler-OPD match (0x530D70/78/80) confirms func_0006E850 is the real GCM init.
+
+================================================================================
+2026-06-26  *** BREAKTHROUGH: real game render commands on screen ***
+================================================================================
+ROOT CAUSE of the garbage render config (traced end-to-end): the HLE
+cellGcmGetTiledPitchSize had the WRONG ABI. Real: u32 cellGcmGetTiledPitchSize(
+u32 size) -- one arg, the pitch is the RETURN VALUE (r3). Our impl declared it
+(u32 size, u32* pitch) and wrote the pitch through r4 as an out-pointer. At the
+title's video/GCM init (func_0006242C) r4 still held the CellVideoOutResolution*
+from the immediately-preceding cellVideoOutGetResolution (stack sp+0x80), so
+GetTiledPitchSize stomped {width=1280,height=720} with the pitch (5120) ->
+the init read width=0 -> garbage propagated into every cellGcmSetTile /
+SetDisplayBuffer (size=0x948D0000 pitch=0x80258003) AND the gcmContext `current`
+pointer AND the flip/vblank handler OPDs. (Found via: ydkj.map-symbolised host
+backtrace -> func_0006E850 GCM init -> getters reading 0x546D50 -> WWATCH on the
+global -> bracket probes in Configure/GetState -> the clobber landed in
+GetTiledPitchSize.) Fix: ps3 1c7f740.
+
+AFTER THE FIX:
+- cellGcmSetTile(idx0 off=0x0 size=0x3A0000 pitch=5120), SetDisplayBuffer(id0
+  pitch=5120 1280x720); display buffers at 0x0 / 0x3A0000 / 0x740000. ALL VALID.
+- gcmContext `current` now advances correctly (was 0xC708C708) -> the FIFO drain
+  parses the REAL command stream (79, 65, 14 words) instead of uninitialised junk.
+- THE GAME ISSUES REAL NV4097_CLEAR_SURFACE COMMANDS (mask=0xF0, color=0x00000000)
+  -> the D3D12 backend clears the presented RTV to the game's colour (black),
+  REPLACING the default dark-blue clear. => first real recompiled-game-code
+  rendering reaching the screen.
+
+REMAINING to reach CONTENT pixels (draws):
+- 0 NV4097_DRAW_ARRAYS yet. After the 2 clears the game tries to call its
+  flip/vblank handler -- OPD 0x00530D70/78 resolve to code 0x00544370, which is
+  the TOC BASE (data), NOT a lifted function ("not registered"). It then spins
+  (HOTREAD8) on a flip-done byte at 0x00543580 that the handler would set.
+- NEXT: determine the real flip-done signalling. Either (a) 0x00544370 should be a
+  real lifted function (lifting-coverage gap / OPD not relocated), or (b) the game
+  expects flip-done via a GCM label / cellGcmGetFlipStatus our HLE must advance.
+  Unblocking the flip handshake should let the render loop proceed to real draws.
+- Geometry is still partly SPU-gated (image 22 async jobs run the empty SPU image
+  and RETURN rc=0; the SPU-completion shim at sys_event.c:721 remains debt).
+
+--- 2026-06-26 (cont.): flip/vblank handler OPD-corruption workaround ---
+The title's GCM flip/vblank/user handler OPDs (0x530D70/78/80) are CORRECT at
+registration: SetFlipHandler captures code=0x0006F288 (func_0006F288, a real
+lifted flip handler), SetVBlankHandler code=0x0006F2AC. But their code word is
+later clobbered in guest memory to the TOC base (0x00544370) by a lifted store
+(not a vm_write -- WWATCH on 0x530D70 is silent, so it's a raw memcpy/vector
+store; a lifting bug). Re-resolving the OPD at tick time then yields 0x00544370
+("not registered"). Fix: capture {code,toc} at registration and dispatch via the
+new ppu_guest_call_ct(code,toc,...) so cellGcmTickFlip/TickVBlank run the REAL
+lifted handlers regardless. ps3: (this commit).
+
+RESULT: the present-thread flip/vblank handlers now run real recompiled code.
+BUT still 0 draws: the main thread keeps spinning (HOTREAD8) on the thread-sync
+byte 0x00543580, whose producer thread (writers at ppu_recomp_001.cpp:325360/436)
+is itself blocked waiting on real SPU output that the empty image-22 never
+produces (the SPU-completion shim half-satisfies the main thread but not this
+producer). So the draw gate is the SPU workload, as before. The game ALSO calls
+the corrupted flip-handler OPD directly from its own code (guest_call OPD
+0x00530D70 -> 0x00544370 not registered; indirect call -> 0x00544370) -- the
+real fix for that is finding the lifted store that clobbers the OPD.
+
+--- 2026-06-26 (cont.): geometry-draw gate pinned to SPU task-context-in-LS ---
+The draw gate traced precisely:
+- The async SPU workload (fp=0xA7633F37ACB95C25) correctly maps to image 22 =
+  spu_0021_at_004E5F80 (a REAL lifted image, entry spu_func_00003050). It runs:
+  init (0x3010) -> 0x3E68 -> job main (0x25920) -> STOP. SPU DMA/MFC IS
+  implemented (GETLLAR/PUTLLC/GET/PUT, spu_channels.c + spu_dma.h).
+- But it branches to LS 0x00000 -- ALL from one call site: lr=0x26E18, i.e.
+  spu_0021 func_00026DE0 (spu_recomp.c:33481):
+      r4 = rotqbyi(LS[0xBEC0], 8) + 196
+      r5 = LS[r4]; r2 = rotqby(r5, r4)     // a function pointer from LS
+      pc = r2; spu_indirect_branch          // r2 == 0 -> branch to LS 0
+  So the job reads a vtable/method pointer from its SPURS TASK CONTEXT object in
+  LS (base at ~LS[0xBEC0]) and it is 0 -- the task context was never populated in
+  local store. -> job can't dispatch its method -> branches to 0 -> never posts
+  its completion signal -> the PPU thread holding the 0x543580 mutex stays blocked
+  -> the main thread spins (HOTREAD8 on 0x543580) -> 0 NV4097_DRAW_ARRAYS.
+
+NEXT (the geometry-draw gate): set up the SPURS task context in LS before running
+the job -- DMA the eaContext/task-descriptor (args_ea, captured r3 = {0x40 marker,
+eaContext, queue EA}) into the LS region the job reads (around 0xBEC0 + the object
+it points to), so func_00026DE0 reads a valid method pointer. This is the SPURS
+task-ABI / LS-context setup in spu_run_lifted_job_abi (runtime/spu/spu_lifted_job.h)
++ the job's own init (spu_0021 func_00003010/00003E68). Must be REAL (DMA the
+title's actual descriptor), not a forged pointer.
+
+--- 2026-06-26 (cont.): SPU gate confirmed = un-run SPURS task kernel ---
+Dumped runtime LS at the branch-to-0 (spu_channels.c). LS[0xBEC0] at runtime =
+82A5460D 180B5628 76A6D41D B4B3D429 -- EXACTLY the spu_0021 ELF bytes (the LS
+image load is CORRECT). func_00026DE0 treats LS[0xBEC0] as a task-context object:
+  P = word@(LS[0xBEC0]+8) = 0x76A6D41D ; r4 = P + 196 = 0x76A6D4E1
+  r5 = LS[r4 & 0x3FFFF = 0x2D4E1]  (BSS, = 0) ; r2 = rotqby(r5,..) = 0 -> branch 0
+So LS[0xBEC0] holds the ELF's initial (code) bytes, NOT a valid task-context
+pointer. grep confirms spu_0021 NEVER writes LS[0xBEC0] (only reads, 6x). =>
+LS[0xBEC0] must be populated by the SPURS TASK KERNEL (the firmware SPU kernel)
+before the task body runs -- and we don't run it (proven dead-end). That is the
+geometry-draw gate.
+Secondary: the SPU lifter drops 44 instructions in spu_0021 as unhandled
+(/* TODO spu: .word 0x7F00xxxx */, 40 of them 0x7F00-prefixed + 0x07000302/
+0x011002xx). The lifter DOES handle hbr/hbra/hbrr (drops as hints), so these are a
+different class the disassembler can't decode -- need to identify whether any are
+real ops on the task path (vs embedded hint/jump-table data).
+
+=> To reach content draws: HLE the SPURS task kernel's per-task LS setup -- build
+the task control block at LS[0xBEC0] (object + its method table) from the title's
+real task descriptor (eaElf=0x004F5F80, ctx/eaContext=args_ea, captured r3) so
+func_00026DE0 reads a valid method pointer and the job dispatches, computes, and
+DMAs its render output back + posts completion (unblocking the 0x543580 mutex
+holder -> the main thread -> draws). Needs the SPURS task LS layout (RPCS3
+cellSpursTask reference). MUST use the real descriptor, no forged pointer.
+
+--- 2026-06-26 (cont.): main-thread blocker is a multi-thread init handshake ---
+The main thread, after issuing its 2 clears, is stuck in func_0030B48C
+(ppu_recomp_001.cpp:325111). It does trophy setup (sceNpTrophyRegisterContext via
+func_004701B0, sceNpTrophyGetRequiredDiskSpace) then enters a retry loop
+(loc_0036B57C): read byte 0x543580 -> if NON-zero exit; if zero usleep(1000000)
+and retry. So it waits for a worker thread to set 0x543580=1.
+The ONLY writers of 0x543580 are func_0030B7C8 / func_0030B8D4 (which also call
+sceNpTrophyTerm/DestroyContext), both writing 1 -- and the main thread is still
+spinning, so that signaling path NEVER ran. Those funcs + func_0030B48C are all
+called indirectly; the worker threads (AsyncLoad, TrophyThread) share entry
+0x530E38 (a generic worker trampoline dispatched by arg). So a worker either took
+a wrong branch (off a wrong HLE return) or is blocked upstream (its work depends
+on the stuck SPU task / event handshake).
+The trophy status callback (OPD 0x53A5C0 -> func_00300270) is a no-op (returns 0),
+so RegisterContext's missing-statusCb arg is NOT the cause (ruled out).
+NET: the draw gate is a multi-thread boot deadlock -- main thread waits on a
+worker "done" signal (0x543580) that never fires because the producing worker is
+itself gated (most deeply on the un-runnable SPURS task kernel / SPU task that
+crashes at LS[0xBEC0]). Multiple interacting subsystems (trophy, SPURS/SPU, event
+queues) must all complete init for the game to reach its draw-issuing main loop.
+
+--- 2026-06-26 (cont.): diagnosis airtight -- LS[0xBEC0] is a kernel-patch slot ---
+spu_0021 ELF is ET_EXEC with ZERO relocation sections, so LS[0xBEC0]'s baked value
+(82A5460D...) is final -- not an unrelocated pointer (rules out a loader/reloc bug).
+func_00026DE0 (which reads LS[0xBEC0] and crashes) is reached from the task's
+EARLIEST init (called from func_00003040, the SPU _start, and again from ~0x4150).
+Conclusion (every alternative now ruled out with evidence): LS[0xBEC0] is a
+location the firmware SPURS TASK KERNEL PATCHES with the real task-control-block
+pointer before transferring control to the task body. The ELF ships a placeholder;
+no task code writes it; no relocation fixes it; we don't run the kernel -> it stays
+the placeholder -> the task crashes in early init -> never computes geometry ->
+never signals the worker -> main thread's 0x543580 handshake never completes ->
+0 draws. Implementing this requires HLE'ing the SPURS task kernel's per-task LS
+patch from the real cellSpursTask/taskset ABI (RPCS3 reference) -- substantial,
+and must use the title's real structures (no fabricated pointer).
+
+--- 2026-06-26 (cont.): SPU crash path confirmed via host backtrace ---
+Host-stack backtrace at the SPU branch-to-0 (spu_channels.c) -> exact call chain:
+  func_00003050 (entry) -> func_00003E68 -> func_00003ED8 -> func_00003FD8
+    -> func_000040F0 -> func_00026DE0 (crash reading LS[0xBEC0]).
+This is the SPU C / SPURS-task RUNTIME INIT chain (all 0x3xxx-0x4xxx). func_000040F0
+issues an MFC DMA *PUT* (Cmd=0x20, LS->main), NOT a load of LS[0xBEC0], then calls
+func_00026DE0 with r3=0. func_00026DE0 reads LS[0xBEC0] (a global) regardless of r3.
+TESTED: using the game's real descriptor word1 (0x006B4500) instead of overriding
+r3[1]=args_ea did NOT change the crash -> r3 word1 is not the cause. So nothing in
+the task's own init writes LS[0xBEC0]; it must be pre-patched by the SPURS task
+kernel. Conclusion fully confirmed and empirically tested: the draw gate is the
+SPURS per-task LS patch (LS[0xBEC0] = real task-control-block pointer), produced by
+the firmware kernel at dispatch -- not present in the descriptor, not loaded by the
+task's DMA, not r3-derived. Implementing it requires the real cellSpursTask ABI.
+
+--- 2026-06-26 (cont.): kernel-code confirms LS[0xBEC0] is in the dynamic policy module ---
+Examined the extracted+lifted SPURS kernel (prx/spu_kernel/lift_a, lift_b; ~480
+insns each, from libsre.prx file off 0x020480/0x020D00). The lifted kernel writes
+only its OWN LS working area (0x120-0x1E0, 0x3FF40) and does MFC DMAs for its own
+data -- it does NOT contain the per-task worker-LS setup (the LS[0xBEC0] patch).
+That logic is in the SPURS policy module the kernel DMAs in at runtime and branches
+into (LS 0xA00) -- not statically present, not recompilable (proven dead-end).
+=> CONFIRMED from every angle (empirical LS dump, host backtrace, descriptor
+contents, RPCS3 = runs real kernel, project README's 4-step wiring plan, and now
+the lifted kernel code itself): the LS[0xBEC0] task-control-block pointer is
+produced by the dynamic SPURS policy module; it is not present anywhere readable
+and cannot be obtained without running that module (impossible under static
+recomp) or a from-scratch RE of the SPURS task scheduler's worker-LS layout. The
+path to real geometry is the README's remaining-wiring effort (HLE the task
+dispatch), a substantial dedicated subsystem -- not a single-session fix, and not
+something to fabricate.
+
+--- 2026-06-26 (cont.): BOTH kernel images examined -- policy module is dynamic ---
+Examined lift_a AND lift_b (both ~480 insns, 11 funcs). Both are SPURS kernel
+bootstraps: they DMA a policy module and branch into dynamically-loaded code
+(lift_b spu_recomp.c:395 = indirect branch to a register-held LS target; lift_a
+likewise). NEITHER contains the task-dispatch policy module with the worker-LS
+setup (the LS[0xBEC0] patch). libsre.linked.bin scan = only these 2 SPU ELFs.
+=> Definitively confirmed from every angle (empirical LS dump, host backtrace,
+descriptor contents, RPCS3 runs-real-kernel, README plan, AND both lifted kernel
+images): the LS[0xBEC0] task-control-block pointer is produced by the dynamic
+SPURS task policy module, which is not statically present and must be located via
+the live taskset/DMA at runtime, extracted, lifted, and wired (full kernel
+dispatch + SPU->PPU completion bridge). Substantial multi-session RE; no static
+shortcut except fabricating the pointer (prohibited -- would yield non-real pixels).
+FORWARD PATH (legitimate, no faking), in order:
+  1. Instrument/trace the SPURS kernel DMA (or parse the live CellSpursTaskset at
+     0x4005F900) to find the task policy module's main-memory EA.
+  2. Extract + lift that policy module (spu_lifter, like the other SPU images).
+  3. Register it at its runtime LS load address under the kernel image_id so the
+     kernel's indirect dispatch branch resolves.
+  4. Run kernel -> policy -> task; it sets up the worker LS (incl. 0xBEC0) -> the
+     task computes real geometry -> bridge completion -> GCM draws.
+
+--- 2026-06-26 (cont., "keep going"): traced the kernel's POLICY-MODULE load ---
+Two concrete findings this pass:
+1. _cellSpursTaskAttributeInitialize logs szctx=0x0FF00010 (a stack pointer, not a
+   size) -> our HLE's arg extraction for that NID is misaligned (the u64 eaElf/
+   eaContext vs u32 sizeContext/argument register mapping). Concrete fixable bug;
+   may mean the task `argument` (r10) is also misread.
+2. The task context buffer @eaContext is a small stack-resident descriptor+saved-
+   state struct (TOC 0x544370 @+0x90, stack/heap ptrs 0FEFF5D0/0066AD18/006C8DD8),
+   NOT a 256KB LS snapshot -> LS[0xBEC0] is NOT restored from it; it is kernel-
+   constructed (confirms prior).
+3. *** KEY: traced HOW the kernel loads its policy module *** (lift_b
+   sk_b_spu_func, prx/spu_kernel/lift_b/spu_recomp.c ~L357-395):
+     r4 = LS[0x3FF80]                     # an EA from the kernel control region
+     DMA: MFC_LSA=0xA00, EAH=r4, EAL=r4<<4, Cmd=GET   # load policy module -> LS 0xA00
+     pc = 0xA00; spu_indirect_branch       # jump into the policy module
+   => The SPURS task/workload policy module lives in main memory at the EA stored
+   in the kernel's LS[0x3FF80], which the kernel loads from the SPURS instance.
+   So the policy module IS locatable: find that EA in the SPURS-instance/taskset
+   structures (it points into libsre's loaded image at 0x30000000+ or a workload
+   table), extract that real SPU code, and lift it like any SPU image.
+NEXT CONCRETE STEPS (legitimate, real code):
+  a. With libsre, dump the SPURS instance (0x40009D00) / taskset (0x4005F900) and
+     the kernel control region to find the policy-module EA (= source of LS[0x3FF80]).
+  b. Extract the policy module SPU code from that EA; lift it (spu_lifter).
+  c. The policy module contains the worker-LS setup (the LS[0xBEC0] patch) + task
+     dispatch -- study/replicate it (or register it + run kernel) to set up the
+     task LS legitimately -> task computes real geometry -> draws.
+
+--- 2026-06-26 (cont.): libsre run shows policy module = 0 (kernel inert) ---
+Ran with YDKJ_LIBSRE=1. Real cellSpurs init runs; its diagnostic prints:
+  SPURS Instance @0x40009d00, revision 2, SPU group "CellSpursKernelGroup" (0x1000),
+  5 SPU threads CellSpursKernel0..4 (0x2000..0x2004).
+  SPURS Kernel Context: SPURS instance 0x000000ff, POLICY MODULE 0x00000000.
+=> Even with libsre, policy module = 0: the SPU kernel never runs (handler.c:198
+asserts "unexpected value 0x0"), so it never DMA-loads its policy module. The
+taskset struct (our-HLE path) is all zeros. So the policy module EA is NOT a
+populated runtime field we can read; the policy-module BINARY is embedded in
+libsre and must be located STATICALLY (libsre export/offset), then extracted+lifted.
+libsre = 1191 funcs / 269 exports, loaded at 0x30000000 (libsre.linked.bin).
+NEXT: search libsre's 269 exports / data sections for the taskset policy module
+SPU code blob (the code the kernel would DMA to LS 0xA00); extract + lift it; then
+either (A) wire kernel+policy execution, or (B) study its worker-LS-setup to
+replicate the LS[0xBEC0] task-control-block construction in our direct dispatch.
+This is the concrete continuing multi-session path -- real recompiled Sony code,
+no fabrication.
+
+--- 2026-06-26 (cont.): policy module LOCATED to libsre SPU-code region ---
+Density-scanned libsre.linked.bin: offsets 0x01C000-0x032000 are densely packed
+SPU code/data (the SPURS SPU code section). The two kernel ELFs sit at 0x020380
+(kernel_a) and 0x020C00 (kernel_b); the ~67KB after them (0x021400-0x032000) is
+the SPURS policy modules (system-service / TASKSET / job-chain) + SPU runtime as
+RAW code (no ELF wrappers -- which is why the earlier ELF scan found only the 2
+kernels). So the TASKSET policy module (the code that sets up the worker LS, incl.
+the LS[0xBEC0] task-control-block patch, then dispatches the task) is in this
+region.
+CONCRETE NEXT STEP (real, no faking): lift the libsre SPU-code region with
+spu_lifter --auto-functions (as the kernels were lifted), identify the taskset
+policy module by its worker-LS-setup + task-dispatch behaviour, then either
+(A) register it + wire kernel->policy->task execution, or (B) port its worker-LS
+construction into our direct dispatch so the task's LS[0xBEC0] is set up correctly
+-> task computes real geometry -> draws. Substantial but tractable; all real
+recompiled Sony code.
+PROGRESS SUMMARY (this session, the SPU task gate, fully traced end to end):
+  task crash @LS[0xBEC0] (kernel-patched) -> kernel loads policy via DMA from
+  LS[0x3FF80] EA -> EA sourced from SPURS instance (runtime, kernel-inert so =0)
+  -> policy module binary is STATIC in libsre 0x020000-0x032000 -> extract+lift+wire.
+
+--- 2026-06-26 (cont.): *** EXTRACTED + LIFTED the SPURS policy module ***
+Built a synthetic SPU ELF from libsre file 0x0214A0 (after kernel_b), vaddr 0xA00,
+size 0x3E68, and lifted it: 166 functions, 90.5% coverage -> prx/spu_kernel/lift_pol/.
+This is the SPURS TASK policy module (the code the kernel DMAs to LS 0xA00).
+*** Found the TASK CONTEXT RESTORE: pol_spu_func_00002D40 (called from the dispatch
+path func_00003C9C -> func_00003D08 -> restore -> func_00003D10 -> jump to task).
+It restores the task's SPU register file from an LS context region:
+   r0  <- LS[0xB200], r1 <- LS[0xB240], r80 <- LS[0xB280] ... r127 <- LS[0xBE40]
+   (stride 0x40). The register/context block is LS 0xB200-0xBE80, and LS[0xBEC0]
+   (the field the TASK crashes reading) is the control word immediately after it.
+=> So LS[0xBEC0] is part of the task's CONTEXT SAVE AREA, set up by the policy from
+   real game data (the context buffer cellSpursCreateTask initialises). NOT a
+   fabricated value -- it is recoverable real data.
+LEGITIMATE FIX PATH (no faking): replicate the policy's context restore in our
+direct dispatch -- locate the task's context-save buffer EA (from the task
+descriptor / one of the heap EAs in eaContext: 0x006B4500/0x006B6C00/0x0066AD18/
+0x006C8DD8), DMA/copy it into LS at 0xB200 before running the task so LS[0xBEC0]
+(and the saved registers) are set up correctly -> task no longer reads a
+placeholder -> dispatches and computes real geometry. (Or: ensure our HLE
+cellSpursCreateTask initialises that context buffer the way the SDK does.)
+NEXT: trace pol_spu_func back from the restore to find the context-load DMA's
+source EA + base, dump that buffer to confirm the real LS[0xBEC0] value, then
+implement the restore in spu_run_lifted_job_abi.
+
+--- 2026-06-26 (cont.): context buffer uninitialised -> need SDK context-init too ---
+Dumped the candidate context-save buffers (heap EAs from the descriptor:
+0x006B4500/0x006B6C00/0x005878DC) at +0xCC0 (predicted LS[0xBEC0] offset): all
+ZERO. So in our environment the task's context save buffer is NOT initialised with
+the LS[0xBEC0] value. => The value is produced by cellSpursCreateTask's context-
+init logic (real SDK/libsre does it; our HLE does not), THEN restored by the policy
+module (pol_spu_func_00002D40). Full legitimate chain to make LS[0xBEC0] valid:
+  (1) cellSpursCreateTask initialises the task context buffer (initial regs +
+      the LS[0xBEC0] task-control-block field) -- SDK logic to extract/implement.
+  (2) The policy module DMAs that buffer into LS 0xB200 and restores it.
+  (3) Task runs with a valid LS[0xBEC0] -> no crash -> computes geometry.
+  (4) Bridge SPU completion -> PPU so the producer/main thread unblock -> draws.
+So real geometry needs the SDK context-init (1) + policy restore (2) [now extracted
+as lift_pol] + completion bridge (4). All real recompiled Sony code -- no
+fabrication -- but a multi-piece subsystem. (NOTE: offset 0xCC0 is the working
+estimate; confirm via the policy's context-load DMA source+base when implementing.)
