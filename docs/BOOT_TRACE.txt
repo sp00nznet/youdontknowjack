@@ -1796,3 +1796,24 @@ either (A) wire kernel+policy execution, or (B) study its worker-LS-setup to
 replicate the LS[0xBEC0] task-control-block construction in our direct dispatch.
 This is the concrete continuing multi-session path -- real recompiled Sony code,
 no fabrication.
+
+--- 2026-06-26 (cont.): policy module LOCATED to libsre SPU-code region ---
+Density-scanned libsre.linked.bin: offsets 0x01C000-0x032000 are densely packed
+SPU code/data (the SPURS SPU code section). The two kernel ELFs sit at 0x020380
+(kernel_a) and 0x020C00 (kernel_b); the ~67KB after them (0x021400-0x032000) is
+the SPURS policy modules (system-service / TASKSET / job-chain) + SPU runtime as
+RAW code (no ELF wrappers -- which is why the earlier ELF scan found only the 2
+kernels). So the TASKSET policy module (the code that sets up the worker LS, incl.
+the LS[0xBEC0] task-control-block patch, then dispatches the task) is in this
+region.
+CONCRETE NEXT STEP (real, no faking): lift the libsre SPU-code region with
+spu_lifter --auto-functions (as the kernels were lifted), identify the taskset
+policy module by its worker-LS-setup + task-dispatch behaviour, then either
+(A) register it + wire kernel->policy->task execution, or (B) port its worker-LS
+construction into our direct dispatch so the task's LS[0xBEC0] is set up correctly
+-> task computes real geometry -> draws. Substantial but tractable; all real
+recompiled Sony code.
+PROGRESS SUMMARY (this session, the SPU task gate, fully traced end to end):
+  task crash @LS[0xBEC0] (kernel-patched) -> kernel loads policy via DMA from
+  LS[0x3FF80] EA -> EA sourced from SPURS instance (runtime, kernel-inert so =0)
+  -> policy module binary is STATIC in libsre 0x020000-0x032000 -> extract+lift+wire.
