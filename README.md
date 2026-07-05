@@ -72,12 +72,12 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | **Frame-drift root-cause** | ✅ **fixed** | proved a callee-saved register (`r29`, a loop count) was being reloaded as the **TOC pointer** after a callee with a drifted stack pointer clobbered its frame slot → 5.5M-iteration hang. Fix: restore `r14–r31` from an **entry snapshot** (C local), not the corruptible frame slot — 42,869 restores rewritten. **OOB accesses dropped to 0.** |
 | **Merged-function splitting** | ✅ **452 → 1** | a function allocates its frame once, so every `stdu r1,-N` prologue is a distinct function — split at all of them. Plus tail-call routing (`b`/`bc`/fall-through to a prologue → trampoline, not goto). Eliminated the shared-frame tail-entries that caused frame drift. **`func_003DC468` (a long-standing hang) now clears.** |
 | **cellGcmGetLabelAddress** | ✅ **guest ptr** | returned a host pointer (→ OOB write); now returns a guest address into a label window. The boot reaches **RSX label setup**. |
-| **Render-loop gate** | ⏳ **func_00264xxx** | with the frame-drift class fixed, the boot runs materially deeper into the `func_0026xxxx` data subsystem; one loop there still doesn't terminate (next frontier). See [`docs/BOOT_TRACE.txt`](docs/BOOT_TRACE.txt) handoff. |
-| CRT startup | ⬜ Not started | TLS → mutexes → malloc → static ctors |
-| Game `main()` / module load | ⬜ Not started | |
-| Scaleform UI bring-up | ⬜ Not started | the "menus" half of the game |
-| Audio (FMOD `.fsb` → cellAudio) | ⬜ Not started | the "audio" half of the game |
-| First playable question | ⬜ Not started | 🎯 the real goal |
+| **`XER[CA]` carry-lifter fix** | ✅ **crash killer** | `srawi` (and the `subfc; shift; addze` container-size idiom) weren't setting the PPC carry flag → off-by-one sizes → the `0xC708C708` poison crash. Fixed **2,953 sites**; the crash is gone and boot advances through the full render setup. |
+| **Boot → main game loop** | 🎉 **Reached** | with the carry fix in, boot clears NP/trophy/pad/save-data init and enters the game's **main loop** (`loc_000149E4`), running continuously. CRT, static ctors, module load, FMOD — all cleared along the way. |
+| **Trophy / NP / pad ABI** | ✅ **fixed** | `sceNpTrophyRegisterContext` corrected to the real 5-arg ABI + fires the status callback; `sceNpBasicGetEvent` exact no-event code; **cellPad NIDs corrected** + big-endian guest-struct writes + a virtual pad on port 0. Each unblocked a boot phase. |
+| **Event-poll pacing** | ✅ **~6× faster** | the main loop polls event queues with a **30 µs** timeout; Windows' ~15.6 ms timer granularity inflated each poll to ~15 ms → a ~500× global slowdown. Sub-millisecond `sys_event_queue_receive` now returns immediately when empty (+ `timeBeginPeriod(1)`). Reaches online-init in ~20 s vs ~120 s; runs at ~60 Hz. |
+| **Render pipeline** | ✅ **live D3D12** | RSX command FIFO drained at 60 Hz, GCM sync-fence labels advance, and the D3D12 backend clears + flips a **1280×720 window** every frame. |
+| **First scene draw** | ⏳ **current frontier** | the GCM command buffer legitimately fills and calls its ring-wrap **flush callback — which is `null`** (`context+0xC`); separately a computed **`0xC708C708`** value propagates into the scene-graph dispatch and is called as a function pointer. Result: only `CLEAR_SURFACE` (black) so far. Installing a real wrap callback + tracing the poison origin is the remaining gate to pixels. 🎯 |
 
 > **🔬 War story: the 5.2 GB lift, and the one-line ISA detail that caused it.**
 > The first full lift produced **5.2 GB** of C++ (≈600k lines/chunk) — absurd for a

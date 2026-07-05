@@ -28,6 +28,15 @@ file(GLOB RECOMP_SOURCES "src/recomp/*.c" "src/recomp/*.cpp")
 file(GLOB GEN_SOURCES    "src/gen/*.cpp")
 # Lifted SPU images (one spu_recomp.c per embedded SPU ELF) + workload registry.
 file(GLOB SPU_SOURCES    "src/spu_gen/*/spu_recomp.c" "src/spu_gen/ydkj_spu_workloads.c")
+# SPURS SPU kernel + policy module (extracted+lifted from libsre): the 3-layer
+# SPU program (kernel @LS0x100 -> policy @LS0xA00 -> task @LS0x3000) the cellSpurs
+# SPU threads run. Registered under the cri-task image so all layers resolve in
+# one local store. See prx/spu_kernel/README.txt.
+list(APPEND SPU_SOURCES
+    "${CMAKE_CURRENT_SOURCE_DIR}/prx/spu_kernel/lift_a/spu_recomp.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/prx/spu_kernel/lift_pol/spu_recomp.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/prx/spu_kernel/lift_tsp/spu_recomp.c"
+)
 
 # Real system-PRX modules (libsre = Sony cellSpurs/cellSync). Lifted + namespaced
 # (libsre_* prefix) so it links alongside the title; the runtime PRX loader
@@ -52,6 +61,7 @@ add_executable(ydkj_boot
     "${PS3RECOMP_DIR}/runtime/ppu/ppu_fs.cpp"            # cellFs VFS
     "${PS3RECOMP_DIR}/runtime/prx/prx_loader.c"          # real-PRX loader (libsre)
     "${CMAKE_CURRENT_SOURCE_DIR}/src/prx_init.cpp"       # libsre load hook
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/ydkj_spurs_kernel.c" # run lifted SPURS SPU kernel
     ${GEN_SOURCES}
     ${RECOMP_SOURCES}
     ${SPU_SOURCES}

@@ -1,13 +1,12 @@
 # --- Copyrighted game material (you must supply your own legally-dumped copy) ---
-input/EBOOT.BIN
-input/EBOOT.elf
-input/*.SELF
-input/*.self
-input/PARAM.SFO
-input/data.toc
-input/USRDIR/
+# The whole input/ tree is your own disc dump (EBOOT, PS3_GAME, data.toc, flash,
+# talkshow, save, shaders, ...) and the gamedata/ VFS mounts — never committed.
+input/
+gamedata/
 *.BIN
 *.elf
+*.SELF
+*.self
 
 # --- Build output ---
 build/
@@ -40,3 +39,9 @@ spu/
 
 # --- Lifted SPU images (derived; regenerate via extract + spu_lifter + gen_spu_workloads) ---
 src/spu_gen/
+
+# --- Lifted Sony PRX / SPU-kernel code (derived from libsre.sprx / the SPURS SPU
+#     kernel; regenerate from your own dump via ppu_lifter.py / spu_lifter.py).
+#     The small NID export tables (libsre_exports.c) and *.json metadata stay. ---
+prx/**/ppu_recomp*
+prx/**/spu_recomp*
