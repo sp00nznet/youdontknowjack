@@ -10,6 +10,14 @@ This project takes the decrypted PS3 `EBOOT.elf`, lifts every PowerPC function t
 
 ---
 
+## 🎉 It renders
+
+![You Don't Know Jack running as a native Windows executable — the Scaleform/CRIWARE/FMOD attract screen](docs/ydkj-attract-screen.png)
+
+The PS3 disc binary, statically recompiled to native x86-64, drawing its own attract/legal screen through a **D3D12 backend** — the real Scaleform Flash UI, the game's own shaders (`VS_Glyph`, `PS_TextTextureAlpha`, `PS_CxformTexture`), logos, and dynamic text. No emulator. The window title is live telemetry: `FPS: 32.00 | draws: 119 | 1280x720`. Text glyphs are still partially garbled (a dynamic glyph-cache/upload fidelity bug — next on the list), but the pipeline is end-to-end functional.
+
+---
+
 ## Why this is a *great* recomp target
 
 Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespoke renderers. You Don't Know Jack is the opposite. Under the hood it's almost entirely **menus, a Flash UI, and audio** — exactly the profile that static recompilation eats for breakfast:
@@ -77,7 +85,9 @@ Your average AAA PS3 game is a Cell-saturated nightmare of SPU compute and bespo
 | **Trophy / NP / pad ABI** | ✅ **fixed** | `sceNpTrophyRegisterContext` corrected to the real 5-arg ABI + fires the status callback; `sceNpBasicGetEvent` exact no-event code; **cellPad NIDs corrected** + big-endian guest-struct writes + a virtual pad on port 0. Each unblocked a boot phase. |
 | **Event-poll pacing** | ✅ **~6× faster** | the main loop polls event queues with a **30 µs** timeout; Windows' ~15.6 ms timer granularity inflated each poll to ~15 ms → a ~500× global slowdown. Sub-millisecond `sys_event_queue_receive` now returns immediately when empty (+ `timeBeginPeriod(1)`). Reaches online-init in ~20 s vs ~120 s; runs at ~60 Hz. |
 | **Render pipeline** | ✅ **live D3D12** | RSX command FIFO drained at 60 Hz, GCM sync-fence labels advance, and the D3D12 backend clears + flips a **1280×720 window** every frame. |
-| **First scene draw** | ⏳ **current frontier** | the GCM command buffer legitimately fills and calls its ring-wrap **flush callback — which is `null`** (`context+0xC`); separately a computed **`0xC708C708`** value propagates into the scene-graph dispatch and is called as a function pointer. Result: only `CLEAR_SURFACE` (black) so far. Installing a real wrap callback + tracing the poison origin is the remaining gate to pixels. 🎯 |
+| **Scratch-slot callee-save lifter bug** | ✅ **the systemic root** | drilled the "only `CLEAR_SURFACE`" wall (via an RPCS3 golden-log oracle) to a single lifter bug: when the compiler **reuses a callee-save register's stack slot for a local** (`std r29,0x90(r1)` of a computed value, later `ld r29,0x90(r1)` to reload it), the lifter mistook the reload for a callee-save *restore* and rewrote it to the register's stale entry value. The first casualty was `data.toc`'s file size (a stale pointer instead of `0x19B00`) → its buffer alloc failed → total downstream corruption. Fix: a `std rN,off(r1)` only counts as a save if `rN` hasn't been reassigned first (it must store the *entry* value). One rule, applied at the lifter — cleared the corruption globally. |
+| **🎉 First pixels — the game renders** | ✅ **REACHED** | with the lifter fix in, `data.toc` loads (105,216 B), the `abort()` is gone, and the RSX FIFO issues **real `DRAW_ARRAYS` / `DRAW_INDEX_ARRAY`** through the D3D12 backend. The **Scaleform attract/legal screen draws** — logos, shapes, and text via the game's own shaders. See the screenshot at the top. |
+| **Glyph-cache text fidelity** | ⏳ **current frontier** | logos (static textures) are pixel-perfect; some dynamic **text runs are torn/garbled** — the 1024×1024 glyph atlas (`PS_TextTextureAlpha`) is sampled with stale/partial data on some runs. Likely a glyph-cache upload-vs-draw ordering race (SPU-assisted rasterization) or a sibling data-path bug. 🎯 |
 
 > **🔬 War story: the 5.2 GB lift, and the one-line ISA detail that caused it.**
 > The first full lift produced **5.2 GB** of C++ (≈600k lines/chunk) — absurd for a

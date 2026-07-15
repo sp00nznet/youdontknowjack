@@ -45,3 +45,8 @@ src/spu_gen/
 #     The small NID export tables (libsre_exports.c) and *.json metadata stay. ---
 prx/**/ppu_recomp*
 prx/**/spu_recomp*
+
+# --- Scratch/backup re-lift trees + experimental meta (generated; not committed) ---
+src/recomp_*/
+meta/EBOOT.functions.*.json
+!meta/EBOOT.functions.json
