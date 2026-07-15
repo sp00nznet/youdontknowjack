@@ -1363,9 +1363,17 @@ window with the D3D12 backend ready, no crash." Run with YDKJ_LIBSRE=1.
 WHAT WAS FIXED (all committed + pushed, both repos):
  1. libsre re-lifted CLEAN (1290 fns, 4.7MB; was a bloated 87MB lifting data as
     code). func list = flOw func0.json (355) + 197 indirect-only func-export OPD
-    code addrs, bounded tightly, capped at the TRUE code end 0x1D718 (everything
-    >= 0x1D718 is the import PLT + data, NOT code -- that mis-lift was the source
-    of the 0x39800000 garbage-TOC branch).
+    code addrs, bounded tightly. NOTE (2026-07-15): --code-end must be 0x3001DB18
+    (past the import PLT end 0x3001DAF8+0x20), NOT 0x1D718. Capping at 0x1D718
+    EXCLUDES the import PLT (0x3001D718-0x3001DAF8), so every `bl 0x3001dXXX` import
+    call (_sys_memset, _sys_spu_image_import, _sys_memcpy, ...) lifts as
+    `/* bl -> non-code */` = a NO-OP. That silently breaks all libsre imports:
+    cellSpursInitializeWithAttribute's memset never runs -> SPURS attr not zeroed ->
+    cellSpurs init/taskset fail with 0x80410702/0x80410811. Use --code-end 0x3001DB18
+    so import-stub calls resolve to ps3_hle_call (the --hle-stubs targets are code).
+    (Data starts after the PLT at 0x3001DB18; the 0x39800000 garbage-TOC branch that
+    motivated the old tight cap is handled by the func list + hle-stubs, not by
+    excluding the PLT.)
  2. libsre's 32 .lib.stub import trampolines (PLT 0x3001D718-0x3001DAF8) decoded
     from libsre.prx's import section (2 cellLibprof + 30 sysPrxForUser) ->
     prx/libsre.imports.json -> ppu_lifter --hle-stubs emits ps3_hle_call(nid) for
