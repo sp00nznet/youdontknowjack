@@ -74,18 +74,28 @@ static void ydkj_taskprobe(ppu_context* ctx, const char* what)
     fprintf(stderr, "[TASKPROBE] libsre %s spurs=0x%08X taskset=0x%08X\n",
             what, g_ydkj_real_spurs_ea, g_ydkj_real_taskset_ea);
     fflush(stderr);
-    {   /* dump the first 8 words of the instance: the SPURS kernel reads its
-         * context from here, and an all-zero dump means the PPU has not filled
-         * it in yet -- which is the difference between "wrong address" and
-         * "right address, wrong moment". */
+    {   /* One buffered write: five SPU kernel threads plus the PPU all log to
+         * stderr, and separate fprintf calls interleave mid-line, which made
+         * earlier dumps unreadable. Build the whole line, write it once. */
         if (vm_base && g_ydkj_real_spurs_ea) {
             const unsigned char* q = vm_base + g_ydkj_real_spurs_ea;
-            fprintf(stderr, "[TASKPROBE]   inst@0x%08X:", g_ydkj_real_spurs_ea);
-            for (int i = 0; i < 8; i++)
-                fprintf(stderr, " %02X%02X%02X%02X", q[i*4], q[i*4+1], q[i*4+2], q[i*4+3]);
-            fprintf(stderr, "\n");
+            char buf[2048]; int n = 0;
+            n += snprintf(buf + n, sizeof buf - n, "[TASKPROBE]   inst@0x%08X:", g_ydkj_real_spurs_ea);
+            for (int i = 0; i < 24 && n < (int)sizeof buf - 16; i++)
+                n += snprintf(buf + n, sizeof buf - n, " %02X%02X%02X%02X",
+                              q[i*4], q[i*4+1], q[i*4+2], q[i*4+3]);
+            /* workload table wklInfo1[] @ +0xB00 (RPCS3 cellSpurs.h): what the
+             * kernel dispatches from. Empty here means stopping is correct. */
+            n += snprintf(buf + n, sizeof buf - n, "\n[TASKPROBE]   wkl@+0xB00:");
+            for (int i = 0; i < 24 && n < (int)sizeof buf - 16; i++) {
+                const unsigned char* w = q + 0xB00 + i*4;
+                n += snprintf(buf + n, sizeof buf - n, " %02X%02X%02X%02X", w[0], w[1], w[2], w[3]);
+            }
+            snprintf(buf + n, sizeof buf - n, "\n");
+            fputs(buf, stderr); fflush(stderr);
         }
     }
+
 }
 
 
@@ -97,6 +107,35 @@ static void ydkj_taskprobe(ppu_context* ctx, const char* what)
  * The SPURS kernel code had 0x40009D00 hardcoded; this title puts its instance
  * at 0x40009F00, so the kernel read all zeros, found no context, and returned
  * immediately every time. */
+
+/* YDKJ_WKLSAMPLE=1: sample the SPURS workload table over time.
+ *
+ * The probes above fire on ENTRY to libsre's create calls, and lifted code
+ * finishes in the caller's trampoline drain, so a wrapper cannot observe the
+ * post-call state. Sampling on a separate thread answers the only question
+ * that matters here: does a workload EVER get registered? If wklInfo1[] stays
+ * empty for the whole boot then the kernel having nothing to dispatch is
+ * correct behaviour, and the bug is upstream in workload registration. */
+#include <windows.h>
+static DWORD WINAPI ydkj_wkl_sampler(LPVOID)
+{
+    for (int t = 0; t < 30; t++) {
+        Sleep(1000);
+        if (!vm_base || !g_ydkj_real_spurs_ea) continue;
+        const unsigned char* q = vm_base + g_ydkj_real_spurs_ea;
+        char buf[1024]; int n = 0; int nz = 0;
+        n += snprintf(buf + n, sizeof buf - n, "[WKL] t=%2ds wkl@+0xB00:", t + 1);
+        for (int i = 0; i < 16 && n < (int)sizeof buf - 16; i++) {
+            const unsigned char* w = q + 0xB00 + i * 4;
+            if (w[0] | w[1] | w[2] | w[3]) nz++;
+            n += snprintf(buf + n, sizeof buf - n, " %02X%02X%02X%02X", w[0], w[1], w[2], w[3]);
+        }
+        snprintf(buf + n, sizeof buf - n, "  (nonzero=%d)\n", nz);
+        fputs(buf, stderr); fflush(stderr);
+    }
+    return 0;
+}
+
 static void ydkj_probe_InitWithAttr(void* c)
 {
     ppu_context* ctx = (ppu_context*)c;
@@ -185,6 +224,8 @@ extern "C" void ps3_load_prx_modules(void)
     /* Override the two taskset-create entries with the probes (after the bulk
      * registration above, so the wrappers win the address). */
     ppu_register_function(0x30008494ull, ydkj_probe_InitWithAttr);
+    if (getenv("YDKJ_WKLSAMPLE"))
+        CloseHandle(CreateThread(NULL, 0, ydkj_wkl_sampler, NULL, 0, NULL));
     ppu_register_function(0x30008578ull, ydkj_probe_Init);
     ppu_register_function(0x30014CF8ull, ydkj_probe_CreateTasksetWithAttr);
     ppu_register_function(0x30014DC4ull, ydkj_probe_CreateTaskset);

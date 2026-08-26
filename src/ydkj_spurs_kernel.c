@@ -300,6 +300,28 @@ static int32_t ydkj_spurs_kernel_run(uint32_t tid, uint32_t args_ea)
     extern void ydkj_pcsample_register(uint32_t tid, spu_context* c);
     ydkj_pcsample_register(tid, &ctx);
 
+    /* Plant the CellSpurs instance pointer at LS[0x1C0].
+     *
+     * The kernel is meant to DMA its context in (func_000006C0, EA from r16)
+     * and that DMA does not land here: post-run LS[0x1C0] is still 0 even with
+     * r16 correctly seeded. The policy entry reads LS[r80+0xC0] = LS[0x1C0] to
+     * find the instance, so with it zero the policy computes a null instance
+     * and the kernel stops immediately (status=2).
+     *
+     * runtime/spu/spu_workload.c already plants exactly this for the taskset-
+     * policy path; the kernel path never got it. Stored as a big-endian u64 --
+     * high word first, so the EA goes in the SECOND word, not the first.
+     * YDKJ_NO_LSINST disables it for comparison. */
+    if (!getenv("YDKJ_NO_LSINST")) {
+        uint32_t inst = ydkj_spurs_inst_ea();
+        uint8_t* p = ctx.ls + 0x1C0;
+        p[0] = 0; p[1] = 0; p[2] = 0; p[3] = 0;
+        p[4] = (uint8_t)(inst >> 24); p[5] = (uint8_t)(inst >> 16);
+        p[6] = (uint8_t)(inst >> 8);  p[7] = (uint8_t)inst;
+        fprintf(stderr, "[SPURS-KRN] tid=0x%X planted LS[0x1C0] = 0x%08X\n", tid, inst);
+        fflush(stderr);
+    }
+
     spu_run_with_halt(sk_a_spu_func_00000818, &ctx);
     fprintf(stderr, "[SPURS-KRN] tid=0x%X kernel returned (status=%d)\n", tid, ctx.status);
     /* DIAG: did the kernel's DMA chain populate LS? (context@0x3FFE0, policy@0xA00,
