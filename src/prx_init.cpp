@@ -37,6 +37,56 @@ char* _sys_strncat(char* dst, const char* src, unsigned int size);
 int   _sys_strncmp(const char* s1, const char* s2, unsigned int size);
 }
 
+
+/* ---- [TASKPROBE] real SPURS/taskset capture -----------------------------
+ *
+ * The LLE libsre path bypasses the HLE cellSpurs setters, so the runtime SPU
+ * taskset-policy handoff (runtime/spu/spu_workload.c) never learns the real
+ * CellSpurs and taskset EAs -- it would fall back to a hardcoded guess.
+ *
+ * This used to be hand-patched into the generated prx/libsre_ns/ppu_recomp.c,
+ * so every re-lift silently dropped it and the guess came back. Wrapping the
+ * two taskset-create entries at registration time keeps it in tracked source:
+ * re-lift as often as you like, the probe survives. Registration overwrites by
+ * address (ppu_register_function), so these must run AFTER prx_load_module. */
+#include "ppu_context.h"
+
+extern "C" {
+/* defined C-side in ps3recomp libs/spurs/cellSpurs.c */
+extern uint32_t g_ydkj_real_taskset_ea, g_ydkj_real_spurs_ea;
+}
+
+/* NO extern "C" here: the generated header declares the lifted functions
+ * OUTSIDE its extern "C" block, and CMake compiles the PRX modules as C++, so
+ * they carry C++ linkage. Declaring them extern "C" mangles differently and
+ * silently fails to resolve at link time. */
+void libsre_func_30014CF8(ppu_context* ctx);   /* cellSpursCreateTasksetWithAttribute */
+void libsre_func_30014DC4(ppu_context* ctx);   /* cellSpursCreateTaskset */
+
+/* r3 = CellSpurs*, r4 = CellSpursTaskset* (both create entries share the ABI). */
+static void ydkj_taskprobe(ppu_context* ctx, const char* what)
+{
+    g_ydkj_real_spurs_ea   = (uint32_t)ctx->gpr[3];
+    g_ydkj_real_taskset_ea = (uint32_t)ctx->gpr[4];
+    fprintf(stderr, "[TASKPROBE] libsre %s spurs=0x%08X taskset=0x%08X\n",
+            what, g_ydkj_real_spurs_ea, g_ydkj_real_taskset_ea);
+    fflush(stderr);
+}
+
+static void ydkj_probe_CreateTasksetWithAttr(void* c)
+{
+    ppu_context* ctx = (ppu_context*)c;
+    ydkj_taskprobe(ctx, "CreateTasksetWithAttr");
+    libsre_func_30014CF8(ctx);
+}
+
+static void ydkj_probe_CreateTaskset(void* c)
+{
+    ppu_context* ctx = (ppu_context*)c;
+    ydkj_taskprobe(ctx, "CreateTaskset");
+    libsre_func_30014DC4(ctx);
+}
+
 static int ydkj_spu_image_close_stub(void) { return 0; } /* sys_spu_image_close */
 
 /* Adapter to the prx_register_fn signature the loader expects. */
@@ -89,6 +139,11 @@ extern "C" void ps3_load_prx_modules(void)
     fprintf(stderr, "[init] libsre load %s: %u funcs registered, %u exports in registry\n",
             r.ok ? "OK" : "FAILED", r.funcs_registered, prx_export_registry_count());
     free(img);
+
+    /* Override the two taskset-create entries with the probes (after the bulk
+     * registration above, so the wrappers win the address). */
+    ppu_register_function(0x30014CF8ull, ydkj_probe_CreateTasksetWithAttr);
+    ppu_register_function(0x30014DC4ull, ydkj_probe_CreateTaskset);
 
     /* Supplemental sysPrxForUser CRT shims for libsre's imports. */
     ps3_hle_register(0x99C88692u, "_sys_strcpy",  (void*)_sys_strcpy);
