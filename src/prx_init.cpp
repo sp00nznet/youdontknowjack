@@ -54,12 +54,15 @@ int   _sys_strncmp(const char* s1, const char* s2, unsigned int size);
 extern "C" {
 /* defined C-side in ps3recomp libs/spurs/cellSpurs.c */
 extern uint32_t g_ydkj_real_taskset_ea, g_ydkj_real_spurs_ea;
+extern unsigned char* vm_base;   /* host VM base; C linkage, defined in ppu_loader */
 }
 
 /* NO extern "C" here: the generated header declares the lifted functions
  * OUTSIDE its extern "C" block, and CMake compiles the PRX modules as C++, so
  * they carry C++ linkage. Declaring them extern "C" mangles differently and
  * silently fails to resolve at link time. */
+void libsre_func_30008494(ppu_context* ctx);   /* cellSpursInitializeWithAttribute */
+void libsre_func_30008578(ppu_context* ctx);   /* cellSpursInitialize */
 void libsre_func_30014CF8(ppu_context* ctx);   /* cellSpursCreateTasksetWithAttribute */
 void libsre_func_30014DC4(ppu_context* ctx);   /* cellSpursCreateTaskset */
 
@@ -71,6 +74,45 @@ static void ydkj_taskprobe(ppu_context* ctx, const char* what)
     fprintf(stderr, "[TASKPROBE] libsre %s spurs=0x%08X taskset=0x%08X\n",
             what, g_ydkj_real_spurs_ea, g_ydkj_real_taskset_ea);
     fflush(stderr);
+    {   /* dump the first 8 words of the instance: the SPURS kernel reads its
+         * context from here, and an all-zero dump means the PPU has not filled
+         * it in yet -- which is the difference between "wrong address" and
+         * "right address, wrong moment". */
+        if (vm_base && g_ydkj_real_spurs_ea) {
+            const unsigned char* q = vm_base + g_ydkj_real_spurs_ea;
+            fprintf(stderr, "[TASKPROBE]   inst@0x%08X:", g_ydkj_real_spurs_ea);
+            for (int i = 0; i < 8; i++)
+                fprintf(stderr, " %02X%02X%02X%02X", q[i*4], q[i*4+1], q[i*4+2], q[i*4+3]);
+            fprintf(stderr, "\n");
+        }
+    }
+}
+
+
+/* cellSpursInitialize[WithAttribute]: r3 IS the CellSpurs instance.
+ *
+ * Capture it HERE, not just at taskset-create. Initialize is what creates and
+ * starts the SPU thread group, so a taskset-time capture lands after the
+ * kernel threads have already read their context -- too late to help them.
+ * The SPURS kernel code had 0x40009D00 hardcoded; this title puts its instance
+ * at 0x40009F00, so the kernel read all zeros, found no context, and returned
+ * immediately every time. */
+static void ydkj_probe_InitWithAttr(void* c)
+{
+    ppu_context* ctx = (ppu_context*)c;
+    g_ydkj_real_spurs_ea = (uint32_t)ctx->gpr[3];
+    fprintf(stderr, "[TASKPROBE] libsre InitializeWithAttribute spurs=0x%08X\n", g_ydkj_real_spurs_ea);
+    fflush(stderr);
+    libsre_func_30008494(ctx);
+}
+
+static void ydkj_probe_Init(void* c)
+{
+    ppu_context* ctx = (ppu_context*)c;
+    g_ydkj_real_spurs_ea = (uint32_t)ctx->gpr[3];
+    fprintf(stderr, "[TASKPROBE] libsre Initialize spurs=0x%08X\n", g_ydkj_real_spurs_ea);
+    fflush(stderr);
+    libsre_func_30008578(ctx);
 }
 
 static void ydkj_probe_CreateTasksetWithAttr(void* c)
@@ -142,6 +184,8 @@ extern "C" void ps3_load_prx_modules(void)
 
     /* Override the two taskset-create entries with the probes (after the bulk
      * registration above, so the wrappers win the address). */
+    ppu_register_function(0x30008494ull, ydkj_probe_InitWithAttr);
+    ppu_register_function(0x30008578ull, ydkj_probe_Init);
     ppu_register_function(0x30014CF8ull, ydkj_probe_CreateTasksetWithAttr);
     ppu_register_function(0x30014DC4ull, ydkj_probe_CreateTaskset);
 
