@@ -25,3 +25,28 @@ REMAINING WIRING (the path to real SPU execution -> render):
      dispatches the title's lifted SPU task images (image 22 = spu_0021_at_004E5F80).
   4. Bridge SPU completion (WrOutIntrMbox / DMA completion counter) -> the PPU's
      event queue / completion poll so init unblocks -> asset load -> GCM draws.
+
+RE-LIFT REQUIRED (2026-08-26)
+-----------------------------
+These lifts were generated 2026-07-06. Every spu_lifter fix since is missing
+from them, and the effect was fatal rather than cosmetic:
+
+  sk_a_spu_func_00000818 (the kernel ENTRY) ended with
+      ctx->gpr[0] = spu_link(0x844); /* TODO spu: brsl unresolved target */
+      ...stop...
+
+The kernel first call -- the bootstrap context DMA at 0x6C0 described above --
+was dropped, so the kernel fell straight into its stop and did nothing. Its
+"status=2" was read for weeks as "no runnable workload", when it actually meant
+the body never ran at all.
+
+Re-lifting with a current spu_lifter resolves all 3 unresolved brsl targets.
+The kernel then executes, its context DMA lands (LS[0x3FFE0] goes non-zero for
+the first time), it runs ~14,500 times per boot instead of ~50, and it stops
+with status=4 (STOPPED_BY_HALT) -- tripping a real assertion inside Sony own
+kernel rather than never starting. That assertion is the current frontier.
+
+  python <ps3recomp>/tools/spu_lifter.py --auto-functions spurs_kernel_a.elf
+      --symbol-prefix sk_a_ -o lift_a
+  (likewise spurs_policy.elf -> pol_ -> lift_pol,
+            taskset_policy.elf -> tsp_ -> lift_tsp)

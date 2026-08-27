@@ -322,7 +322,35 @@ static int32_t ydkj_spurs_kernel_run(uint32_t tid, uint32_t args_ea)
         fflush(stderr);
     }
 
-    spu_run_with_halt(sk_a_spu_func_00000818, &ctx);
+    /* The SPURS kernel is a PERSISTENT scheduler. Running it once and taking
+     * its stop as "done" is wrong: it stops with status=2 when it finds no
+     * runnable workload, expecting to be resumed. Until libsre re-lifted with
+     * --toc, cellSpursCreateTask was a no-op so there was never anything to
+     * find and the single run looked conclusive. Now the workload IS signalled
+     * (instance+0x70 bit 31), so re-enter and let it observe that.
+     *
+     * YDKJ_KRN_LOOP=<n> iterations (0 disables, default 400). Any status other
+     * than 2 means it did something -- stop and report that. */
+    {
+        int loops = 400;
+        { const char* e = getenv("YDKJ_KRN_LOOP"); if (e) loops = atoi(e); }
+        if (loops < 1) loops = 1;
+        int it = 0;
+        for (; it < loops; it++) {
+            spu_run_with_halt(sk_a_spu_func_00000818, &ctx);
+            if (ctx.status != 2) break;
+            /* re-arm the entry state the kernel expects on resume */
+            ctx.pc = 0x818;
+#ifdef _WIN32
+            Sleep(2);
+#endif
+        }
+        /* steps: how far the kernel actually got. A handful means it bails at
+         * its first check; thousands means it is really scheduling. */
+        if (it) fprintf(stderr, "[SPURS-KRN] tid=0x%X kernel re-entered %d time(s),"
+                                " final status=%d steps=%llu\n", tid, it, ctx.status,
+                                (unsigned long long)ctx.steps);
+    }
     fprintf(stderr, "[SPURS-KRN] tid=0x%X kernel returned (status=%d)\n", tid, ctx.status);
     /* DIAG: did the kernel's DMA chain populate LS? (context@0x3FFE0, policy@0xA00,
      * task@0x3000) + is the SPURS instance @0x40009D00 populated in main memory? */
