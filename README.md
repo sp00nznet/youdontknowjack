@@ -237,6 +237,34 @@ cmake --build build
 
 ---
 
+
+> ### Re-lift before you build (2026-08-26)
+>
+> `src/recomp` must be regenerated with a current `ppu_lifter.py`. The lifted
+> code that shipped here was produced on 2026-07-06, and every jump-table fix
+> in the lifter landed *after* that date -- including one titled "fix
+> jump-table discovery crashing + **silently skipping ALL tables**".
+>
+> The consequence was not subtle. Every `switch` in the title lifted to a bare
+> `bctr` with no case list, so each one became an unresolved indirect call at
+> runtime. `func_002DE788` dispatches six cases through a TOC-loaded
+> base-relative table; case 3 (`0x002DE850`) is interior to the function and
+> had no entry point, so the call fell through and the caller ran on garbage.
+> The title then went straight into its teardown path -- which is why SPURS
+> looked broken for weeks. The four `0x22AAB31D` failures were the destructor
+> detaching event flags that had never been attached, not a failed setup.
+>
+> Re-lifting with the documented flags recovers **297 jump-table dispatchers**
+> and takes runtime unresolved indirect calls to **zero**. SPURS then completes
+> instead of tearing down: the event flags initialise and attach,
+> `cellSpursCreateTask` succeeds, and the title reaches its own data --
+> `data.toc` and the assets behind it -- then blocks in
+> `cellSpursEventFlagWait` for an SPU workload to signal completion, which is
+> where the work now is.
+>
+> The chunk count changes (4 -> 3 files), so re-run `cmake` configure after a
+> re-lift or the cached `GLOB` still looks for `ppu_recomp_003.cpp`.
+
 ## Credits & Legal
 
 Built on [**ps3recomp**](https://github.com/sp00nznet/ps3recomp), in the lineage of
