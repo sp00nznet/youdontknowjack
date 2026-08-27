@@ -47,6 +47,7 @@ extern void (*g_spurs_kernel_hook)(uint32_t args_ea);
  * available by the time the kernel threads read it. Keep the old constant as a
  * fallback for the window before the probe fires. */
 extern uint32_t g_ydkj_real_spurs_ea;
+extern uint32_t g_ydkj_real_taskset_ea;
 static uint32_t ydkj_spurs_inst_ea(void)
 {
     return g_ydkj_real_spurs_ea ? g_ydkj_real_spurs_ea : 0x40009D00u;
@@ -224,13 +225,27 @@ static int32_t ydkj_spurs_kernel_run(uint32_t tid, uint32_t args_ea)
 #endif
         {
             const uint32_t INST = ydkj_spurs_inst_ea();     /* CellSpurs instance              */
-            const uint32_t TSEA = 0x0F000000u;     /* CellSpursTaskset (committed main mem) */
+            /* Prefer libsre REAL taskset over the hand-built one at 0x0F000000.
+             * That fabrication dates from when cellSpursCreateTask was a no-op
+             * (libsre lifted without --toc, so its jump tables were missing and
+             * the call returned CELL_OK having written nothing). libsre now
+             * builds a genuine taskset with a real task 0 -- pending bit set at
+             * +0x20, workload signalled -- so point the workload at THAT and do
+             * not overwrite it with a synthetic one. YDKJ_CRI_SYNTH_TS forces
+             * the old fabricated path back for comparison. */
+            const int use_real_ts = (g_ydkj_real_taskset_ea != 0) &&
+                                    !getenv("YDKJ_CRI_SYNTH_TS");
+            const uint32_t TSEA = use_real_ts ? g_ydkj_real_taskset_ea
+                                              : 0x0F000000u;
             const uint32_t TPOL = 0x30023680u;     /* taskset policy module EA        */
             const uint32_t CRIELF = 0x004F5F80u;   /* cri task ELF EA                 */
             uint8_t* in = vm_base + INST;
             uint8_t* ts = vm_base + TSEA;
             #define BE32(p,v) do{uint8_t*_p=(p);uint32_t _v=(v);_p[0]=(uint8_t)(_v>>24);_p[1]=(uint8_t)(_v>>16);_p[2]=(uint8_t)(_v>>8);_p[3]=(uint8_t)_v;}while(0)
-            /* --- CellSpursTaskset struct --- */
+            /* --- CellSpursTaskset struct (only when fabricating one) ---
+             * Never memset a taskset libsre owns: that would erase the real
+             * task 0 and its pending bit. */
+            if (!use_real_ts) {
             memset(ts, 0, 0x1900);
             BE32(ts + 0x10, 0x80000000u);          /* ready: task0 (bit0 MSB)         */
             BE32(ts + 0x20, 0x80000000u);          /* pending_ready: task0            */
@@ -262,6 +277,9 @@ static int32_t ydkj_spurs_kernel_run(uint32_t tid, uint32_t args_ea)
             BE32(ts + 0x80 + 0x20, 0xFFFFFFFFu); BE32(ts + 0x80 + 0x24, 0xFFFFFFFFu);
             BE32(ts + 0x80 + 0x28, 0xFFFFFFFFu); BE32(ts + 0x80 + 0x2C, 0xFFFFFFFFu);
             BE32(ts + 0x1890, 0x00001900u);        /* size                            */
+            }   /* end synthetic taskset build */
+            fprintf(stderr, "[cri-chain] taskset = 0x%08X (%s)\n", TSEA,
+                    use_real_ts ? "REAL, from libsre" : "synthetic");
             /* --- instance: register taskset workload at wklInfo1[0] @0xB00 --- */
             uint8_t* wi = in + 0xB00;
             BE32(wi + 0x00, 0x00000000u); BE32(wi + 0x04, TPOL);   /* addr = taskset policy */
