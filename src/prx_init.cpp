@@ -124,7 +124,24 @@ static DWORD WINAPI ydkj_wkl_sampler(LPVOID)
         if (!vm_base || !g_ydkj_real_spurs_ea) continue;
         const unsigned char* q = vm_base + g_ydkj_real_spurs_ea;
         char buf[1024]; int n = 0; int nz = 0;
-        n += snprintf(buf + n, sizeof buf - n, "[WKL] t=%2ds wkl@+0xB00:", t + 1);
+        /* ready-counts live at instance+0x00: the SPU kernel picks a workload
+         * only when one of these is non-zero, so this is the field that says
+         * whether anything is actually runnable. */
+        n += snprintf(buf + n, sizeof buf - n, "[WKL] t=%2ds ready@+0x00:", t + 1);
+        for (int i = 0; i < 64 && n < (int)sizeof buf - 16; i++)
+            n += snprintf(buf + n, sizeof buf - n, " %02X%02X%02X%02X",
+                          q[i*4], q[i*4+1], q[i*4+2], q[i*4+3]);
+        /* taskset+0x20: the pending-ready bitmap libsre 0x30010C70 sets with an
+         * lwarx/stwcx pair when a task is activated. stwcx does NOT go through
+         * the vm_write write-watch, so this is the only way to see it. */
+        if (g_ydkj_real_taskset_ea) {
+            const unsigned char* ts = vm_base + g_ydkj_real_taskset_ea;
+            n += snprintf(buf + n, sizeof buf - n, "  ts+0x20:");
+            for (int i = 0; i < 26 && n < (int)sizeof buf - 16; i++)   /* 0x20..0x88 */
+                n += snprintf(buf + n, sizeof buf - n, " %02X%02X%02X%02X",
+                              ts[0x20+i*4], ts[0x21+i*4], ts[0x22+i*4], ts[0x23+i*4]);
+        }
+        n += snprintf(buf + n, sizeof buf - n, "  wkl@+0xB00:");
         for (int i = 0; i < 16 && n < (int)sizeof buf - 16; i++) {
             const unsigned char* w = q + 0xB00 + i * 4;
             if (w[0] | w[1] | w[2] | w[3]) nz++;
