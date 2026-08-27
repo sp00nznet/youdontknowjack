@@ -356,6 +356,17 @@ static int32_t ydkj_spurs_kernel_run(uint32_t tid, uint32_t args_ea)
      * task@0x3000) + is the SPURS instance @0x40009D00 populated in main memory? */
     {
         uint8_t* L = ctx.ls;
+        {   /* The entry builds the kernel context at LS 0x1C0 from r3/r4 with
+             * cdd/cwd/shufb. The EA is a 64-bit big-endian value, so its HIGH
+             * word sits at 0x1C0 and the address itself at 0x1C4 -- printing
+             * only 0x1C0 made a correct context look empty. */
+            char b[160]; int m = 0;
+            m += snprintf(b + m, sizeof b - m, "[SPURS-KRN] tid=0x%X LS 0x1C0:", tid);
+            for (int i = 0; i < 8; i++)
+                m += snprintf(b + m, sizeof b - m, " %08X", be32(L + 0x1C0 + i*4));
+            snprintf(b + m, sizeof b - m, "\n");
+            fputs(b, stderr); fflush(stderr);
+        }
         fprintf(stderr, "[SPURS-KRN] tid=0x%X post-run LS: 0x1C0=%08X 0x1D0=%08X 0x3FFE0=%08X%08X 0xA00=%08X 0x3000=%08X\n",
                 tid, be32(L+0x1C0), be32(L+0x1D0), be32(L+0x3FFE0), be32(L+0x3FFE4), be32(L+0xA00), be32(L+0x3000));
         if (vm_base) {
