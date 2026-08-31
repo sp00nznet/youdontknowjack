@@ -18,6 +18,10 @@ extern "C" {
     void cellAudioPortClose(void);
     void cellAudioPortStart(void);
     void cellAudioPortStop(void);
+    /* cellAudioCreateNotifyEventQueue: imported by this title and absent from
+     * the table, so the game blocked on a queue id nothing created and its
+     * audio thread logged ~1.7M LIBAUDIO DROPOUT lines a run. */
+    void cellAudioCreateNotifyEventQueue(void);
     void cellAudioSetNotifyEventQueue(void);
     void cellAudioRemoveNotifyEventQueue(void);
     void cellAudioGetPortConfig(void);
@@ -409,6 +413,7 @@ extern "C" void ppu_hle_register_all(void) {
     ps3_hle_register(0x4129FE2Du, "cellAudioPortClose", (void*)cellAudioPortClose);
     ps3_hle_register(0x89BE28F2u, "cellAudioPortStart", (void*)cellAudioPortStart);
     ps3_hle_register(0x5B1E2C73u, "cellAudioPortStop", (void*)cellAudioPortStop);
+    ps3_hle_register(0x04AF134Eu, "cellAudioCreateNotifyEventQueue", (void*)cellAudioCreateNotifyEventQueue);
     ps3_hle_register(0x377E0CD9u, "cellAudioSetNotifyEventQueue", (void*)cellAudioSetNotifyEventQueue);
     ps3_hle_register(0xFF3626FDu, "cellAudioRemoveNotifyEventQueue", (void*)cellAudioRemoveNotifyEventQueue);
     ps3_hle_register(0x74A66AF0u, "cellAudioGetPortConfig", (void*)cellAudioGetPortConfig);
