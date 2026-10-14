@@ -40,3 +40,8 @@ spu/
 
 # --- Lifted SPU images (derived; regenerate via extract + spu_lifter + gen_spu_workloads) ---
 src/spu_gen/
+
+# Lifted from Sony firmware (libsre.prx): made locally, never committed
+# (REPO_RULES section 3). prx/'s lists, stubs and notes are tracked.
+prx/**/ppu_recomp*
+prx/**/spu_recomp*
