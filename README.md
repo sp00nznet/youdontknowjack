@@ -258,3 +258,9 @@ Built on [**ps3recomp**](https://github.com/sp00nznet/ps3recomp), in the lineage
 code, assets, or audio** — only analysis metadata derived from a binary you must legally
 own. It exists for preservation, interoperability, and the sheer joy of making a Cell
 processor's worst nightmare run on a laptop. Bring your own disc.
+
+## License
+
+The code in this repo is MIT: see [LICENSE](LICENSE). Code generated from the
+game or the firmware (`src/recomp/`, `prx/**/ppu_recomp*`, `prx/**/spu_recomp*`) is made
+locally from your own copy and never committed.
